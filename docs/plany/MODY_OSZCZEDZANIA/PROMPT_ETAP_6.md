@@ -108,28 +108,28 @@ Zasady do doczytania: 3, 4, 5, 13. Ryzyka etapu: R4, R5, R11 (plan), C1, C10 (dz
 Każdy punkt, który przeszedł, odhaczasz tu (`- [ ]` → `- [x]`) zaraz po sprawdzeniu, nie na końcu
 etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Model sesji to Opus 5.5; `git status --short` przed pracą pokazuje tylko `.claude/launch.json`
+- [x] Model sesji to Opus 5.5; `git status --short` przed pracą pokazuje tylko `.claude/launch.json`
       (albo człowiek rozstrzygnął, co z drzewem).
-- [ ] Liczby wyjściowe testów jak w „Stanie wyjściowym” (inna liczba → zatrzymaj się i zapytaj).
-- [ ] Sonda drogi orkiestrator → mod zapisana (dwa przebiegi) w `POMIAR_E6.md`, zanim powstał kod.
-- [ ] Dowód negatywny (zasada 3): członek rozstrzygnięty na karcie załogi → 0 kart przy
+- [x] Liczby wyjściowe testów jak w „Stanie wyjściowym” (inna liczba → zatrzymaj się i zapytaj).
+- [x] Sonda drogi orkiestrator → mod zapisana (dwa przebiegi) w `POMIAR_E6.md`, zanim powstał kod.
+- [x] Dowód negatywny (zasada 3): członek rozstrzygnięty na karcie załogi → 0 kart przy
       `agent.spawn`, model z karty; członek spoza karty → zachowanie E5 bez zmian; mod uśpiony albo
       nieobecny → `/relai-crew` działa jak przed E6; mutacja oznaczenia „rozstrzygnięte” i „przyjmij
       wszystkie” czerwieni test.
-- [ ] Skaner: zadanie z kluczem `sk-…` (złożonym z kawałków) → wiersz bez sugestii, 0 wywołań
+- [x] Skaner: zadanie z kluczem `sk-…` (złożonym z kawałków) → wiersz bez sugestii, 0 wywołań
       sędziego dla niego, model z wywiadu bez zmian.
-- [ ] `plugin validate model-router` ✔ i `plugin test model-router` zielony (więcej niż 58);
+- [x] `plugin validate model-router` ✔ i `plugin test model-router` zielony (więcej niż 58);
       pozostałe mody, rdzeń i `process` bez spadku liczby testów; walidator adapterów zielony;
       `sync-panel-core --check` zgodne.
-- [ ] Pomiar na żywo w `POMIAR_E6.md`: jedna karta z tabelą przed startem załogi, wybór per wiersz
+- [x] Pomiar na żywo w `POMIAR_E6.md`: jedna karta z tabelą przed startem załogi, wybór per wiersz
       zastosowany (`turn.step.model`), bez drugiej karty; rekordy zgodne z `savingsView` co do tokena.
-- [ ] Bezpieczeństwo: `trivy fs --scanners vuln .` → 0 nowych CRITICAL i HIGH wobec E5 (0 / 42);
+- [x] Bezpieczeństwo: `trivy fs --scanners vuln .` → 0 nowych CRITICAL i HIGH wobec E5 (0 / 42);
       brak nowych zależności npm; `git grep --untracked` po wzorcu klucza w zmienionych plikach → 0
       (z kontrolą pozytywną).
-- [ ] Granica: `git status --short` pokazuje wyłącznie `model-router/**`,
+- [x] Granica: `git status --short` pokazuje wyłącznie `model-router/**`,
       `adapters/claude-code/commands/relai-crew.md` (i jego odpowiedniki adapterów, jeśli walidator
       ich wymaga), `.claude-plugin/marketplace.json` i dokumenty rytuału.
-- [ ] Katalog roboczy `.claude/relai/work/MODY_OSZCZEDZANIA/E6/` przejrzany
+- [x] Katalog roboczy `.claude/relai/work/MODY_OSZCZEDZANIA/E6/` przejrzany
       (`node .claude/relai/tools/clean-work.js raport`; katalog otwartego etapu raport pomija — wtedy
       `find`/`du`), skasowany po „tak”, liczby przed i po we wpisie; artefakty spoza katalogu
       (mod-sonda i kopia w dev-mods, kopie z pomiaru) wypisane z nazwy z tym, co się z nimi stało.

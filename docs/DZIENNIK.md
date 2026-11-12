@@ -3762,3 +3762,92 @@ zmian. Pułapka P-067, lekcje L-0327, L-0328.
 czerwony już na HEAD: opisy `relai-browser` (E2) i `relai-input-router` (E4) w `marketplace.json`
 inne niż w ich `plugin.json`; wpis `relai-model-router` wyrównany w E5, dwa pozostałe — osobnym
 commitem `fix` po commicie E5 (decyzja Łukasza: „Napraw teraz, osobnym commitem”).
+
+### 2026-11-12 — MODY_OSZCZEDZANIA E6: karta załogi w `/relai-crew` (`relai-model-router`)
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+**Zrobione:**
+
+- Sonda drogi orkiestrator → mod przed kodem (mod `relai-e6-sonda` w dev-mods, dwa przebiegi):
+  narzędzie zarejestrowane przez mod (`$.tool.register`) model główny woła w trybie auto bez odmowy
+  klasyfikatora; `$.ui.ask` to 2–4 przyciski; `$.tool.call` narzędzia `AskUserQuestion` z modu —
+  odmowa gospodarza; własne czekanie modu w hooku `tool.call` przekracza budżet 10 s, wywołanie `$`
+  w toku nie. Kształt karty: panel z wyborem na wiersz + jedna `$.ui.ask` zamykająca
+  ([POMIAR_E6.md](plany/MODY_OSZCZEDZANIA/POMIAR_E6.md), P-068).
+- `model-router/hooks/crew.ts` (nowy, czysta logika): wejście orkiestratora (do 12 zadań, zadanie
+  cięte jak u sędziego), wiersze karty (model z wywiadu albo domyślny z ustawień chroniony, Aneks B;
+  bez niczyjego wyboru poziom sędziego od razu), „przyjmij wszystkie” / „mój dla wszystkich” /
+  „model sesji”, znacznik `[relai-crew <run>/<id>]` tylko jako pierwsza linia promptu, decyzje
+  trzymane całymi przebiegami, odpowiedź z modelem z wywiadu dosłownie, gdy nic się nie zmieniło.
+- `register.tsx`: narzędzie `crew_models` (za `ToolSearch`), sędzia na każde zadanie (skaner przed
+  sędzią, trzy naraz), karta załogi (panel „RelAI crew models” + `$.ui.ask`), druga karta załogi
+  w trakcie pierwszej odmówiona od razu; `agent.spawn` członka ze znacznikiem i modelem z odpowiedzi
+  albo z wywiadu → model z karty, bez sędziego i bez drugiej karty (przy włączonym routerze);
+  decyzje także w `$.state` (przeżywają przeładowanie); rekord na zadanie (`part: crew-<id>`)
+  z zużyciem członka po `turn.complete`. `routeRecord` dostał `part`, klucz kart panelu E5 — indeks.
+- `adapters/claude-code/commands/relai-crew.md`: krok 5a (narzędzie raz po „zaczynamy”, znacznik
+  przed preambułą roli, 12 zadań na kartę, mod nieobecny albo uśpiony → krok pominięty jednym
+  zdaniem); skill Codeksa wygenerowany ponownie (walidator). Opis w `plugin.json` i marketplace bez
+  zmiany wersji.
+- Rozjazd panelu na żywo (Łukasz: „wszystko jest wertykalnie… literki są pod sobą”): w wąskim
+  panelu wiersz w kolumnie, pudełko słów `width={0}` + `flexGrow` → szerokość zero. Poprawka:
+  `width={0}` tylko obok przycisku, próg panelu załogi 48 kolumn (DESIGN.md, 6), ten sam wzorzec
+  w panelu E5 tego modu; test szerokości przy 40/47/48/160 kolumnach.
+- Przegląd `typescript-reviewer` (Block: 3 HIGH, 4 MEDIUM, 6 LOW) — wszystkie naprawione z testem:
+  znacznik w dowolnym miejscu i nadpisanie innego jawnego modelu (H), odpowiedź zamieniała
+  `opus[1m]`, pełny identyfikator i model spoza listy na alias albo `null` (H), nieudany zapis
+  `$.state` po karcie gubił odpowiedź człowieka (H); kolejka kart przekraczająca budżet, stały
+  token przebiegu, limit decyzji ucinający przebieg, migawka stanu nadpisująca równoległy zapis (M);
+  router wyłączony a przepinanie, utrata wyboru z panelu bez słowa, zadanie bez limitu, tytuł
+  z sekretem na karcie, dwie luki w kroku 5a (L).
+
+**Zweryfikowane — jak dokładnie:**
+
+- Testy przed → po: guardrails 33, process 430, panel (rdzeń) 254, adaptery Codex 28 / Cursor 10,
+  `mods` 91, `panel` 220, `progress` 51, `cache-keeper` 206, `browser` 28, `input-router` 79 bez
+  zmian; `model-router` 58 → 102; `plugin validate model-router` ✔; walidator adapterów ✔
+  (ostrzeżenie o rozmiarze `security-audit` sprzed etapu); `sync-panel-core --check` zgodne
+  (23 pliki, 16 ikon, 7 celów).
+- Dowód negatywny (zasada 3): członek rozstrzygnięty → 0 kart i 0 sędziego, model z karty; członek
+  bez znacznika, ze znacznikiem nie w pierwszej linii albo z innym modelem → droga E5 (karta);
+  mod uśpiony (bliźniak) → `asleep`, 0 sędziego, spawn jak przed E6; router wyłączony → model
+  podany. 18 mutacji (znacznik nieznaleziony / poza linią 1, decyzja bez przebiegu, każdy model jako
+  członek, alias zamiast modelu z wywiadu, token bez numeru, limit bez cięcia, tytuł sekretu,
+  „przyjmij wszystkie” jako no-op / na wszystkich wierszach / jako „mój”, gałąź członka pominięta,
+  przełącznik pominięty, model z karty niezastosowany, panel `width={0}`, decyzje nieodtworzone po
+  przeładowaniu, druga karta nieodmówiona) — 18 zabitych.
+- Skaner: zadanie z kluczem złożonym z kawałków → wiersz bez sugestii, 0 wywołań sędziego dla
+  niego, model z wywiadu bez zmian, tytuł nie trafia na kartę.
+- Na żywo (Łukasz przy komputerze, BenAI `model-router` wyłączony, `/reload-plugins`): przebieg A —
+  rozjazd panelu, karta bez przycisku → „mine kept”; przebieg B po poprawce panelu — Łukasz wybrał
+  w panelu, „Start with the picks above” → a, b, c na Haiku; trzech członków w jednej wiadomości,
+  `turn.step.model` = `claude-haiku-5-5` we wszystkich 7 krokach, w rejestrze tylko `part: crew-*`
+  (0 rekordów `part: 0` — sędzia ani karta przy członkach nie ruszyły). Rejestr vs `savingsView`
+  („ten czat”) zgodne co do tokena: 6 rekordów, sędzia 2 470 / 270, 6 wywołań. **Pomiar szedł na
+  kodzie sprzed poprawek z przeglądu**; mierzona ścieżka (znacznik w linii 1, model z odpowiedzi)
+  zachowuje się po nich tak samo, zmienione gałęzie pokrywają testy i mutacje.
+- `trivy fs --scanners vuln .` → 0 CRITICAL, 42 HIGH (jak po E5, trafienia w fixturach evals
+  i katalogu PANEL_CODEX); brak nowych zależności npm; `git grep --untracked` po wzorcu klucza
+  w 14 zmienionych plikach → 0 (kontrola pozytywna → 1).
+- Katalog roboczy E6: przed 3 pliki (`klucz.sh`, `suma.mjs`, `trivy-licz.mjs`, 3 135 B), po 0 —
+  skasowany po „tak”. Poza katalogiem, skasowane: `~/.claude/dev-mods/637357ee…/relai-e6-sonda`
+  i `relai-model-router`, scratchpad `e6/`. W `work/MODY_OSZCZEDZANIA/` został `E1/` sprzed etapu.
+
+**Świadomie odłożone:**
+
+- Ten sam błąd układu w `relai-input-router` (`register.tsx:479`, `width={0}` w kolumnie) — poza
+  granicą E6; **do E9** (decyzja Łukasza).
+- Ponowny pomiar na żywo po poprawkach z przeglądu — w pomiarze wszystkich modów w E10.
+- Wycena różnicy modeli członków załogi w zakładce — razem z E5, do E10.
+
+**Do zrobienia przez człowieka:** — (bramka pomiaru i kliknięcie karty załogi — ROZSTRZYGNIĘTE
+2026-11-12: Łukasz zrobił `/reload-plugins`, przestawił wiersze w panelu i zamknął kartę)
+
+**Ryzyka:** R4 bez zmian (wybór załogi zawsze człowieka albo jego „zawsze …”). C1 — nowa
+powierzchnia silnika (narzędzie modu, panel, budżet hooka), zmierzona sondą (P-068). Członek załogi
+sam spróbował `hand_off_to_session` — klasyfikator odmówił; zachowanie modelu członka, nie modu.
+
+**Uwagi procesowe:** pierwsze trzy polecenia Bash sesji z `cd <repo> &&` mimo L-0325 (L-0329).
+Pomiar na żywo przed przeglądem kodu — przegląd zmienił kod po pomiarze (L-0330). Panel przeszedł
+testy (tekst znaleziony), a rozjechał się na żywo — testy nie sprawdzały układu (L-0331).

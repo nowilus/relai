@@ -6,7 +6,9 @@
 
 import { atom, read, update } from 'claude-code'
 import type { Register } from 'claude-code'
-import type { RouteChoice } from '../types'
+import type { CrewDecisionState, RouteChoice } from '../types'
+import { CREW_DESCRIPTION, CREW_HEADER, STACK_BELOW, CREW_JUDGES_AT_ONCE, CREW_SCHEMA, CREW_TOOL, acceptAll, baseOf, crewAction, crewAnswerOf, crewOptions, crewPaneRows, crewQuestion, crewReply, crewTasksOf, decisionFor, decisionsOf, differs, isDecidedSpawn, keepRuns, mapLimit, markIn, mineAll, rowOf, runTokenOf, sessionAll, togglePick } from './crew'
+import type { CrewDecision, CrewJudged, CrewRow, CrewTask } from './crew'
 import { consentRow, guardHelper, hasMarker, isHumanOrigin, isTwinActive, readConsent, settingsCandidates, withConsentRow } from './core/savings-gates.mjs'
 import { scanText } from './core/secret-scan.mjs'
 import { createQueue, ledgerFile } from './core/savings-ledger.mjs'
@@ -25,6 +27,16 @@ const MODEL_LIST = '.claude/relai/MODELE-claude-code.md'
 const choices = atom({ plugin: 'relai-model-router', key: 'choices' } as const, [] as RouteChoice[], { shape: 'choices-1' })
 const idle = atom({ plugin: 'relai-model-router', key: 'idle' } as const, '', { shape: 'idle-1' })
 const pref = atom({ plugin: 'relai-model-router', key: 'pref' } as const, 'ask', { shape: 'pref-1' })
+/** The crew card's decisions (E6), kept in $.state too: a reload must not give a decided member a second card. */
+const crew = atom({ plugin: 'relai-model-router', key: 'crew' } as const, [] as CrewDecisionState[], { shape: 'crew-1' })
+/** Bumped on every change of the crew rows: the pane reads it, so a write redraws it (a test showed invalidate alone does not). */
+const crewTick = atom({ plugin: 'relai-model-router', key: 'crewTick' } as const, 0, { shape: 'crew-tick-1' })
+const CREW_PANE = 'relai-crew-models'
+/** A literal, so the validator sees the matcher: `mcp__<plugin>__<CREW_TOOL>`. */
+const CREW_TOOL_FULL = 'mcp__relai-model-router__crew_models'
+const KEEP_DECISIONS = 50
+/** Crew cards whose decisions are kept, whole: a later card never drops some members of an earlier one. */
+const KEEP_RUNS = 8
 
 // Session facts, set at session.start; a reload runs it again
 let cwd = ''
@@ -51,6 +63,12 @@ const capped = (m: Map<string, Usage>, id: string, u: Usage): Map<string, Usage>
   out.set(id, u)
   return out.size > KEEP_AGENTS ? new Map([...out].slice(-KEEP_AGENTS)) : out
 }
+
+/** The crew card's decisions (module copy: a parallel spawn's hook does not see a $.state write yet, P-067). */
+let crewDecisions: CrewDecision[] = []
+/** The rows of the open crew card (the pane toggles them) and each task's ledger record, by `run/id`. */
+let crewRows: CrewRow[] = []
+let crewRecs = new Map<string, Parameters<typeof routeRecord>[0]>()
 
 const isOnStored = (stored: unknown): boolean => !(stored && typeof stored === 'object' && (stored as { on?: unknown }).on === false)
 const asPref = (x: unknown): Pref => (x === 'mine' || x === 'suggestion' || x === 'session' ? x : 'ask')
@@ -252,6 +270,149 @@ async function askDefault($: any, description: string, dflt: Alias, suggestion: 
   return { model: a.model, how: `card: ${a.word} (${rule})` }
 }
 
+// ---- The crew card (E6): /relai-crew sends its task list once, before any member starts ----
+
+type CrewJudgedTask = { row: CrewRow, from: string, usage: Usage | null, ms: number }
+
+/** One crew task through the secret scanner and the judge, as a single spawn (E5). Never throws. */
+async function judgeCrewTask($: any, t: CrewTask, sessionModel: string | null): Promise<CrewJudgedTask> {
+  const b = baseOf(t, subagentDefault, sessionModel)
+  const current = tierOfModel(b.from, tiers)
+  const mine = current === null ? null : tiers.alias[current]
+  const make = (j: CrewJudged, usage: Usage | null = null, ms = 0): CrewJudgedTask => ({ row: rowOf(t, mine, b.isExplicit, j, tiers), from: b.from, usage, ms })
+  if (current === null) return make({ kind: 'outside' })
+  const text = t.task || t.title
+  try {
+    const g = await guardHelper(`${t.title}\n${text}`, (s: string) => scanText(s), () => callJudge($, text, t.title))
+    if (!g.sent || !g.result) return make({ kind: 'secret', label: String(g.label) })
+    const j = g.result
+    if (!j.verdictOrWhy.ok) return make({ kind: 'failed', why: j.verdictOrWhy.why }, j.usage, j.ms)
+    const chosen = chooseTier(current, j.verdictOrWhy.verdict)
+    return make({ kind: 'judged', tier: chosen.tier, rule: chosen.rule }, j.usage, j.ms)
+  } catch (err) {
+    return make({ kind: 'failed', why: String(err) })
+  }
+}
+
+/** Whether the crew pane's buttons act: only while its card waits for the person. */
+let isCrewOpen = false
+
+/** The card: the table in the pane (a pick per row), closed by one $.ui.ask (probe E6: own waiting outruns the hook's budget, a $ call does not). */
+async function askCrew($: any, rows: CrewRow[]): Promise<{ rows: CrewRow[], how: string }> {
+  crewRows = rows
+  await bumpCrewPane($)
+  let isPane = false
+  try { isPane = Boolean((await $.ui.open({ id: CREW_PANE, title: 'RelAI crew models' }))?.isPlaced) } catch { isPane = false }
+  isCrewOpen = isPane
+  let label = ''
+  try {
+    label = await $.ui.ask(crewQuestion(crewRows, isPane), { header: CREW_HEADER, options: crewOptions(isPane) })
+  } catch (err) {
+    isCrewOpen = false
+    await fail($, `crew card not shown: ${String(err)}; every chosen model stays`)
+    crewRows = mineAll(rows)
+    return { rows: crewRows, how: 'crew card not shown: yours kept' }
+  }
+  isCrewOpen = false
+  const a = crewAnswerOf(label, crewRows, isPane)
+  crewRows = a.rows
+  await bumpCrewPane($)
+  return { rows: a.rows, how: `crew card: ${a.word}` }
+}
+
+/** Redraws the crew pane; a failed write only costs the redraw, never the person's answer (review E6). */
+async function bumpCrewPane($: any): Promise<void> {
+  try { await update($, crewTick, (n) => n + 1) } catch (err) { $.ui.log(`relai-model-router: crew pane redraw failed: ${String(err)}`) }
+}
+
+/** The rows as they run: quiet, the session's answer, no person, or the card. */
+async function settleCrew($: any, rows: CrewRow[], sessionModel: string | null): Promise<{ rows: CrewRow[], how: string }> {
+  const act = crewAction(rows, { pref: prefNow, hasHuman: gate.hasHuman })
+  if (act === 'quiet') return { rows, how: 'judge agrees with every chosen model' }
+  if (act === 'keep') return { rows: mineAll(rows), how: 'your session choice: always yours' }
+  if (act === 'apply') return { rows: acceptAll(rows), how: gate.hasHuman ? 'your session choice: always the suggestion' : 'no person in the session: suggestions applied' }
+  if (act === 'session') {
+    const s = aliasOf(sessionModel)
+    return s ? { rows: sessionAll(rows, s), how: "your session choice: always the session's model" } : { rows: mineAll(rows), how: 'session model unknown: yours kept' }
+  }
+  // not queued behind other cards: a plain wait counts against the hook's 10 s budget, a $.ui.ask does not (probe E6, review E6)
+  return askCrew($, rows)
+}
+
+/** One task's choice for the pane and the ledger; the record waits in crewRecs for the member's own usage. */
+async function recordCrewRow($: any, o: { toolUseId: string, run: string, row: CrewRow, judged: CrewJudgedTask, how: string }): Promise<void> {
+  const r = o.row
+  if (r.outcome === 'outside') return
+  const isChanged = r.pick !== null && r.pick !== r.mine
+  const outcome = r.outcome === 'secret' ? 'secret' : r.outcome === 'failed' ? 'failed' : isChanged ? 'changed' : 'kept'
+  const why = r.outcome === 'judged' ? `${o.how}; ${r.rule}` : r.rule
+  if (r.outcome === 'failed') await fail($, `crew ${r.id}: ${r.rule}; model unchanged`)
+  await remember($, { description: `crew ${r.id}: ${r.title}`, from: r.mine ?? o.judged.from, to: r.pick ?? r.mine ?? o.judged.from, outcome, why, isExplicit: r.isExplicit, judgeIn: o.judged.usage?.in ?? 0, judgeOut: o.judged.usage?.out ?? 0, ms: o.judged.ms })
+  if (!o.judged.usage) return
+  const rec = { toolUseId: o.toolUseId, part: `crew-${r.id}`, action: r.outcome === 'failed' ? 'route-failed' : isChanged ? 'route-changed' : 'route-kept', from: o.judged.from, to: r.pick ?? o.judged.from, usage: o.judged.usage, ms: o.judged.ms, why }
+  crewRecs = new Map([...crewRecs, [`${o.run}/${r.id}`, rec] as const].slice(-KEEP_DECISIONS))
+  await writeRecord($, routeRecord(rec))
+}
+
+/** Crew cards this session: the run token's counter, and whether a card is being settled now. */
+let crewRuns = 0
+let isCrewBusy = false
+
+/** The tool's answer for the orchestrator (JSON text): per task the model and the mark, or why the router stays out. */
+async function crewTool($: any, x: any): Promise<string> {
+  const keep = "keep the interview's models"
+  const parsed = crewTasksOf(x)
+  if (!parsed.ok) return JSON.stringify({ router: MOD, error: parsed.why, use: keep })
+  // one crew card at a time, refused at once rather than queued (a queued wait would outrun the hook's budget)
+  if (isCrewBusy) return JSON.stringify({ router: MOD, error: 'another crew card is open', use: keep })
+  isCrewBusy = true
+  try {
+    if (!(await mayRoute($))) return JSON.stringify({ router: MOD, asleep: (await read($, idle)) || 'not routing', use: keep })
+    const toolUseId = String(x.tool_use_id ?? '')
+    crewRuns += 1
+    const run = runTokenOf(toolUseId, crewRuns)
+    let sessionModel: string | null = null
+    try { sessionModel = String(await $.session.model()) || null } catch { sessionModel = null }
+    const judged = await mapLimit(parsed.tasks, CREW_JUDGES_AT_ONCE, (t) => judgeCrewTask($, t, sessionModel))
+    const settled = await settleCrew($, judged.map((j) => j.row), sessionModel)
+    // the person's answer is final here: the reply and the module's decisions come before any write that may fail (review E6)
+    const mine = decisionsOf(run, settled.rows)
+    crewDecisions = keepRuns(crewDecisions, run, mine, KEEP_RUNS)
+    const reply = crewReply(run, settled.rows, settled.how)
+    try {
+      await update($, crew, (prev) => keepRuns(prev.map(decisionOfState), run, mine, KEEP_RUNS).map((d) => ({ ...d })))
+    } catch (err) {
+      await fail($, `crew decisions not kept in the session state: ${String(err)}; they hold until a reload`)
+    }
+    for (const [i, j] of judged.entries()) {
+      try {
+        await recordCrewRow($, { toolUseId, run, row: settled.rows[i], judged: j, how: settled.how })
+      } catch (err) {
+        $.ui.log(`relai-model-router: crew ${settled.rows[i].id}: record not written: ${String(err)}`)
+      }
+    }
+    return reply
+  } finally {
+    isCrewBusy = false
+  }
+}
+
+/** A decision as $.state keeps it (the model as an alias again). */
+function decisionOfState(d: CrewDecisionState): CrewDecision {
+  return { run: d.run, id: d.id, model: aliasOf(d.model), replied: d.replied ?? null, given: d.given ?? null, rowIndex: d.rowIndex }
+}
+
+/** A member decided on the crew card: the card's model, no judge, no second card; its usage joins the task's record. */
+async function spawnDecided($: any, e: any, next: any, d: CrewDecision): Promise<any> {
+  const ran = await next(d.model ? { ...e, model: d.model } : e)
+  const rec = crewRecs.get(`${d.run}/${d.id}`)
+  const id = String(ran?.agentId ?? '')
+  if (!rec || !id) return ran
+  if (finished.has(id)) await writeRecord($, routeRecord({ ...rec, subagent: stepUsage.get(id) ?? null }))
+  else running.set(id, { rec, used: null })
+  return ran
+}
+
 async function setOn($: any, on: boolean): Promise<string> {
   await $.store.set(STORE_KEY, { on })
   gate = { ...gate, isOn: on }
@@ -276,7 +437,17 @@ export const register: Register = (on) => {
     stepUsage = new Map()
     finished = new Set()
     prefNow = asPref(await read($, pref))
+    // a reload keeps $.state: decided crew members still spawn with no second card
+    crewDecisions = (await read($, crew)).map(decisionOfState)
+    crewRows = []
+    crewRecs = new Map()
+    isCrewOpen = false
     await loadGate($)
+    try {
+      await $.tool.register({ name: CREW_TOOL, description: CREW_DESCRIPTION, inputSchema: CREW_SCHEMA as unknown as Record<string, unknown> })
+    } catch (err) {
+      await fail($, `crew tool not registered: ${String(err)}; /relai-crew keeps the interview's models`)
+    }
     await $.command.register({ name: 'relai-model-router', description: 'RelAI Model Router: stats; on|off; pane; mine|suggestion|session|ask (this session, for a model named in the call or the subagent default)' })
     return next(e)
   })
@@ -299,10 +470,61 @@ export const register: Register = (on) => {
     return { text: `relai-model-router: ${state}; tiers fast ${tiers.alias.fast}, balanced ${tiers.alias.balanced}, deep ${tiers.alias.deep}; subagent default ${subagentDefault ?? 'none (the parent model)'}; a chosen model: ${prefWord(asPref(await read($, pref)))}. ${summaryOf(list, prices)}; ${list.filter((c) => c.outcome === 'failed').length} failed, ${list.filter((c) => c.outcome === 'secret').length} held back by the secret scanner.${lastFailure ? ` Last failure: ${lastFailure}` : ''}` }
   })
 
+  // The crew card: /relai-crew calls this once, after its wave plan (E6)
+  on('tool.call', { tool: CREW_TOOL_FULL }, async ($, e) => {
+    let text: string
+    try {
+      text = await crewTool($, e)
+    } catch (err) {
+      await fail($, `crew card: ${String(err)}; the interview's models stay`)
+      text = JSON.stringify({ router: MOD, error: String(err), use: "keep the interview's models" })
+    }
+    return { result: [{ type: 'text', text }] } as any
+  })
+
+  on('ui.render', { component: 'Pane', requestId: CREW_PANE }, async ($, e) => {
+    const { Box, Text, Button } = $.ui.resolve(e)
+    // DESIGN.md 6: one layout decision per pane — under STACK_BELOW columns the button goes under the words
+    const isWide = (e.viewport?.columns ?? STACK_BELOW) >= STACK_BELOW
+    await read($, crewTick) // read so that a change of the rows redraws the pane
+    const rows = crewPaneRows(crewRows)
+    const toggle = (id: string) => {
+      if (!isCrewOpen) return
+      crewRows = togglePick(crewRows, id)
+      void update($, crewTick, (n) => n + 1)
+    }
+    const n = crewRows.filter(differs).length
+    return (
+      <Box flexDirection="column" paddingX={1} rowGap={1}>
+        <Box key="head" flexDirection="column">
+          <Text color="text" bold>RelAI crew models — before the crew starts</Text>
+          <Text color="inactive">{rows.length === 0 ? 'No crew card in this chat yet: /relai-crew shows its tasks here before any member starts.' : isCrewOpen ? `The judge suggests another model for ${n} of ${rows.length} tasks. Pick per row here, then answer the card in the chat.` : 'Decided: the crew runs on these models.'}</Text>
+        </Box>
+        {rows.map((r) => (
+          <Box key={r.key} flexDirection={isWide ? 'row' : 'column'} columnGap={2} rowGap={1}>
+            {/* zero base width only beside a button: stacked, flexGrow is vertical and width 0 puts each letter on its own line (live E6) */}
+            <Box key={`${r.key}~w`} flexDirection="column" flexGrow={1} {...(isWide ? { width: 0 } : {})}>
+              <Text color="text">{`${r.sign} ${r.state}`}</Text>
+              <Text color="inactive" wrap="truncate">{r.title}</Text>
+              <Text color="inactive">{r.why}</Text>
+            </Box>
+            {r.button !== null && isCrewOpen && (
+              <Box key={`${r.key}~b`} flexShrink={0}><Button key={`${r.key}~p`} label={r.button} variant="secondary" onPress={() => toggle(r.key.slice('crew-'.length))} /></Box>
+            )}
+          </Box>
+        ))}
+      </Box>
+    )
+  })
+
   // The router itself: only a subagent's spawn; the main chat has no spawn and is never touched
   on('agent.spawn', async ($, e, next) => {
     const x: any = e
     if (skipOf({ fork: x.fork, resume: x.resume, origin: (next as any).origin ?? null }) !== null) return next(e)
+    // A member the person decided on the crew card (E6): its model from the card, no judge, no second card.
+    // Only with the router on, and only a spawn asking for the reply's or the interview's model (review E6)
+    const decided = decisionFor(crewDecisions, markIn(String(x.prompt ?? '')))
+    if (decided && gate.isOn && isDecidedSpawn(decided, x.model)) return spawnDecided($, e, next, decided)
     let picked: Spawned = { model: null, rec: null }
     try {
       if (await mayRoute($)) picked = await route($, x)
@@ -388,7 +610,7 @@ export const register: Register = (on) => {
         {cards.length === 0 && <Text key="none" color="inactive">No subagents judged yet: each subagent's model choice shows here.</Text>}
         {cards.map((c) => (
           <Box key={c.key} flexDirection={isWide ? 'row' : 'column'} columnGap={2}>
-            <Box key={`${c.key}~w`} flexDirection="column" flexGrow={1} width={0}>
+            <Box key={`${c.key}~w`} flexDirection="column" flexGrow={1} {...(isWide ? { width: 0 } : {})}>
               <Text color={c.tone === 'bad' ? 'error' : c.tone === 'ok' ? 'text' : 'inactive'}>{c.sign} {c.word} · {c.models}</Text>
               <Text color="inactive" wrap="truncate">{c.title}</Text>
               <Text color="inactive">{c.why}</Text>

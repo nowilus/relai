@@ -39,11 +39,12 @@ export type Card = { key: string, sign: string, word: string, tone: 'ok' | 'quie
 
 /** The newest `room` choices as cards, newest first. */
 export function cardsOf(list: readonly RouteChoice[], lists: Lists, room: number): Card[] {
-  return [...list].reverse().slice(0, Math.max(1, room)).map((c) => {
+  // the key carries the index too: crew rows judged at once can share a millisecond (E6)
+  return [...list].reverse().slice(0, Math.max(1, room)).map((c, i) => {
     const s = stateOf(c.outcome)
     const u = judgeUsd(c, lists)
     const cost = c.judgeIn + c.judgeOut > 0 ? `judge ${c.judgeIn} in / ${c.judgeOut} out${u === null ? '' : ` · ${usd(u)}`} · ${c.ms} ms` : ''
-    return { key: c.at, ...s, title: c.description || '(no description)', models: `${c.from} → ${c.to}${c.isExplicit ? ' (named by the caller)' : ''}`, why: c.why, cost }
+    return { key: `${c.at}~${i}`, ...s, title: c.description || '(no description)', models: `${c.from} → ${c.to}${c.isExplicit ? ' (named by the caller)' : ''}`, why: c.why, cost }
   })
 }
 

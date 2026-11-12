@@ -8,6 +8,22 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-068 — Silnik modów 2.1.321: narzędzie modu, budżet hooka 10 s i karta z wieloma pytaniami · 2026-11-12 · AKTYWNA
+
+- **Objaw:** hook `tool.call` narzędzia modu czekający na przycisk panelu (własna obietnica) —
+  „tool.call hook skipped: ran past its 10s budget”; `$.tool.call({ tool: 'AskUserQuestion',
+  questions })` z modu — „runs the AskUserQuestion tool: that is $.ui.ask (host check)”; w `plugin
+  test` panel zamontowany przed kliknięciem nie przerysował się po `$.ui.invalidate`.
+- **Przyczyna (sonda E6):** budżet hooka liczy własne czekanie modu, nie wywołania `$` w toku
+  (`$.ui.ask`, `$.model.complete`, `next`); `$.ui.ask` to jedna karta z 2–4 przyciskami, a pytania
+  wielokrotnego mod zadać nie może; przerysowanie panelu wywołuje zapis wartości `$.state`, którą
+  rysunek czyta.
+- **Obejście:** wybór na wiersz w panelu, decyzja zamykana jedną `$.ui.ask` (czekanie na nią
+  mieści się w budżecie); nic nie kolejkujesz zwykłym `await` na obietnicy w hooku; panel czyta
+  licznik w `$.state`, zmiana go podbija. Narzędzie zarejestrowane przez mod (`$.tool.register`)
+  model główny woła w trybie auto bez odmowy klasyfikatora (P-057 dotyczy wywołań *z* modu).
+- **Zasięg:** Claude Code 2.1.321, desktop, Windows. Pomiar: `plany/MODY_OSZCZEDZANIA/POMIAR_E6.md`.
+
 ### P-067 — Silnik modów 2.1.321: `agent.spawn`, domyślny model subagenta i `$.ui.ask` w teście · 2026-11-12 · AKTYWNA
 
 - **Objaw:** mod routera wziął model rodzica za bazę subagenta bez `model` i nie przypiął

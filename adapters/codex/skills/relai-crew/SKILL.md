@@ -132,6 +132,26 @@ Pokaż człowiekowi fale (z narzędziem i rolą przy każdym zadaniu), konflikty
 z wywiadu. Zapisz to jako `PLAN.md` w katalogu przebiegu. **Czekasz na „zaczynamy"** (D-35) —
 bez zgody nie startuje ani jedno zadanie.
 
+## Krok 5a — modele z karty routera (tylko Claude Code, mod `relai-model-router`)
+
+Po „zaczynamy”, a przed pierwszym członkiem załogi: jeśli w tej sesji jest narzędzie
+`mcp__relai-model-router__crew_models` (szukasz go `ToolSearch` z zapytaniem
+`select:mcp__relai-model-router__crew_models`), wołasz je **raz** z zadaniami, które pobiegną
+w Claude Code: `tasks: [{ id, title, task, model }]`, gdzie `model` to model z wywiadu (alias),
+a `task` to treść zadania bez sekretów. Mod pokazuje człowiekowi **jedną kartę** z tabelą: zadanie,
+model z wywiadu, sugestia sędziego, powód. Człowiek wybiera model dla każdego wiersza albo
+„przyjmuje wszystkie”. Odpowiedź niesie dla każdego zadania `model` i `mark`. Model przekazujesz
+do `Agent` (`null` → parametr `model` pomijasz), a `mark` wstawiasz jako **pierwszą linię**
+promptu tego członka, sam w linii i przed preambułą roli z `crew.js prompt`. Dzięki znacznikowi
+członek startuje na modelu z karty i nie dostaje drugiej karty przy swoim starcie. Inny model niż
+z odpowiedzi (np. powtórka większym modelem) to nowy wybór: idzie zwykłą drogą routera. Karta
+mieści **12 zadań**; więcej → kilka wywołań, po jednym na falę. Zmienione modele dopisujesz do
+`PLAN.md` przebiegu.
+
+Narzędzia nie ma (mod nie jest zainstalowany) albo odpowiedź mówi `asleep` lub `error` → mówisz
+to jednym zdaniem i delegujesz z modelami z wywiadu, jak dotąd. Zadania dla drugiego narzędzia
+(`crew.js run`) do karty nie idą: ich modele zostają z wywiadu.
+
 ## Krok 6 — delegacja
 
 Jedna fala naraz; w fali tyle zadań, ile pozwala odpowiedź na pytanie 2. Każde zadanie dostaje
@@ -162,7 +182,7 @@ Droga zależy od tego, **gdzie** biegnie zadanie:
 
 | Gospodarz | Subagent gospodarza (basic i full) | Drugie narzędzie (tylko full) |
 |---|---|---|
-| Claude Code | narzędzie `Agent` z `subagent_type` `relai:relai-coder` / `relai:relai-tester` / `relai:relai-reviewer` i `model` z wywiadu; zadania jednej fali uruchamiasz **w jednej wiadomości**, żeby biegły równolegle | `node .claude/relai/tools/crew.js run --runtime codex\|cursor --task <plik> --role coder --write --files … --run-id <run> --task-id <id>`; przy fali szerszej niż 1 — w tle |
+| Claude Code | narzędzie `Agent` z `subagent_type` `relai:relai-coder` / `relai:relai-tester` / `relai:relai-reviewer` i `model` z karty routera (krok 5a, ze znacznikiem w pierwszej linii promptu), a bez niej z wywiadu; zadania jednej fali uruchamiasz **w jednej wiadomości**, żeby biegły równolegle | `node .claude/relai/tools/crew.js run --runtime codex\|cursor --task <plik> --role coder --write --files … --run-id <run> --task-id <id>`; przy fali szerszej niż 1 — w tle |
 | Codex | natywny subagent (`spawn_agent`, funkcja `multi_agent`) z promptem z `crew.js prompt`; fala = tyle wywołań, ile zadań | `crew.js run --runtime claude-code\|cursor …` przez polecenie powłoki |
 | Cursor | subagenci projektu `.cursor/agents/relai-coder.md`, `relai-tester.md`, `relai-reviewer.md` (kładzie je instalator adaptera); wywołujesz je nazwą | `crew.js run --runtime claude-code\|codex …` przez narzędzie powłoki; gdy powłoka jest w tej sesji zablokowana, mówisz to jednym zdaniem i **wracasz do trybu basic** — nie omijasz blokady |
 

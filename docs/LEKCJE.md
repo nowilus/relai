@@ -204,13 +204,13 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
      jako dwie kopie pod innymi nazwami, instalacja wyłączona `--settings` (L-0283); w poleceniu
      Bash nigdy gołe `cd`, w żadnym katalogu, także `cd` do korzenia repo na początku łańcucha —
      ścieżka w argumencie albo podpowłoka, do wydania `bash-guard` bez wyjątku także dla
-     `cd <repo> &&` na początku ani w środku łańcucha (L-0298, L-0302, L-0311, L-0314, L-0318); instrument tury nie liczy lokalnych komend (`/model`) jako polecenia (L-0299).
+     `cd <repo> &&` na początku ani w środku łańcucha, także gdy sesja zaczyna się komendą (L-0298, L-0302, L-0311, L-0314, L-0318, L-0329); instrument tury nie liczy lokalnych komend (`/model`) jako polecenia (L-0299).
    (L-0032, L-0037, L-0054, L-0055, L-0056, L-0064, L-0068, L-0071, L-0073, L-0083, L-0084, L-0086,
    L-0087, L-0088, L-0090, L-0091, L-0095, L-0096, L-0097, L-0101, L-0102, L-0105, L-0106, L-0107,
    L-0110, L-0111, L-0113, L-0124, L-0125, L-0127, L-0130, L-0131, L-0135, L-0141, L-0143, L-0151,
    L-0160, L-0164, L-0169, L-0170, L-0173, L-0181, L-0211, L-0213, L-0215, L-0238, L-0239, L-0240,
    L-0242, L-0243, L-0246, L-0247, L-0248, L-0249, L-0257, L-0258, L-0259, L-0261, L-0262, L-0265,
-   L-0267, L-0268, L-0270, L-0283, L-0290, L-0298, L-0299, L-0302, L-0309, L-0311, L-0312)
+   L-0267, L-0268, L-0270, L-0283, L-0290, L-0298, L-0299, L-0302, L-0309, L-0311, L-0312, L-0329)
 6. **Próg jest liczbą, którą ktoś liczy:** kalibrujesz na realnych plikach, zapisujesz w jednostce
    mechanizmu z komendą sprawdzającą, z **jednym** wyzwalaczem. Porównujesz do wielkości, którą
    mechanizm kontroluje (część usuwalna); zatkanie sygnalizuje **różnica możliwego i wykonanego**,
@@ -282,7 +282,8 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
       sondą zdarzeń w `$.store` przez cały cykl, dwa razy, zanim powstanie kod — „zaraz po” i zdanie
       z typów to hipotezy (L-0255); zmiana komendy albo `core/panel/` → `sync-panel-core.js`
       i `claude plugin test` każdego drzewa z kopią rdzenia, czerwony wynik najpierw na HEAD
-      w `git worktree` (L-0264).
+      w `git worktree` (L-0264); przegląd kodu przed bramką pomiaru na żywo, nie po niej (L-0330);
+      test panelu sprawdza układ (props pudełek w każdym progu szerokości), nie tylko tekst (L-0331).
     - **Sesje:** sonda działania niszczącego w sesji bez wartości, stan w pliku przed krokiem
       (L-0153); funkcja czekająca na `$.ui.ask` zapamiętuje id sesji i porzuca odpowiedź po zmianie,
       zegar i próg czyta po każdym `await` (L-0166); test wielu rozmów — atrapy per rozmowa (L-0168);
@@ -318,7 +319,8 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
       (L-0280).
     (L-0041, L-0042, L-0044, L-0047, L-0092, L-0133, L-0136, L-0138, L-0139, L-0146, L-0153, L-0166,
     L-0168, L-0185, L-0189, L-0190, L-0244, L-0245, L-0253, L-0255, L-0263, L-0264, L-0273, L-0280,
-    L-0281, L-0284, L-0285, L-0286, L-0288, L-0289, L-0291, L-0296, L-0300, L-0307, L-0308)
+    L-0281, L-0284, L-0285, L-0286, L-0288, L-0289, L-0291, L-0296, L-0300, L-0307, L-0308, L-0330,
+    L-0331)
 14. **Najpierw zmiana w repozytorium, potem zdanie, które ją opisuje.** Weryfikację planujesz tam,
     gdzie wykonalna; po pytaniu sprzątasz sam; jednostką inwentarza jest sprawa, nie linia; wstawkę
     kotwiczysz do elementu, który przeżyje operację, i dowodzisz **obecności** nowej treści. Gdy
@@ -1085,6 +1087,35 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
   modu i bez bliźniaka, z odczytem efektu (`turn.step.model`), zanim padnie założenie o bazie;
   ustawienia użytkownika (`env`, `model`) to wybór człowieka — sprawdzasz je i pytasz, czy
   chronić, zamiast nadpisywać.
+
+### L-0329 — Siódma powtórka L-0298: `cd <repo> &&` w pierwszych poleceniach sesji `/relai-stage` · 2026-11-12 · AKTYWNA
+
+- **Trigger:** MODY_OSZCZEDZANIA E6. Trzy pierwsze polecenia Bash sesji (marker, skrót startu,
+  prompt etapu) zaczynały się od `cd /c/Users/Lukasz/Desktop/RelAI && …`, choć L-0325 opisuje ten
+  wzorzec, a `CLAUDE.md` go zakazuje. Pierwsza wiadomość sesji była komendą — reguła z `CLAUDE.md`
+  była w kontekście, ale nie przeszła do pierwszych poleceń.
+- **Zasada (zasada 5):** w katalogu roboczym sesji polecenie nie ma `cd` także wtedy, gdy sesja
+  zaczyna się komendą; pierwsze polecenie Bash sprawdzasz pod tym kątem, zanim je wyślesz, a inny
+  katalog idzie przez `git -C`, ścieżkę w argumencie albo podpowłokę.
+
+### L-0330 — Pomiar na żywo przed przeglądem kodu: przegląd zmienił kod po pomiarze · 2026-11-12 · AKTYWNA
+
+- **Trigger:** MODY_OSZCZEDZANIA E6. Pomiar na żywo z człowiekiem (bramka, `/reload-plugins`,
+  kliknięcia) przeszedł, potem `typescript-reviewer` dał 3 HIGH i kod się zmienił — pomiar opisuje
+  kod sprzed poprawek; powtórka wymagałaby drugiej bramki.
+- **Zasada (zasady 4 i 13):** etap z pomiarem na żywo puszcza przegląd kodu **przed** bramką
+  pomiaru; pomiar mierzy kod po poprawkach. Gdy przegląd przyszedł po pomiarze — wpis mówi wprost,
+  na jakim kodzie szedł pomiar i które gałęzie dowodzą już tylko testy.
+
+### L-0331 — Panel przeszedł testy treści, a rozjechał się na żywo: układ nie był sprawdzany · 2026-11-12 · AKTYWNA
+
+- **Trigger:** MODY_OSZCZEDZANIA E6. Testy panelu załogi szukały tekstu (`find`) przy 40 i 160
+  kolumnach i przeszły; na żywo w wąskim doku litery stały jedna pod drugą — pudełko słów
+  `width={0}` + `flexGrow` w wierszu o kierunku kolumnowym (P-043). Wzorzec skopiowany z innych
+  modów, które mają ten sam błąd.
+- **Zasada (zasada 4, pamięć „layout bez rozjazdów”):** test panelu sprawdza układ, nie tylko
+  tekst — props pudełek (`width`, kierunek) w każdym progu szerokości i mutant błędu; wzorzec
+  układu kopiowany z innego modu sprawdzasz w kierunku, w którym go używasz.
 
 ## Lekcje zwinięte
 
