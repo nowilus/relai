@@ -115,26 +115,26 @@ Zasady do doczytania: 3, 4, 5, 13. Ryzyka etapu: R4, R5, R8, R11 (plan), C1, C10
 Każdy punkt, który przeszedł, odhaczasz tu (`- [ ]` → `- [x]`) zaraz po sprawdzeniu, nie na końcu
 etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Model sesji to Opus 5.5; `git status --short` przed pracą pokazuje tylko `.claude/launch.json`
+- [x] Model sesji to Opus 5.5; `git status --short` przed pracą pokazuje tylko `.claude/launch.json`
       (albo człowiek rozstrzygnął, co z drzewem).
-- [ ] Liczby wyjściowe testów jak w „Stanie wyjściowym” (inna liczba → zatrzymaj się i zapytaj).
-- [ ] Sonda `agent.spawn` i sędziego zapisana (dwa przebiegi) w `POMIAR_E5.md`, zanim powstał kod.
-- [ ] Dowód negatywny (zasada 3): fork, resume i główny czat → 0 wywołań sędziego, model bez zmian;
+- [x] Liczby wyjściowe testów jak w „Stanie wyjściowym” (inna liczba → zatrzymaj się i zapytaj).
+- [x] Sonda `agent.spawn` i sędziego zapisana (dwa przebiegi) w `POMIAR_E5.md`, zanim powstał kod.
+- [x] Dowód negatywny (zasada 3): fork, resume i główny czat → 0 wywołań sędziego, model bez zmian;
       model jawny przy sesji z człowiekiem nigdy nie zmienia się bez karty; mutacja reguły
       `risky` > 0,7 i progu 0,6 czerwieni test.
-- [ ] Skaner: zadanie subagenta z kluczem `sk-…` (złożonym z kawałków) → 0 wywołań sędziego,
+- [x] Skaner: zadanie subagenta z kluczem `sk-…` (złożonym z kawałków) → 0 wywołań sędziego,
       model bez zmian; bez klucza → 1.
-- [ ] Awaria sędziego (błąd, limit 8000 ms, zła odpowiedź JSON) → model bez zmian, powód w pliku.
-- [ ] `plugin validate model-router` ✔ i `plugin test model-router` zielony; pozostałe mody i rdzeń
+- [x] Awaria sędziego (błąd, limit 8000 ms, zła odpowiedź JSON) → model bez zmian, powód w pliku.
+- [x] `plugin validate model-router` ✔ i `plugin test model-router` zielony; pozostałe mody i rdzeń
       bez spadku liczby testów; `sync-panel-core --check` zgodne (7 celów).
-- [ ] Pomiar na żywo w `POMIAR_E5.md`: zadanie proste → Haiku, zadanie ryzykowne → deep, model
+- [x] Pomiar na żywo w `POMIAR_E5.md`: zadanie proste → Haiku, zadanie ryzykowne → deep, model
       jawny → karta; rekordy (z kosztem sędziego) zgodne z `savingsView` co do tokena.
-- [ ] Bezpieczeństwo: `trivy fs --scanners vuln .` → 0 nowych CRITICAL i HIGH wobec E4 (0 / 42);
+- [x] Bezpieczeństwo: `trivy fs --scanners vuln .` → 0 nowych CRITICAL i HIGH wobec E4 (0 / 42);
       brak nowych zależności npm; `git grep --untracked` po wzorcu klucza w zmienionych plikach → 0.
-- [ ] Granica: `git status --short` pokazuje wyłącznie `model-router/**`,
+- [x] Granica: `git status --short` pokazuje wyłącznie `model-router/**`,
       `core/tools/sync-panel-core.js`, `.claude-plugin/marketplace.json`,
       `core/tools/release-map.json` i dokumenty rytuału.
-- [ ] Katalog roboczy `.claude/relai/work/MODY_OSZCZEDZANIA/E5/` przejrzany
+- [x] Katalog roboczy `.claude/relai/work/MODY_OSZCZEDZANIA/E5/` przejrzany
       (`node .claude/relai/tools/clean-work.js raport`; katalog otwartego etapu raport pomija — wtedy
       `find`/`du`), skasowany po „tak”, liczby przed i po we wpisie; artefakty spoza katalogu
       (mod-sonda i kopia w dev-mods, kopie z pomiaru) wypisane z nazwy z tym, co się z nimi stało.

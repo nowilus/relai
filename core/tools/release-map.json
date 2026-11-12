@@ -389,6 +389,25 @@
       ]
     },
     {
+      "id": "mod-model-router",
+      "opis": "kod modu relai-model-router (plan MODY_OSZCZEDZANIA)",
+      "wzorce": [
+        "model-router/**"
+      ],
+      "wydanie": "mod:relai-model-router",
+      "komponenty": [
+        "model-router/.claude-plugin/plugin.json i wpis marketplace (numer)",
+        "README.md (wiersz modu)",
+        "site/dane/fakty.json (wersje)"
+      ],
+      "kontrole": [
+        "walidator",
+        "readme-mody",
+        "strona-fakty",
+        "plugin-test"
+      ]
+    },
+    {
       "id": "strona",
       "opis": "strona (Film i Biurko, PL i EN), jej narzedzia i workflow",
       "wzorce": [

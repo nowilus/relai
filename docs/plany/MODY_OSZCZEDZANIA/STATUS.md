@@ -13,8 +13,8 @@ zachowanie sześciu modów BenAI i zmiany w RelAI; etapy pracują z niej, nie z 
 | E2 | Zakładka „Oszczędności” i opis słowami | ZREALIZOWANY 2026-11-11 | [PROMPT_ETAP_2.md](PROMPT_ETAP_2.md) | pomiar: [POMIAR_E2.md](POMIAR_E2.md); hand-back opisu liczony podwójnie, wyciszenie odłożone |
 | E3 | Input Router: pliki i PDF | ZREALIZOWANY 2026-11-11 | [PROMPT_ETAP_3.md](PROMPT_ETAP_3.md) | pomiar: [POMIAR_E3.md](POMIAR_E3.md); `relai-input-router` 0.1.0 w repo, niewydany |
 | E4 | Input Router: konektory i panel | ZREALIZOWANY 2026-11-11 | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | pomiar: [POMIAR_E4.md](POMIAR_E4.md); zamknięty decyzją Łukasza bez kliknięcia karty panelu (przeniesione do E10) |
-| E5 | Model Router | GOTOWY DO STARTU | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | |
-| E6 | Router w `/relai-crew` | OCZEKUJE | — | po E5 |
+| E5 | Model Router | ZREALIZOWANY 2026-11-12 | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | pomiar: [POMIAR_E5.md](POMIAR_E5.md); Aneks B (domyślny subagenta z ustawień); `relai-model-router` 0.1.0 w repo, niewydany |
+| E6 | Router w `/relai-crew` | GOTOWY DO STARTU | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | po E5 |
 | E7 | Effort | OCZEKUJE | — | |
 | E8 | Research | OCZEKUJE | — | subagenci deep przez router, gdy E5 gotowy |
 | E9 | Porządki AUDYT_MODOW | OCZEKUJE | — | wchłonięte 2026-11-11 z „Czeka na człowieka” |
@@ -27,6 +27,8 @@ zachowanie sześciu modów BenAI i zmiany w RelAI; etapy pracują z niej, nie z 
 - E3 — wyłączenie `input-router` BenAI na czas pomiaru na żywo — ROZSTRZYGNIĘTA 2026-11-11 — wyłączone za zgodą Łukasza (`claude plugin disable`, user; w sesji dopiero po `/reload-plugins`), po pomiarze włączone, kopia dev-mods i kopie z pomiaru skasowane.
 - E4 — wyłączenie `input-router` BenAI na czas pomiaru na żywo — ROZSTRZYGNIĘTA 2026-11-11 — wyłączone za zgodą Łukasza (`claude plugin disable`, user), bez `/reload-plugins` (Łukasz poza komputerem), po pomiarze włączone.
 - E4 — kliknięcie karty panelu przekazań przez człowieka (notatki, pełny wynik, `full`; L-0289) — ROZSTRZYGNIĘTA 2026-11-11 — Łukasz zamknął E4 bez kliknięcia; sprawdzenie na żywo przechodzi do pomiaru E10.
+- E5 — wyłączenie BenAI `model-router` na czas pomiaru na żywo i `/reload-plugins` — ROZSTRZYGNIĘTA 2026-11-12 — wyłączone za zgodą Łukasza (`claude plugin disable`, user), `/reload-plugins` zrobił Łukasz, po pomiarze włączone.
+- E5 — kliknięcie kart modelu jawnego i domyślnego subagenta przez człowieka (L-0289) — ROZSTRZYGNIĘTA 2026-11-12 — Łukasz kliknął „Mine” (C) i „Subagent default (sonnet)” (D).
 
 ## Dziennik wdrożenia
 
@@ -45,3 +47,8 @@ zachowanie sześciu modów BenAI i zmiany w RelAI; etapy pracują z niej, nie z 
 - 2026-11-11 — E4 rozpoczęty.
 - 2026-11-11 — E4: kod i testy gotowe (konektory MCP, panel przekazań; `input-router` 79 testów), recenzja naprawiona, pomiar na żywo bez człowieka zgodny z `savingsView`; BenAI `input-router` włączony z powrotem, kopie dev-mods skasowane. Czeka jeden punkt: kliknięcie karty panelu przez człowieka (L-0289) — potem rytuał „Na koniec” i PROMPT_ETAP_5.
 - 2026-11-11 — E4 zrealizowany decyzją Łukasza bez kliknięcia karty panelu (przeniesione do E10): konektory MCP i panel przekazań w `relai-input-router` (79 testów), pomiar na żywo zgodny z rejestrem co do tokena. E5 gotowy do startu.
+- 2026-11-12 — E5 rozpoczęty.
+- 2026-11-12 — E5: sonda zapisana ([POMIAR_E5.md](POMIAR_E5.md)), `relai-model-router` 0.1.0 w repo (47 testów, 9 mutacji zabitych, recenzja naprawiona), 7. cel `sync-panel-core`, wpisy marketplace i release-map; BenAI `model-router` wyłączony za zgodą Łukasza (user), kopia w dev-mods sesji fe85abbe; czeka pomiar na żywo (`/reload-plugins`, karta) i rytuał „Na koniec”. Wycena różnicy modeli w zakładce — świadomie odłożona do E10 (decyzja Łukasza).
+- 2026-11-12 — E5, pomiar na żywo: A (proste → Haiku) i C (jawny `sonnet` → karta → „Mine”) zgodne; B (ryzykowne) poszło na Sonnet — baza z `env.CLAUDE_CODE_SUBAGENT_MODEL`, nie z rodzica; poprawka (B2: Sonnet → Opus). Aneks B ZAAKCEPTOWANY (Łukasz): domyślny subagenta z ustawień chroniony kartą — [ANEKS_B_DOMYSLNY_SUBAGENTA.md](ANEKS_B_DOMYSLNY_SUBAGENTA.md); 58 testów, 12 mutacji zabitych; czeka pomiar karty domyślnego.
+- 2026-11-12 — Aneks B ZAAKCEPTOWANY (Łukasz, sesja E5): domyślny model subagenta z ustawień (`env.CLAUDE_CODE_SUBAGENT_MODEL`) chroniony kartą jak model jawny — [ANEKS_B_DOMYSLNY_SUBAGENTA.md](ANEKS_B_DOMYSLNY_SUBAGENTA.md).
+- 2026-11-12 — E5 zrealizowany: `relai-model-router` 0.1.0 (58 testów, 12 mutacji zabitych), pomiar na żywo A/B2/C/D zgodny, karty kliknięte przez Łukasza, rejestr = `savingsView` co do tokena; bramka zamknięta (BenAI `model-router` włączony, kopie dev-mods skasowane). E6 gotowy do startu.

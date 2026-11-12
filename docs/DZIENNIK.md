@@ -3683,3 +3683,82 @@ C10 bez zmian. Pułapka P-066, lekcje L-0325, L-0326.
 
 **Uwagi procesowe:** sześć pierwszych poleceń z `cd <repo> &&` (L-0325); zdublowana nazwa funkcji
 kosztowała trzy próby diagnozy (L-0326).
+
+### 2026-11-12 — MODY_OSZCZEDZANIA E5: Model Router (`relai-model-router` 0.1.0) i Aneks B
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+**Zrobione:**
+
+- Sonda przed kodem (mod `relai-e5-sonda` w dev-mods, pięć przebiegów): kształt wejścia
+  `agent.spawn` (model jawny = `e.model`, fork `fork: true`, wznowienie `resume.agentId` z pełnym
+  identyfikatorem w `model`), `next(e).model` i `turn.step.model` mówią o faktycznym modelu,
+  przepisanie modelu przez hook działa na żywo; sędzia `$.model.complete` haiku 721 ms, czysty JSON
+  ([POMIAR_E5.md](plany/MODY_OSZCZEDZANIA/POMIAR_E5.md), P-067).
+- `model-router/` 0.1.0 (niewydany): `judge.ts` (prompt sędziego, zadanie ≤ 12 000 znaków,
+  `</task>` rozbrojone, walidacja JSON, reguły 0,6 / 0,3 / `risky` > 0,7, poziomy z listy modeli),
+  `gate.ts`, `pane.ts`, `register.tsx` (hook `agent.spawn` pomijający fork, wznowienie i spawny
+  modów; bramka jak E3; skaner przed sędzią; awaria → model bez zmian i powód w
+  `~/.claude/relai/oszczednosci/model-router/ostatni-blad.txt`; karta modelu jawnego; wybór sesji;
+  rekord z sędzią jako `helper` i zużyciem subagenta po `turn.complete`), panel i komenda
+  `/relai-model-router` (stats, on, off, pane, mine, suggestion, session, ask). Siódmy cel
+  `sync-panel-core`, wpisy w `marketplace.json` i `release-map.json`.
+- Recenzja `typescript-reviewer` (1 HIGH, 8 MEDIUM, 6 LOW): HIGH (zużycie subagenta przed
+  rozwiązaniem `next`) i trzy MEDIUM naprawione z testem — rekord po `next`, karty z równoległych
+  spawnów kolejno (test złapał, że zapis `$.state` nie jest widoczny dla równoległego hooka —
+  wybór sesji trzymany też w zmiennej modułu), koszt sędziego przy nieudanym spawnie.
+- Pomiar na żywo ujawnił błąd modelu problemu: `env.CLAUDE_CODE_SUBAGENT_MODEL` (Sonnet)
+  w `~/.claude/settings.json` — subagent bez modelu startuje na nim, nie na modelu rodzica, więc
+  zadanie ryzykowne poszło na Sonnet. Poprawka: baza = domyślny z ustawień, poziom przypinany.
+- **Aneks B** (Łukasz w trakcie pomiaru): domyślny z ustawień chroniony kartą jak model jawny —
+  „Suggestion / Subagent default / Session model / Always suggestion”, „zawsze …” z panelu
+  ([ANEKS_B_DOMYSLNY_SUBAGENTA.md](plany/MODY_OSZCZEDZANIA/ANEKS_B_DOMYSLNY_SUBAGENTA.md)).
+
+**Zweryfikowane — jak dokładnie:**
+
+- Testy przed → po: guardrails 33, process 430, panel (rdzeń) 254, `mods` 91, `panel` 220,
+  `progress` 51, `cache-keeper` 206, `browser` 28, `input-router` 79 bez zmian; `model-router`
+  0 → 58; `plugin validate model-router` ✔; `sync-panel-core --check` zgodne (23 pliki, 16 ikon,
+  7 celów).
+- Dowód negatywny (zasada 3): fork, wznowienie, główny czat, bliźniak, brak zgody → 0 wywołań
+  sędziego i model bez zmian; 12 mutacji na kopii (próg `risky` > i ≥, reguła usunięta, 0,8; próg
+  0,6 → 0,5 i ≥ → >; model jawny bez karty; fork i wznowienie niepomijane; bez skanera; domyślny
+  bez ochrony; baza z rodzica; bez przypięcia) — każda czerwieni testy.
+- Skaner: zadanie z kluczem złożonym z kawałków → 0 wywołań, bez klucza → 1. Awaria (API, limit,
+  nie-JSON, poziom spoza listy, wyjątek) → model bez zmian, powód w pliku.
+- Na żywo (Łukasz przy komputerze, BenAI `model-router` wyłączony, `/reload-plugins`): A proste →
+  Haiku; B ryzykowne → Sonnet ✗, po poprawce B2 → Opus; C jawny `sonnet` → karta → „Mine” →
+  Sonnet; D po Aneksie B → karta domyślnego → „Subagent default” → Sonnet (`turn.step.model`).
+  Rejestr vs `savingsView` („ten czat”) zgodne co do tokena: 5 rekordów, sędzia 1 974 / 225,
+  $0,00031.
+- `trivy fs --scanners vuln .` → 0 CRITICAL, 42 HIGH (jak po E4); brak nowych zależności npm;
+  `git grep --untracked` po wzorcu klucza → 0 (kontrola pozytywna na pliku z kluczem → 1).
+- Katalog roboczy E5: przed 1 plik (`suma.mjs`, 2 012 B), po 0 — skasowany po „tak”. Poza
+  katalogiem, skasowane po „tak”: `~/.claude/dev-mods/fe85abbe…/relai-e5-sonda` (1,06 MB) i
+  `relai-model-router` (1,23 MB), scratchpad `e5-sonda/`, `mutate.mjs`, `fix-test.mjs` (10 KB).
+  W `work/MODY_OSZCZEDZANIA/` został `E1/` sprzed etapu — nie ruszany.
+
+**Świadomie odłożone:**
+
+- Wycena różnicy modeli (te same tokeny subagenta na dwóch modelach) w zakładce „Oszczędności” —
+  `core/panel/savings-view.mjs` poza granicą E5; rekord niesie `from`/`to` i zużycie subagenta;
+  do E10 (decyzja Łukasza).
+- Ze recenzji: zewnętrzny limit czasu sędziego (polegamy na `timeoutMs` silnika, typy: „resolves
+  aborted”), test spawnu z innego modu (`next.origin` z typów, nie z sondy), bufor `parseVerdict`
+  dla prozy z klamrami, cichy brak decyzji przy modelu spoza listy.
+- `hasHuman` w zmiennej modułu zeruje się przy przeładowaniu kopii (pomiar D) — do przeglądu w E10.
+- Model z definicji agenta (frontmatter `model:`) nie jest widoczny w `agent.spawn` — baza wtedy
+  z ustawień albo rodzica; do E10.
+
+**Do zrobienia przez człowieka:** — (bramka pomiaru i kliknięcie kart — ROZSTRZYGNIĘTE 2026-11-12:
+Łukasz zrobił `/reload-plugins` i kliknął obie karty)
+
+**Ryzyka:** R4 (router zepchnie trudne zadanie) — zmaterializowało się na żywo (B) i zostało
+naprawione przypięciem poziomu; poziom bez zmian. R5 — sędzia 1,3–1,9 s na żywo. C1, C10 bez
+zmian. Pułapka P-067, lekcje L-0327, L-0328.
+
+**Uwagi procesowe:** heredok z `\n` i `sed -i` na pliku typów mimo L-0324 i L-0276, potem
+`node -e` z backslashem do odczytu (L-0327). Walidator adapterów (`validate-adapters.js`, CI) był
+czerwony już na HEAD: opisy `relai-browser` (E2) i `relai-input-router` (E4) w `marketplace.json`
+inne niż w ich `plugin.json`; wpis `relai-model-router` wyrównany w E5, dwa pozostałe — osobnym
+commitem `fix` po commicie E5 (decyzja Łukasza: „Napraw teraz, osobnym commitem”).

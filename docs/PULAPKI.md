@@ -8,6 +8,24 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-067 — Silnik modów 2.1.321: `agent.spawn`, domyślny model subagenta i `$.ui.ask` w teście · 2026-11-12 · AKTYWNA
+
+- **Objaw:** mod routera wziął model rodzica za bazę subagenta bez `model` i nie przypiął
+  poziomu — subagent ruszył na innym modelu; w `plugin test` atrapa `on('ui.ask', …)` daje
+  „"ui.ask" is not an event”; dwa równoległe spawny pokazały dwie karty mimo „zawsze mój” na
+  pierwszej.
+- **Przyczyna (sonda i pomiar E5):** `env.CLAUDE_CODE_SUBAGENT_MODEL` w ustawieniach jest
+  domyślnym modelem subagenta bez `model` (hook go zmienia — to nie „model forced” z typów);
+  wznowienie niesie w `e.model` pełny identyfikator poprzedniego przebiegu; fork ma `fork: true`
+  i model rodzica. `$.ui.ask` to `tool.call` narzędzia `AskUserQuestion` (atrapa: `on('tool.call', …)`
+  z `{ result: { questions, answers } }`). Zapis `$.state` nie jest widoczny dla równoległego
+  hooka, zanim jego własny się nie skończy.
+- **Obejście:** bazę bierz z `env.CLAUDE_CODE_SUBAGENT_MODEL` (ostatni z plików user → projekt →
+  local), dopiero potem z `parentModel`; wznowienie i fork pomijaj; stan potrzebny równoległym
+  hookom trzymaj także w zmiennej modułu; karty kolejkuj w module. Panel w teście: `$.ui.mount`
+  z `{ plugin, component, requestId, props }`.
+- **Zasięg:** Claude Code 2.1.321, desktop, Windows. Pomiar: `plany/MODY_OSZCZEDZANIA/POMIAR_E5.md`.
+
 ### P-066 — Silnik modów 2.1.321: wynik konektora MCP w hooku `tool.call` to sama tablica bloków · 2026-11-11 · AKTYWNA
 
 - **Objaw:** typy silnika opisują wynik MCP jako `McpToolResult` `{ content, isError,
