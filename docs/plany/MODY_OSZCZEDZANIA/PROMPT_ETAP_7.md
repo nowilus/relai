@@ -1,18 +1,20 @@
 # PROMPT_ETAP_7 — `relai-effort`: propozycja poziomu effort przed turą głównego czatu
 
-Plan: MODY_OSZCZEDZANIA • Etap: **E7 z E10** • Wygenerowano: 2026-11-12 (autor: Opus 5.5, w rytuale „Na koniec” etapu 6) • Wykonawca: **Opus** (D-85, świeże sesje) — `/effort high`
+Plan: MODY_OSZCZEDZANIA • Etap: **E7 z E10** • Wygenerowano: 2026-11-12 (autor: Opus 5.5, w rytuale „Na koniec” etapu 6; dostosowany do Aneksu C tego dnia) • Wykonawca: **gpt-6.1-terra w Codeksie** (Aneks C; przegląd i poprawki gpt-6.1-sol; Claude — bramka) — effort `high`
 
-> **Kontrola modelu:** ten etap wykonuj wyłącznie na modelu klasy **strong**, w tym narzędziu:
-> **Opus 5.5** (lista modeli claude-code z dnia 2026-11-10). Jeśli sesja działa na innym modelu —
-> zatrzymaj się i poproś o przełączenie, zanim cokolwiek zapiszesz. Zalecany poziom `/effort`:
-> `high` — mod zmienia poziom pracy głównego czatu przy każdej turze, a jego efektu nie da się
-> odczytać z wejścia hooka (SONDY.md, sekcja 4), więc dowód wymaga przemyślanego pomiaru.
+> **Kontrola modelu:** ten etap wykonuje model klasy **balanced** w Codeksie: **gpt-6.1-terra**
+> (lista modeli codex z dnia 2026-11-10), uruchomiony przez Claude poleceniem
+> `node core/process/crew.js run --runtime codex --model gpt-6.1-terra` (Aneks C; nigdy kopią
+> z `.claude/relai/tools/`). Sesja na innym modelu i bez pliku zadania z nakładką Aneksu C —
+> zatrzymaj się. Effort `high` (z `~/.codex/config.toml`) — mod zmienia poziom pracy głównego
+> czatu przy każdej turze, a jego efektu nie widać w wejściu hooka (SONDY.md, sekcja 4).
 
 ## Co przeczytać na start (w tej kolejności, nic więcej)
 
 | Plik | Po co |
 |---|---|
 | wyjście `node .claude/relai/tools/start-digest.js` | rytuał startu: stan, ryzyka, indeks „Zasad aktywnych” |
+| `docs/plany/MODY_OSZCZEDZANIA/ANEKS_C_WYKONANIE_CODEX.md` | kto co robi w tym etapie: Codex kod, testy i rytuał 1–5; Claude bramka, katalog roboczy i commit; sonda i pomiar na żywo — E10 |
 | `docs/plany/MODY_OSZCZEDZANIA/SPECYFIKACJA_FUNKCJI.md` — sekcja 2 „Effort Optimizer → `relai-effort`” i sekcja 7 | zdarzenia, sędzia Sonnet, cztery pytania, odpowiedź JSON, karta, tryb auto, rekord „effort”; wymagania wspólne modów RelAI |
 | `docs/plany/MODY_OSZCZEDZANIA/PLAN.html` — wiersz E7 tabeli etapów, ryzyka R5 i R9 | kryterium „przed turą pojawia się propozycja poziomu effort z powodem”; effort etapu RelAI nienadpisywany |
 | `docs/plany/MODY_OSZCZEDZANIA/SONDY.md` — sekcje 4 i 5 | `turn.step` niesie `effort` sprzed nadpisania, `$.config.list()` nie ma wiersza `effort`; `prompt.submit.origin.kind` |
@@ -23,9 +25,9 @@ Plan: MODY_OSZCZEDZANIA • Etap: **E7 z E10** • Wygenerowano: 2026-11-12 (aut
 | `core/tools/sync-panel-core.js` (lista `PLUGINS`), `core/tools/release-map.json` (wpis `mod-model-router`), `.claude-plugin/marketplace.json` | gdzie nowy mod się rejestruje |
 | `docs/ARTEFAKTY.md` | rejestr artefaktów: prompt sędziego effort (cztery pytania) wchodzi jako artefakt z wersją |
 
-Pliki duże czytasz zakresami poniżej 100 linii: na maszynie działa `input-router` BenAI, który
-streszcza większe odczyty. Polecenia Bash bez `cd` (L-0329); żadnego `node -e` ani heredoka
-z backslashem — skrypt piszesz narzędziem Write.
+Polecenia powłoki bez `cd` (L-0329); żadnego `node -e` ani heredoka z backslashem — skrypt
+piszesz do pliku i uruchamiasz z pliku; tekst z backslashem albo backtickiem zmieniasz edycją
+pliku, nie podmianą w powłoce.
 
 ## Decyzje już podjęte — nie otwierasz ich ponownie
 
@@ -50,9 +52,10 @@ z backslashem — skrypt piszesz narzędziem Write.
 
 Wersja RelAI 3.8.0 (wydana). W repo, niewydane: `relai-browser`, `relai-input-router`,
 `relai-model-router` 0.1.0 (po E6 z kartą załogi `/relai-crew`, 102 testy). BenAI
-`effort-optimizer@token-saving-mods` jest **włączony** (`~/.claude/settings.json`); na pomiar
-wyłączasz go za zgodą Łukasza i prosisz o `/reload-plugins` (P-065). Kopia modu na żywo tylko
-w `~/.claude/dev-mods/<sesja>/` po skillu `plugin-authoring` (L-0322).
+`effort-optimizer@token-saving-mods` jest **włączony** (`~/.claude/settings.json`) i zostaje
+włączony: w tym etapie nie ma pomiaru na żywo (Aneks C — pomiar w E10). Testy modu:
+`claude plugin test effort` (binarka Claude Code; gdy nie działa w sandboksie Codeksa — napisz to
+w raporcie, bramka Claude je uruchomi).
 
 ```
 model-router/                      wzór: hooks/{register.tsx, judge.ts, crew.ts, gate.ts, pane.ts, core/}, types/, .claude-plugin/
@@ -67,11 +70,12 @@ docs/ARTEFAKTY.md                  rejestr artefaktów (prompt sędziego effort 
 **Czego jeszcze nie ma:** folderu modu `relai-effort` (nazwa folderu wg wzoru pozostałych:
 `effort/`), sędziego effort i jego promptu jako artefaktu, karty propozycji przed turą (przełącz /
 przełącz i od teraz automatycznie / zostaw), trybu auto, rozpoznania effort z promptu etapu RelAI,
-rekordu „effort” w rejestrze (zdarzenie, bez tokenów), panelu modu. **Nie zmierzono:** czy
-nadpisanie `effort` w `turn.step` głównego czatu działa (efekt niewidoczny w wejściu hooka — dowód
-kosztem albo długością myślenia w `turn.step.usage`), ile trwa sędzia Sonnet na żywo (R5: do 20 s),
-czy karta `$.ui.ask` w `prompt.submit` mieści się w budżecie hooka (P-068 mówi, że wywołanie `$`
-w toku się nie liczy — sprawdź na tym zdarzeniu).
+rekordu „effort” w rejestrze (zdarzenie, bez tokenów), panelu modu. **Nie zmierzono (pomiar
+w E10, Aneks C, ryzyko AC1):** czy nadpisanie `effort` w `turn.step` głównego czatu działa (efekt
+niewidoczny w wejściu hooka), ile trwa sędzia Sonnet na żywo (R5: do 20 s), czy karta `$.ui.ask`
+w `prompt.submit` mieści się w budżecie hooka (P-068: wywołanie `$` w toku się nie liczy). Kod
+trzyma decyzję (sędzia, karta) osobno od wykonania (nadpisanie w `turn.step`), żeby E10 mógł
+wyłączyć samo wykonanie, gdyby nie działało.
 
 **Liczby wyjściowe testów** (po E6, FAKT 2026-11-12): guardrails 33, process 430, panel (rdzeń)
 254, adaptery Codex 28 / Cursor 10; mody `mods` 91, `panel` 220, `progress` 51, `cache-keeper`
@@ -84,16 +88,12 @@ Zasady do doczytania z `docs/LEKCJE.md` (pełne brzmienie): 3, 4, 5, 13. Ryzyka 
 ## Zakres etapu
 
 > **Katalog roboczy tego etapu: `.claude/relai/work/MODY_OSZCZEDZANIA/E7/`.** Wszystko tymczasowe
-> — skrypty pomiarowe, materiał testowy, wyjścia narzędzi — powstaje tam. Artefakt spoza projektu
-> (mod-sonda i kopia w `~/.claude/dev-mods/`, kopie z pomiaru) wpisujesz do wpisu dziennika
-> **z nazwy**.
+> — skrypty, materiał testowy, wyjścia narzędzi, skrypt mutacji — powstaje tam. Artefakt spoza
+> projektu wpisujesz do wpisu dziennika **z nazwy**.
 
-1. **Sonda przed kodem** (zasada 13, L-0321), dwa przebiegi, przy wyłączonym BenAI
-   `effort-optimizer` (bramka): mod-sonda nadpisuje `effort` w `turn.step` głównego czatu
-   (generator, P-063) na skrajnych poziomach (`low` / `high`) dla tej samej prośby i zapisuje do
-   pliku `turn.step.usage` oraz długość odpowiedzi; drugi hook pokazuje kartę `$.ui.ask`
-   w `prompt.submit` i zapisuje czas. Wynik do `POMIAR_E7.md`. Nadpisanie nie daje mierzalnej
-   różnicy → zatrzymaj się i zapytaj (aneks: tryb tylko sugestii / odnoga).
+1. **Sonda przed kodem — przeniesiona do E10** (Aneks C, ryzyko AC1). W tym etapie: przegląd typów
+   silnika (`turn.step`, `prompt.submit`, `$.ui.ask`) w `model-router/.claude-plugin/types/`
+   albo w pliku typów skilla `plugin-authoring`, jeśli jest dostępny; ustalenia do raportu.
 2. **Czysta logika** w `effort/hooks/` (np. `judge.ts`): prompt sędziego z czterema pytaniami
    (tekst ≤ 4000 znaków + ostatnia odpowiedź ≤ 600 + bieżący poziom; `<task>` jako dane), parser
    biorący ostatni poprawny obiekt JSON (nie zachłanny regex), rozpoznanie effort z promptu etapu
@@ -107,24 +107,23 @@ Zasady do doczytania z `docs/LEKCJE.md` (pełne brzmienie): 3, 4, 5, 13. Ryzyka 
    w `core/tools/release-map.json` i `.claude-plugin/marketplace.json` (opis zgodny z `plugin.json`).
 5. **Artefakt**: prompt sędziego (cztery pytania) jako plik w `effort/` i wpis w `docs/ARTEFAKTY.md`
    (wersja, co i po co).
-6. **Przegląd kodu przed pomiarem** (L-0330): `typescript-reviewer` na zmianie, CRITICAL i HIGH
-   naprawione z testem, zanim ruszy bramka pomiaru.
-7. **Pomiar na żywo** (zasada 4): trzy prośby — rozmowa („dzięki”), zadanie zwykłe, zadanie
-   z ukrytym kosztem błędu — karta z poziomem i powodem przed turą; w trybie auto bez karty; prompt
-   z linią „Zalecany poziom `/effort`” etapu RelAI → effort bez zmian. Bramka manualna: BenAI
-   `effort-optimizer` wyłączony za zgodą Łukasza, `/reload-plugins`, kartę klika człowiek (L-0289);
-   po pomiarze BenAI włączony z powrotem.
+6. **Mutacje** (zasada 3): skrypt w katalogu roboczym podmienia po kolei warunki z dowodu
+   negatywnego (subagent, effort z promptu etapu, `/`, powiadomienie, brak człowieka, bliźniak,
+   brak zgody, skaner) i uruchamia testy; wynik `zabite / wszystkie` do raportu.
+7. **Przegląd kodu i pomiar na żywo — poza tobą** (Aneks C): przegląd robi `gpt-6.1-sol`
+   (`crew.js review`) w bramce Claude; pomiar na żywo (trzy prośby: rozmowa, zadanie zwykłe,
+   zadanie z ukrytym kosztem błędu; tryb auto; prompt etapu RelAI z linią effort) — E10.
 
 ## Weryfikacja (wszystkie punkty muszą przejść)
 
 Każdy punkt, który przeszedł, odhaczasz tu (`- [ ]` → `- [x]`) zaraz po sprawdzeniu, nie na końcu
 etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Model sesji to Opus 5.5; `git status --short` przed pracą pokazuje tylko `.claude/launch.json`
+- [ ] Wykonawca to gpt-6.1-terra w Codeksie z pliku zadania z nakładką Aneksu C; `git status --short` przed pracą pokazuje tylko `.claude/launch.json`
       (albo człowiek rozstrzygnął, co z drzewem).
 - [ ] Liczby wyjściowe testów jak w „Stanie wyjściowym” (inna liczba → zatrzymaj się i zapytaj).
-- [ ] Sonda nadpisania effort zapisana (dwa przebiegi) w `POMIAR_E7.md`, zanim powstał kod;
-      różnica `low`/`high` widoczna w liczbach (`turn.step.usage`) albo etap zatrzymany pytaniem.
+- [ ] Sonda nadpisania effort — przeniesiona do E10 (Aneks C); w raporcie ustalenia z typów
+      silnika i zdanie, gdzie w kodzie decyzja jest oddzielona od wykonania.
 - [ ] Dowód negatywny (zasada 3): subagent → 0 wywołań sędziego i effort bez zmian; prompt etapu
       RelAI z linią effort → tryb auto nie nadpisuje; tekst od `/`, powiadomienie systemowe i sesja
       bez człowieka → bez karty; bliźniak BenAI włączony albo brak zgody → mod uśpiony; mutacja
@@ -134,10 +133,11 @@ etapu; punkt, który nie przeszedł, zostaje pusty.
 - [ ] `plugin validate` i `plugin test` nowego modu zielone; testy panelu z układem w każdym progu
       szerokości (L-0331); pozostałe mody, rdzeń, `process` i adaptery bez spadku liczby testów;
       walidator adapterów zielony; `sync-panel-core --check` zgodne (8 celów).
-- [ ] Przegląd kodu przed pomiarem: wynik i naprawione pozycje we wpisie dziennika.
-- [ ] Pomiar na żywo w `POMIAR_E7.md`: karta z poziomem i powodem przed turą (trzy prośby), tryb
-      auto bez karty, prompt etapu bez zmiany effort; czas sędziego na żywo; rekordy „effort”
-      w rejestrze zgodne z `savingsView`.
+- [ ] Mutacje warunków dowodu negatywnego: wszystkie zabite (liczba w raporcie i we wpisie).
+- [ ] Przegląd kodu (`gpt-6.1-sol`, bramka Claude) — CRITICAL i HIGH naprawione z testem; wynik
+      we wpisie dziennika (Claude dopisuje go w bramce).
+- [ ] Pomiar na żywo — przeniesiony do E10 (Aneks C); w raporcie zdanie, co E10 ma zmierzyć
+      (karta przed turą, tryb auto, prompt etapu, czas sędziego, rekordy vs `savingsView`).
 - [ ] Bezpieczeństwo: `trivy fs --scanners vuln .` → 0 nowych CRITICAL i HIGH wobec E6 (0 / 42);
       brak nowych zależności npm; `git grep --untracked` po wzorcu klucza w zmienionych plikach → 0
       (z kontrolą pozytywną).
@@ -146,24 +146,27 @@ etapu; punkt, który nie przeszedł, zostaje pusty.
       i dokumenty rytuału.
 - [ ] Katalog roboczy `.claude/relai/work/MODY_OSZCZEDZANIA/E7/` przejrzany
       (`node .claude/relai/tools/clean-work.js raport`; katalog otwartego etapu raport pomija — wtedy
-      `find`/`du`), skasowany po „tak”, liczby przed i po we wpisie; artefakty spoza katalogu
-      (mod-sonda i kopia w dev-mods, kopie z pomiaru) wypisane z nazwy z tym, co się z nimi stało.
+      `find`/`du`) — w raporcie lista i rozmiary; kasuje Claude po „tak”, liczby przed i po
+      dopisuje do wpisu; artefakty spoza katalogu wypisane z nazwy z tym, co się z nimi stało.
 
-Najtwardszy jest punkt sondy: jeśli nadpisanie `effort` w `turn.step` nie daje mierzalnej różnicy,
-mod nie ma czym działać w trybie auto — zatrzymaj się i zapytaj, zamiast budować kartę, która
-niczego nie zmienia.
+Najtwardszy jest dowód negatywny przy effort z promptu etapu RelAI (R9): tryb auto, który go
+nadpisze, łamie plan. Test, który tego nie łapie (mutacja przeżywa) → `STOP:` w raporcie, nie
+osłabiaj testu.
 
 ## Na koniec (rytuał obowiązkowy — bez niego etap nie jest ukończony)
+
+Aneks C: punkty 1, 2, 3, 4 i 5 pisze Codex; punkty 1a i 6 oraz dopisek o przeglądzie Sol robi
+Claude w bramce.
 
 1. `docs/plany/MODY_OSZCZEDZANIA/STATUS.md` — E7 → `ZREALIZOWANY <data>`, E8 → `GOTOWY DO STARTU`,
    linia w dzienniku wdrożenia; link w kolumnie `Prompt` przy E8 zaraz po kroku 5.
 1a. Katalog roboczy `.claude/relai/work/MODY_OSZCZEDZANIA/E7/` — raport, „tak”, kasowanie; liczby
    przed i po do wpisu z kroku 2, artefakty spoza katalogu z nazwy.
 2. Wpis w `docs/DZIENNIK.md` wg `SPEC_DZIENNIK.md` (+ lekcje do `docs/LEKCJE.md` i odświeżony
-   destylat, + przegląd ryzyk R5, R9), podpis `Autor: RelAI (Opus 5.5) + Lukasz`; pułapki silnika
-   do `docs/PULAPKI.md`.
-3. Bramki manualne w `STATUS.md` (wyłączenie BenAI `effort-optimizer`, kliknięcie karty) —
-   `OTWARTA` albo `ROZSTRZYGNIĘTA <data> — <jak>`.
+   destylat, + przegląd ryzyk R5, R9, AC1), podpis `Autor: RelAI (gpt-6.1-terra w Codeksie) +
+   Lukasz`; pułapki silnika do `docs/PULAPKI.md`.
+3. Bramki manualne w `STATUS.md` — pomiar na żywo `relai-effort` (wyłączenie BenAI
+   `effort-optimizer`, kliknięcie karty) jako `OTWARTA — przeniesiona do E10 (Aneks C)`.
 4. `docs/STATE.md` (zdania o planie MODY_OSZCZEDZANIA) i linia „Aktywny plan” w `CLAUDE.md`;
    `docs/ARTEFAKTY.md` z punktu 5 zakresu.
 5. **Wygenerowanie `PROMPT_ETAP_8.md`** — z wiersza E8 w `PLAN.html` i sekcji 6 specyfikacji

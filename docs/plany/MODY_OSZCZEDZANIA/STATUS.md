@@ -1,6 +1,6 @@
 # STATUS — plan MODY_OSZCZEDZANIA
 
-Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-11-11 · Status planu: **ZAAKCEPTOWANY 2026-11-11** · Model wykonawczy etapów: Opus (D-85, ustawienie projektu), świeże sesje — w Claude Code
+Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-11-11 · Status planu: **ZAAKCEPTOWANY 2026-11-11** · Model wykonawczy etapów: E1–E6 Opus (D-85, świeże sesje w Claude Code); **E7–E10 gpt-6.1-terra w Codeksie, poprawki i przegląd gpt-6.1-sol, Claude tylko bramka** ([Aneks C](ANEKS_C_WYKONANIE_CODEX.md), 2026-11-12)
 
 Załącznik planu (zamrażany razem z nim): [specyfikacja funkcji](SPECYFIKACJA_FUNKCJI.md) —
 zachowanie sześciu modów BenAI i zmiany w RelAI; etapy pracują z niej, nie z kodu BenAI.
@@ -57,3 +57,4 @@ zachowanie sześciu modów BenAI i zmiany w RelAI; etapy pracują z niej, nie z 
 - 2026-11-12 — E6 rozpoczęty.
 - 2026-11-12 — E6: sonda drogi orkiestrator → mod zapisana ([POMIAR_E6.md](POMIAR_E6.md); karta = panel z wyborem na wiersz + jedna `$.ui.ask`), karta załogi w `relai-model-router` (88 testów, 9 mutacji zabitych), krok 5a w `/relai-crew`; czeka pomiar na żywo (bramka: BenAI `model-router` wyłączony za zgodą Łukasza, `/reload-plugins`) i rytuał „Na koniec”.
 - 2026-11-12 — E6 zrealizowany: pomiar na żywo zgodny (jedna karta, wybór per wiersz → Haiku w `turn.step`, 0 kart i 0 sędziego przy członkach, rejestr = `savingsView` co do tokena); rozjazd panelu (litera pod literą) poprawiony; przegląd kodu 3 HIGH / 4 MEDIUM / 6 LOW naprawione (102 testy, 18 mutacji zabitych); błąd układu `relai-input-router` odłożony do E9 (decyzja Łukasza). E7 gotowy do startu.
+- 2026-11-12 — Aneks C ZAAKCEPTOWANY (Łukasz, po E6): E7–E10 wykonuje Codex (`gpt-6.1-terra`, poprawki i przegląd `gpt-6.1-sol`) razem z dokumentami rytuału, Claude robi bramkę i commit; sondy i pomiary na żywo E7–E9 przeniesione do E10 — [ANEKS_C_WYKONANIE_CODEX.md](ANEKS_C_WYKONANIE_CODEX.md); `PROMPT_ETAP_7.md` dostosowany.

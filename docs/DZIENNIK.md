@@ -3851,3 +3851,35 @@ sam spróbował `hand_off_to_session` — klasyfikator odmówił; zachowanie mod
 **Uwagi procesowe:** pierwsze trzy polecenia Bash sesji z `cd <repo> &&` mimo L-0325 (L-0329).
 Pomiar na żywo przed przeglądem kodu — przegląd zmienił kod po pomiarze (L-0330). Panel przeszedł
 testy (tekst znaleziony), a rozjechał się na żywo — testy nie sprawdzały układu (L-0331).
+
+### 2026-11-12 — MODY_OSZCZEDZANIA: Aneks C — E7–E10 wykonuje Codex, Claude tylko bramka
+
+Autor: RelAI (Opus 5.5) + Lukasz
+
+**Zrobione:**
+
+- Łukasz po E6: limit planu Team nie starcza na etapy w Opusie — kolejne etapy ma robić Codex
+  (gpt-6.1 sol albo terra), Claude tylko weryfikuje i robi minimum kroków. Wywiad (cztery
+  pytania, wszystkie rekomendacje przyjęte): wykonawca `gpt-6.1-terra`, poprawki i przegląd
+  `gpt-6.1-sol`; sondy i pomiary na żywo E7–E9 przeniesione do E10; dokumenty rytuału pisze Codex,
+  Claude sprawdza; weryfikacja Claude = testy, walidatory, diff, przegląd przez Sol
+  (`crew.js review`), bez subagenta Claude.
+- [ANEKS_C_WYKONANIE_CODEX.md](plany/MODY_OSZCZEDZANIA/ANEKS_C_WYKONANIE_CODEX.md) (wzór: Aneks A
+  planu OPTYMALIZACJA_PO_AUDYCIE), linia metryczna i dziennik wdrożenia `STATUS.md`,
+  `PROMPT_ETAP_7.md` dostosowany (kontrola modelu, zakres, weryfikacja, rytuał), linia „Aktywny
+  plan” w `CLAUDE.md`.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `~/.codex/config.toml`: `model_reasoning_effort = "high"` — terra i sol z `-m` dostaną `high`
+  (pamięć „Effort Codeksa wg modelu”); `crew.js run` nie przekazuje effortu.
+- `grep` w `PROMPT_ETAP_7.md`: brak resztek Opusa, `typescript-reviewer`, `POMIAR_E7`, dev-mods.
+
+**Świadomie odłożone:**
+
+- Sonda nadpisania `effort` w `turn.step` (SONDY.md §4: efekt niewidoczny z modu) — do E10; ryzyko
+  AC1 wysokie: `relai-effort` może zostać zbudowany na mechanizmie, który nie działa.
+
+**Do zrobienia przez człowieka:** —
+
+**Ryzyka:** nowe AC1–AC6 w aneksie (AC1, AC2, AC3 wysokie).
