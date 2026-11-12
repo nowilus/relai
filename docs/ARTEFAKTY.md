@@ -25,6 +25,12 @@ niesie **datę pojawienia się pliku w repozytorium** (`git log --diff-filter=A 
 założenia rejestru; kolumna `Co się zmieniło` dla wpisu startowego podaje datę ostatniej zmiany
 z gita, żeby było widać, które artefakty żyją. Pełna historia treści jest w gicie.
 
+## Sędzia effort — `effort/hooks/`
+
+| Artefakt | Plik | Wersja | Data | Co się zmieniło | Po co |
+|---|---|---|---|---|---|
+| Prompt sędziego effort | `effort/hooks/judge-prompt.ts` | 2 | 2026-11-12 | v1: cztery pytania, reguła keep i odpowiedź JSON. v2 (po przeglądzie Sol, przed pierwszym commitem): wszystkie pola wejściowe oznaczone jako niezaufane dane, poprzednia odpowiedź w osobnej granicy. | Jedna instrukcja klasyfikacji poziomu pracy, z treścią zadania traktowaną jak dane. |
+
 ## Specyfikacje dokumentów — `core/templates/` (24)
 
 | Artefakt | Plik | Wersja | Data | Co się zmieniło | Po co |

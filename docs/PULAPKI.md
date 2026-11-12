@@ -8,6 +8,16 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-069 — `claude plugin test`: kolejność `--file` decyduje o procesie potomnym · 2026-11-12 · AKTYWNA
+
+- **Objaw:** w sandboxie Codeksa `claude plugin test model-router --file hooks/judge.test.ts`
+  uruchomił wszystkie pliki pluginu jako podprocesy i każdy dostał `uv_spawn EPERM`.
+- **Obejście:** `claude plugin test --file model-router/hooks/judge.test.ts model-router`
+  uruchomił wskazany plik bez procesu potomnego. Wynik pojedynczego pliku jest raportem JSON;
+  samego kodu wyjścia nie wystarczy uznać za sukces — także przy nieudanej asercji był `0`.
+- **Zasięg:** Claude Code używany przez E7 MODY_OSZCZEDZANIA, Windows, sandbox Codeksa; pełne
+  zestawy nadal wymagają bramki poza sandboxem.
+
 ### P-068 — Silnik modów 2.1.321: narzędzie modu, budżet hooka 10 s i karta z wieloma pytaniami · 2026-11-12 · AKTYWNA
 
 - **Objaw:** hook `tool.call` narzędzia modu czekający na przycisk panelu (własna obietnica) —

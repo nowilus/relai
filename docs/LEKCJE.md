@@ -224,8 +224,9 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
 7. **Wartość czytana maszynowo ma kotwicę i zamkniętą listę brzmień:** od początku komórki, wybór
    linii po wartości, nierozpoznane = cisza. Rdzeń z diakrytykami łapiesz klasą znaków języka, nie
    `\w`, i tylko w brzmieniu wartości, nie w całej komórce. Koszt zamkniętej listy (pozycje, które
-   człowiekowi wyglądają na rozpoznane) mierzysz; poszerzenie to decyzja człowieka.
-   (L-0025, L-0035, L-0048, L-0066, L-0070, L-0074)
+   człowiekowi wyglądają na rozpoznane) mierzysz; poszerzenie to decyzja człowieka. Wartość w
+   cytowanym prompcie etapu sprawdzasz także na autentycznym zawinięciu do następnej linii (L-0334).
+   (L-0025, L-0035, L-0048, L-0066, L-0070, L-0074, L-0334)
 8. **Zachowanie, które ma działać zawsze, mieszka w warstwie obecnej w każdej sesji** (`CLAUDE.md`
    albo hook); skill wyzwala się zawodnie. Sygnał jednorazowy ma jednego właściciela. Stan pisany
    przez model: plik na zapisującego, bez scalania. Zapis w warstwie niższej niż plik tej sesji
@@ -1116,6 +1117,46 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
 - **Zasada (zasada 4, pamięć „layout bez rozjazdów”):** test panelu sprawdza układ, nie tylko
   tekst — props pudełek (`width`, kierunek) w każdym progu szerokości i mutant błędu; wzorzec
   układu kopiowany z innego modu sprawdzasz w kierunku, w którym go używasz.
+
+### L-0332 — Aneks C kazał Codeksowi pisać `docs/`, a preambuła roli `coder` w `crew.js` tego zabrania · 2026-11-12 · AKTYWNA
+
+- **Trigger:** MODY_OSZCZEDZANIA E7, pierwszy przebieg `crew.js run --role coder`: terra zwrócił
+  `STOP:` bez zmian — preambuła roli (`crew.js:74`, D-44) zabrania edycji czegokolwiek w `docs/`,
+  a zakres i rytuał wymagały `docs/ARTEFAKTY.md` i dokumentów rytuału; dodatkowo zdanie „Kontrola
+  modelu” kazało mu potwierdzić model, którego z wnętrza sesji nie widzi. Aneks C wzorował się na
+  Aneksie A, gdzie rytuał pisał Claude — sprzeczności nikt nie sprawdził.
+- **Zasada:** zanim oddasz Codeksowi etap z rytuałem, porównaj zakres pliku zadania z preambułą
+  roli (`node core/process/crew.js prompt --role coder`). Etap z dokumentami idzie z `--raw`,
+  a granicę plików i zakazy (commit, push, pluginy) niesie nakładka; model potwierdza plik zadania
+  i polecenie Claude, nie wykonawca.
+
+### L-0333 — Sandbox Codeksa blokuje procesy potomne: baza testów nie do sprawdzenia w przebiegu · 2026-11-12 · AKTYWNA
+
+- **Trigger:** MODY_OSZCZEDZANIA E7, drugi przebieg terra: `spawnSync git EPERM`, `uv_spawn EPERM`
+  w `node --test` i `claude plugin test` — punkt Weryfikacji „liczby wyjściowe testów” nie do
+  potwierdzenia, przebieg skończył się `PYTANIE:` bez zmian.
+- **Zasada:** bazę testów etapu wykonywanego przez Codeksa uruchamia Claude **przed** `crew.js run`
+  i wpisuje wynik do nakładki pliku zadania; wykonawca uruchamia w sandboksie tylko to, co może
+  (pojedyncze pliki, `--test-isolation=none`, `claude plugin test --file`), a pełny przebieg robi
+  bramka.
+
+### L-0334 — Effort etapu na następnej linii cytatu nie pasował do testowej jednej linii · 2026-11-12 · AKTYWNA
+
+- **Trigger:** MODY_OSZCZEDZANIA E7. Pierwszy test parsera używał jednej linii; rzeczywisty
+  `PROMPT_ETAP_6.md` ma wskazanie po zdaniu, a poziom w następnym wierszu cytatu Markdown.
+  Parser zwracał brak wskazania i nie chroniłby go w auto.
+- **Zasada (zasady 3, 4 i 7):** materiał testu parsera instrukcji obejmuje dosłowny rzeczywisty
+  kształt, w tym zawinięcie i cytat. Mutacja ochrony ma ujawnić zmianę wyniku `turn.step`, nie
+  wyłącznie liczbę wywołań sędziego.
+
+### L-0335 — `crew.js review --runtime codex` pada: bieżący `codex review` nie zna `--color` · 2026-11-12 · AKTYWNA
+
+- **Trigger:** MODY_OSZCZEDZANIA E7, bramka: `crew.js review` zwrócił „werdyktu nie rozpoznano”
+  z pustym wyjściem; w `review-codex.err.txt` — `error: unexpected argument '--color' found`.
+  Porażka CLI wygląda w raporcie tak samo jak brak werdyktu.
+- **Zasada:** pusty werdykt `crew.js` → najpierw `*.err.txt` w `.claude/relai/work/CREW/<run-id>/`.
+  Do czasu poprawki `buildReviewCommand` przegląd Codeksa idzie przez `crew.js run --role reviewer`
+  z plikiem zadania (bez `--write`).
 
 ## Lekcje zwinięte
 

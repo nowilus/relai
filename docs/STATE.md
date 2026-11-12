@@ -18,7 +18,7 @@ są włączone na poziomie użytkownika, a w projektach z markerem RelAI także 
 z `relai-scope.js status`, 2026-11-10); tryb „RelAI tylko w projektach” jest dostępny
 (`relai-scope.js apply`), ale nie jest włączony. Plan OPTYMALIZACJA_PO_AUDYCIE zamknięty
 2026-11-10 (14 etapów w dwa dni, E9–E13 wykonał Codex wg Aneksu A, jedno wydanie 3.8.0); aktywny
-plan: MODY_OSZCZEDZANIA (E1–E4 zrealizowane 2026-11-11 — E4 bez kliknięcia karty panelu, przeniesione do E10; E5 zrealizowany 2026-11-12 z Aneksem B; E6 zrealizowany 2026-11-12 — karta załogi w `/relai-crew`; E7 gotowy). Każdy push do `main` uruchamia testy rdzenia i adapterów (`testy.yml`).
+plan: MODY_OSZCZEDZANIA (E1–E4 zrealizowane 2026-11-11 — E4 bez kliknięcia karty panelu, przeniesione do E10; E5 zrealizowany 2026-11-12 z Aneksem B; E6 zrealizowany 2026-11-12 — karta załogi w `/relai-crew`; E7 zrealizowany 2026-11-12 — `relai-effort` 0.1.0 przez Codeksa, bramka Claude zielona; E8 gotowy). Każdy push do `main` uruchamia testy rdzenia i adapterów (`testy.yml`).
 PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projektu nadal nie ma.
 
 ## Co działa
@@ -138,7 +138,9 @@ PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projek
   z ustawień chronione kartą; wycena różnicy modeli w zakładce odłożona do E10), E6 zrealizowany
   2026-11-12 (karta załogi w `relai-model-router`: jedna karta z tabelą i wyborem na wiersz przed
   startem `/relai-crew`, członek rozstrzygnięty bez drugiej karty; krok 5a komendy; błąd układu
-  `relai-input-router` odłożony do E9), E7 (Effort) gotowy do startu:
+  `relai-input-router` odłożony do E9), E7 (Effort) zrealizowany 2026-11-12
+  (`relai-effort` 0.1.0, 33 testy, przegląd Sol BLOCK → 12/12 naprawione; pomiar na żywo w E10),
+  E8 (Research) gotowy do startu:
   pięć modów oszczędzania tokenów (własny kod, zachowanie jak paczka BenAI) i zakładka
   „Oszczędności” w `relai-panel`, 10 etapów. Pozostali kandydaci (`/relai-update`, G1) — w „Co dalej”.
 - **PANEL_CODEX — nieaktywny, WSTRZYMANY 2026-10-27** decyzją Łukasza (plan

@@ -15,8 +15,8 @@ zachowanie sześciu modów BenAI i zmiany w RelAI; etapy pracują z niej, nie z 
 | E4 | Input Router: konektory i panel | ZREALIZOWANY 2026-11-11 | [PROMPT_ETAP_4.md](PROMPT_ETAP_4.md) | pomiar: [POMIAR_E4.md](POMIAR_E4.md); zamknięty decyzją Łukasza bez kliknięcia karty panelu (przeniesione do E10) |
 | E5 | Model Router | ZREALIZOWANY 2026-11-12 | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | pomiar: [POMIAR_E5.md](POMIAR_E5.md); Aneks B (domyślny subagenta z ustawień); `relai-model-router` 0.1.0 w repo, niewydany |
 | E6 | Router w `/relai-crew` | ZREALIZOWANY 2026-11-12 | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | pomiar: [POMIAR_E6.md](POMIAR_E6.md); karta załogi w `relai-model-router` 0.1.0 (niewydany), krok 5a w `/relai-crew` |
-| E7 | Effort | GOTOWY DO STARTU | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | |
-| E8 | Research | OCZEKUJE | — | subagenci deep przez router, gdy E5 gotowy |
+| E7 | Effort | ZREALIZOWANY 2026-11-12 | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | `relai-effort` 0.1.0 w repo, niewydany (33 testy, 11 mutacji zabitych); przegląd Sol BLOCK → 12/12 naprawione; sonda i pomiar na żywo w E10 (AC1) |
+| E8 | Research | GOTOWY DO STARTU | [PROMPT_ETAP_8.md](PROMPT_ETAP_8.md) | subagenci deep przez router |
 | E9 | Porządki AUDYT_MODOW | OCZEKUJE | — | wchłonięte 2026-11-11 z „Czeka na człowieka” |
 | E10 | Migracja, pomiar i wydanie | OCZEKUJE | — | jedyne wydanie planu; odinstalowanie paczki BenAI robi Łukasz |
 
@@ -31,6 +31,7 @@ zachowanie sześciu modów BenAI i zmiany w RelAI; etapy pracują z niej, nie z 
 - E5 — kliknięcie kart modelu jawnego i domyślnego subagenta przez człowieka (L-0289) — ROZSTRZYGNIĘTA 2026-11-12 — Łukasz kliknął „Mine” (C) i „Subagent default (sonnet)” (D).
 - E6 — wyłączenie BenAI `model-router` na czas pomiaru na żywo i `/reload-plugins` — ROZSTRZYGNIĘTA 2026-11-12 — wyłączone za zgodą Łukasza (`claude plugin disable --scope user`), `/reload-plugins` zrobił Łukasz, po pomiarze włączone, kopie dev-mods (`relai-model-router`, `relai-e6-sonda`) skasowane.
 - E6 — kliknięcie karty załogi i panelu przez człowieka (L-0289) — ROZSTRZYGNIĘTA 2026-11-12 — Łukasz przestawił wiersze w panelu i wybrał „Start with the picks above” (przebieg B); przebieg A ujawnił rozjazd panelu, poprawiony.
+- E7 — wyłączenie BenAI `effort-optimizer` i kliknięcie karty `relai-effort` — OTWARTA — przeniesiona do E10 (Aneks C).
 
 ## Dziennik wdrożenia
 
@@ -58,3 +59,9 @@ zachowanie sześciu modów BenAI i zmiany w RelAI; etapy pracują z niej, nie z 
 - 2026-11-12 — E6: sonda drogi orkiestrator → mod zapisana ([POMIAR_E6.md](POMIAR_E6.md); karta = panel z wyborem na wiersz + jedna `$.ui.ask`), karta załogi w `relai-model-router` (88 testów, 9 mutacji zabitych), krok 5a w `/relai-crew`; czeka pomiar na żywo (bramka: BenAI `model-router` wyłączony za zgodą Łukasza, `/reload-plugins`) i rytuał „Na koniec”.
 - 2026-11-12 — E6 zrealizowany: pomiar na żywo zgodny (jedna karta, wybór per wiersz → Haiku w `turn.step`, 0 kart i 0 sędziego przy członkach, rejestr = `savingsView` co do tokena); rozjazd panelu (litera pod literą) poprawiony; przegląd kodu 3 HIGH / 4 MEDIUM / 6 LOW naprawione (102 testy, 18 mutacji zabitych); błąd układu `relai-input-router` odłożony do E9 (decyzja Łukasza). E7 gotowy do startu.
 - 2026-11-12 — Aneks C ZAAKCEPTOWANY (Łukasz, po E6): E7–E10 wykonuje Codex (`gpt-6.1-terra`, poprawki i przegląd `gpt-6.1-sol`) razem z dokumentami rytuału, Claude robi bramkę i commit; sondy i pomiary na żywo E7–E9 przeniesione do E10 — [ANEKS_C_WYKONANIE_CODEX.md](ANEKS_C_WYKONANIE_CODEX.md); `PROMPT_ETAP_7.md` dostosowany.
+- 2026-11-12 — E7 rozpoczęty (wykonawca gpt-6.1-terra w Codeksie, Claude — bramka; Aneks C).
+- 2026-11-12 — E7: kod `relai-effort` 0.1.0, 13 testów modu, 8/8 mutacji zabitych;
+  bramka Claude ma powtórzyć pełne zestawy poza sandboxem i przegląd Sol. Sonda i pomiar na żywo
+  w E10; E8 pozostaje oczekujący do wyniku bramki.
+- 2026-11-12 — E7, poprawki Sol po przeglądzie BLOCK (Aneks C, 6c): 12/12 znalezisk naprawionych, wszystkie 3 HIGH z regresjami najpierw czerwonymi; 33/33 testy effort i 17/17 testów bramek/rejestru rdzenia, validate i sync zielone; osobny plik effort usuwa wyścig bez zmiany core; 11 kotwic mutacji zgodnych, pełna powtórka blokowana EPERM — bramka Claude pozostaje otwarta.
+- 2026-11-12 — E7 zrealizowany (bramka Claude): pełne zestawy zielone bez spadku, `effort` 33 testy, `mutacje.cjs` 11/11 zabitych, Trivy jak E6; przegląd Sol BLOCK → 12/12 naprawione z regresjami. E8 gotowy do startu.

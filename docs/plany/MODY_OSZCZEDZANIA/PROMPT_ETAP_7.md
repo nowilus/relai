@@ -119,32 +119,32 @@ Zasady do doczytania z `docs/LEKCJE.md` (pełne brzmienie): 3, 4, 5, 13. Ryzyka 
 Każdy punkt, który przeszedł, odhaczasz tu (`- [ ]` → `- [x]`) zaraz po sprawdzeniu, nie na końcu
 etapu; punkt, który nie przeszedł, zostaje pusty.
 
-- [ ] Wykonawca to gpt-6.1-terra w Codeksie z pliku zadania z nakładką Aneksu C; `git status --short` przed pracą pokazuje tylko `.claude/launch.json`
+- [x] Wykonawca to gpt-6.1-terra w Codeksie z pliku zadania z nakładką Aneksu C; `git status --short` przed pracą pokazuje tylko `.claude/launch.json`
       (albo człowiek rozstrzygnął, co z drzewem).
-- [ ] Liczby wyjściowe testów jak w „Stanie wyjściowym” (inna liczba → zatrzymaj się i zapytaj).
-- [ ] Sonda nadpisania effort — przeniesiona do E10 (Aneks C); w raporcie ustalenia z typów
+- [x] Liczby wyjściowe testów jak w „Stanie wyjściowym” (inna liczba → zatrzymaj się i zapytaj).
+- [x] Sonda nadpisania effort — przeniesiona do E10 (Aneks C); w raporcie ustalenia z typów
       silnika i zdanie, gdzie w kodzie decyzja jest oddzielona od wykonania.
-- [ ] Dowód negatywny (zasada 3): subagent → 0 wywołań sędziego i effort bez zmian; prompt etapu
+- [x] Dowód negatywny (zasada 3): subagent → 0 wywołań sędziego i effort bez zmian; prompt etapu
       RelAI z linią effort → tryb auto nie nadpisuje; tekst od `/`, powiadomienie systemowe i sesja
       bez człowieka → bez karty; bliźniak BenAI włączony albo brak zgody → mod uśpiony; mutacja
       każdego z tych warunków czerwieni test.
-- [ ] Skaner: prośba z kluczem `sk-…` (złożonym z kawałków) → 0 wywołań sędziego, effort bez
+- [x] Skaner: prośba z kluczem `sk-…` (złożonym z kawałków) → 0 wywołań sędziego, effort bez
       zmian. Awaria sędziego (limit, nie-JSON, poziom spoza listy) → effort bez zmian, powód w pliku.
-- [ ] `plugin validate` i `plugin test` nowego modu zielone; testy panelu z układem w każdym progu
+- [x] `plugin validate` i `plugin test` nowego modu zielone; testy panelu z układem w każdym progu
       szerokości (L-0331); pozostałe mody, rdzeń, `process` i adaptery bez spadku liczby testów;
       walidator adapterów zielony; `sync-panel-core --check` zgodne (8 celów).
-- [ ] Mutacje warunków dowodu negatywnego: wszystkie zabite (liczba w raporcie i we wpisie).
-- [ ] Przegląd kodu (`gpt-6.1-sol`, bramka Claude) — CRITICAL i HIGH naprawione z testem; wynik
+- [x] Mutacje warunków dowodu negatywnego: wszystkie zabite (liczba w raporcie i we wpisie).
+- [x] Przegląd kodu (`gpt-6.1-sol`, bramka Claude) — CRITICAL i HIGH naprawione z testem; wynik
       we wpisie dziennika (Claude dopisuje go w bramce).
-- [ ] Pomiar na żywo — przeniesiony do E10 (Aneks C); w raporcie zdanie, co E10 ma zmierzyć
+- [x] Pomiar na żywo — przeniesiony do E10 (Aneks C); w raporcie zdanie, co E10 ma zmierzyć
       (karta przed turą, tryb auto, prompt etapu, czas sędziego, rekordy vs `savingsView`).
-- [ ] Bezpieczeństwo: `trivy fs --scanners vuln .` → 0 nowych CRITICAL i HIGH wobec E6 (0 / 42);
+- [x] Bezpieczeństwo: `trivy fs --scanners vuln .` → 0 nowych CRITICAL i HIGH wobec E6 (0 / 42);
       brak nowych zależności npm; `git grep --untracked` po wzorcu klucza w zmienionych plikach → 0
       (z kontrolą pozytywną).
-- [ ] Granica: `git status --short` pokazuje wyłącznie `effort/**`, `core/tools/sync-panel-core.js`,
+- [x] Granica: `git status --short` pokazuje wyłącznie `effort/**`, `core/tools/sync-panel-core.js`,
       `core/tools/release-map.json`, `.claude-plugin/marketplace.json`, `docs/ARTEFAKTY.md`
       i dokumenty rytuału.
-- [ ] Katalog roboczy `.claude/relai/work/MODY_OSZCZEDZANIA/E7/` przejrzany
+- [x] Katalog roboczy `.claude/relai/work/MODY_OSZCZEDZANIA/E7/` przejrzany
       (`node .claude/relai/tools/clean-work.js raport`; katalog otwartego etapu raport pomija — wtedy
       `find`/`du`) — w raporcie lista i rozmiary; kasuje Claude po „tak”, liczby przed i po
       dopisuje do wpisu; artefakty spoza katalogu wypisane z nazwy z tym, co się z nimi stało.

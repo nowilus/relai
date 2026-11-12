@@ -3883,3 +3883,93 @@ Autor: RelAI (Opus 5.5) + Lukasz
 **Do zrobienia przez człowieka:** —
 
 **Ryzyka:** nowe AC1–AC6 w aneksie (AC1, AC2, AC3 wysokie).
+
+### 2026-11-12 — MODY_OSZCZEDZANIA E7: kod do bramki Claude
+
+Autor: RelAI (gpt-6.1-terra w Codeksie) + Lukasz
+
+**Zrobione:**
+
+- `effort/` 0.1.0: sędzia, karta, auto, ochrona wskazania etapu, bramki, rejestr i panel;
+  wpisy marketplace i release-map, ósmy cel synchronizacji, prompt sędziego w rejestrze artefaktów.
+- Powstał `PROMPT_ETAP_8.md`; E8 nie startuje przed bramką E7. Lekcja L-0334: prawdziwe zawinięcie
+  wskazania effort w prompcie i mutacja skutku, nie samego licznika wywołań.
+
+**Zweryfikowane — jak dokładnie:**
+
+- `claude plugin test --file … effort`: 13/13 testów; `claude plugin validate effort` przechodzi
+  z ostrzeżeniem o braku ikony; `sync-panel-core --check` zgodne, 8 celów.
+- Osiem mutacji po kolei przez edycję i test pojedynczego pliku: 8/8 zabitych. R9: po usunięciu
+  ochrony wynik `turn.step` zmienił się z oczekiwanego `high` na `low`; po odtworzeniu kodu zielono.
+  Skrypt powtórki `mutacje.cjs` w katalogu E7; jego podproces blokuje `EPERM` w tym sandboxie.
+- Wszystkie testy siedmiu wcześniejszych modów pojedynczymi plikami: mods 91, panel 220, progress
+  51, cache-keeper 206, browser 28, input-router 79, model-router 102; walidator adapterów zielony.
+  Trivy: 0 CRITICAL, 42 HIGH. Pełne zestawy Node natrafiły na `spawnSync … EPERM` i wymagają
+  bramki poza sandboxem. Testy bramek i rejestru rdzenia: 17/17.
+
+**Świadomie odłożone:**
+
+- Przegląd Sol i pełne zestawy — bramka Claude; sonda i pomiar karty, auto, promptu etapu, czasu
+  sędziego oraz rejestru względem `savingsView` — E10 (Aneks C). Typów silnika w podanej ścieżce
+  `model-router/.claude-plugin/types/` ani skilla `plugin-authoring` nie znaleziono; weryfikator
+  potwierdza nazwy hooków, nie ich zachowanie na żywo.
+- Katalog E7: 11 plików, 60 897 B przed przekazaniem; nie kasowano. `clean-work.js raport`
+  utworzył poza katalogiem E7 `.claude/relai/clean-raport.json` — pozostawiono, poza zakresem
+  edycji. Przerwane testy pozostawiły w katalogu systemowym TEMP `relai-e7-validator-1RA5OS`
+  (877 583 275 B) oraz `relai-esm-7x2UBo` i `relai-esm-knWBxF` (po 11 114 B); nie usuwano.
+
+**Do zrobienia przez człowieka:** —
+
+**Ryzyka:** R5 planu — czas sędziego nadal niezmierzony, limit 20 s i pomiar w E10; R9 — ochrona
+testowana i mutant zabity, ale efekt silnika wymaga E10; AC1 — wysokie, efekt nadpisania nadal
+niepotwierdzony na żywo. C1 — wysokie, API early access nadal wymaga bramki i pomiaru.
+
+**Przegląd i poprawki Sol — 2026-11-12, Aneks C, krok 6c:**
+
+- Przegląd BLOCK: 3 HIGH, 6 MEDIUM, 3 LOW; poprawiono 12/12 znalezisk. HIGH: wyłączenie
+  unieważnia sędziego i kartę; decyzja związana z turą, czyszczona po końcu i przed komendą;
+  osobne poziomy bazowy i zastosowany, sekwencja `low → keep` zachowuje `low`. Sześć regresji
+  HIGH najpierw czerwonych z asercji, po poprawkach zielonych.
+- R9 obejmuje dosłowne linie promptów E1/E5/E7, zawinięcia i pogrubienie; koszt sędziego
+  zapisany także dla błędnego werdyktu. Nieznany katalog użytkownika usypia mod; odmowa kończy
+  dodatkowe odczyty; bliźniak aktualizuje status i daje jeden komunikat na sesję. Wszystkie
+  pola sędziego są danymi, poprzednia odpowiedź ma osobną granicę (prompt sędziego v2).
+- Effort zapisuje do `<data>-<sesja>.relai-effort.jsonl`: osobny plik producenta usuwa wyścig
+  z routerem, istniejący czytnik i retencja obsługują sufiks, stare pliki pozostają czytelne.
+  Kolejka zmienia dzień UTC po opróżnieniu poprzedniej. Testy błędów sprawdzają dokładny plik,
+  treść i brak innych zapisów. `core/` ani `effort/hooks/core/` nie zmieniano.
+- Testy pojedynczych plików `claude plugin test --file effort/hooks/<plik> effort`:
+  register 24/24, judge 6/6, ledger 3/3 — **33/33** (wcześniej 13). Testy rdzenia
+  `node --test --test-isolation=none core/panel/tests/savings-gates.test.js core/panel/tests/savings-ledger.test.js`:
+  **17/17**. `claude plugin validate effort` zielony (zastany brak ikony), synchronizacja 8 celów
+  zgodna; 3 fixtury zgodne ze źródłami, skaner z kontrolą pozytywną: 8 plików bez sekretów.
+- `mutacje.cjs` zaktualizowany: 11/11 kotwic zgodnych; pełne uruchomienie zatrzymuje
+  `spawnSync claude.exe EPERM` przed mutowaniem. Ręcznie zabite 2/2 mutacje: R9 (efekt
+  `high → low`) i zapis błędu do ustawień zamiast `ostatni-blad.txt`; po odtworzeniu zielono.
+  Pełną powtórkę oraz bramkę wykonuje Claude, pomiar pozostaje w E10. Katalogu E7 nie kasowano;
+  doszedł roboczy `review-check.cjs`. Bez commita, pushu i przełączania pluginów.
+- Przekazanie Claude poza zakresem zapisu tej poprawki: zsynchronizować `docs/ARTEFAKTY.md`
+  z v2 promptu sędziego (odgrodzenie wszystkich danych wejściowych). Brak pytań biznesowych.
+
+**Bramka Claude — 2026-11-12 (Opus 5.5 w Claude Code):**
+
+- Pełne zestawy poza sandboksem: guardrails 33, process 430, panel (rdzeń) 254, adaptery Codex 28 /
+  Cursor 10 — bez spadku; mody `effort` **33**, `mods` 91, `panel` 220, `progress` 51,
+  `cache-keeper` 206, `browser` 28, `input-router` 79, `model-router` 102 — zielone;
+  `claude plugin validate effort` i walidator adapterów zielone, `sync-panel-core --check` 8 celów.
+- `mutacje.cjs` w pełnym przebiegu: **11/11 zabitych** (subagent, effort etapu, `/`, powiadomienie,
+  brak człowieka, bliźniak, brak zgody, ścieżka awarii, izolacja producenta, zmiana dnia UTC,
+  skaner). Trivy 0 CRITICAL / 42 HIGH (jak E6); bez nowych zależności npm; `git grep --untracked`
+  po wzorcu klucza → 0, kontrola pozytywna trafia.
+- Typy silnika (kopia w sondzie dev-mods `tree-probe`): wejście `turn.step` niesie `effort`,
+  nadpisanie przez `next({ ...e, effort })` — decyzja (sędzia, karta) i wykonanie (`turn.step`)
+  rozdzielone; efekt na żywo — E10 (AC1).
+- Przegląd Sol: `crew.js review` padł na `--color` (L-0335), przegląd poszedł przez
+  `crew.js run --role reviewer`; werdykt BLOCK → poprawki Sol (wyżej) → bramka zielona.
+  Przebiegi wykonawcy: pierwszy STOP przez zakaz `docs/` w preambule roli (L-0332), drugi przez
+  `EPERM` bazy testów (L-0333), trzeci z `--raw` i bazą potwierdzoną przez Claude.
+- Prompt sędziego v2 wpisany do `docs/ARTEFAKTY.md` (v1 nie wyszedł z drzewa roboczego).
+- Sprzątanie (1a, po „tak” Łukasza): skasowane `.claude/relai/work/MODY_OSZCZEDZANIA/E7/` (17 plików,
+  115 KB → 0), przebiegi `.claude/relai/work/CREW/mody-e7*` (6 folderów, ok. 5,2 MB → 0)
+  i `.claude/relai/clean-raport.json`. Katalogi TEMP z przerwanych testów (`relai-e7-validator-*`,
+  `relai-esm-*`) leżały w TEMP sandboksu Codeksa — w TEMP użytkownika ich nie ma.
