@@ -4082,6 +4082,10 @@ Autor: RelAI (Opus 5.5 w Claude Code, terminal Herdr) + Lukasz
 - AC3: regresje sekretu cytowanego sprawdzone wybiórczo — `requests.length` 0 i pusty dysk
   (dowód negatywny) obok kontroli pozytywnej `scanText`.
 - Katalog roboczy E8 (5 MB) skasowany po zgodzie Łukasza. E9 → GOTOWY DO STARTU.
+- Pierwszy commit zatrzymał pre-commit: dane testowe Sol z dosłowną nazwą `DB_PASSWORD="…"`
+  (fałszywy alarm). Nazwa składana z kawałków w trzech testach, wyniki bez zmian (27/7/30), skan
+  `BRAK`; bez `--no-verify`. Lekcja L-0337 i punkt w `PROMPT_ETAP_9` dla Codeksa. Commit
+  `32bc113` wypchnięty; wcześniejszy push wysłał też zaległe lokalne commity E5–E7.
 
 **Świadomie odłożone:** agent startowany przyciskiem „+” w layoucie PolyFlow (proces główny
 `powershell.exe`, pod nim `claude.exe`) nie zgłasza stanu OSC 7501 i nie trafia na listę Agents

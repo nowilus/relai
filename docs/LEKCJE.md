@@ -1170,6 +1170,18 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
   zmieniasz wykonawcę na Sol (decyzja Łukasza 2026-11-13) albo tniesz etap na pod-zadania
   z osobną granicą plików. Czas przebiegu poniżej 5 min przy dużym zakresie = sygnał tego stopu.
 
+### L-0337 — Dane testowe z sekretem zatrzymały commit E8: nazwa zmiennej stała w źródle dosłownie · 2026-11-13 · AKTYWNA
+
+- **Trigger:** MODY_OSZCZEDZANIA E8, poprawka Sol 3: regresje skanera w `research/hooks/*.test.ts`
+  budowały wartość z kawałków (`['R7m', …].join('')`), ale pisały wprost `DB_PASSWORD="${…}"`.
+  Hook pre-commit (`core/guardrails/secret-scan.js`, reguła przypisania z przedrostkiem) zatrzymał
+  commit bramki; testy w sandboxie Codeksa przeszły, bo tam nikt nie commituje.
+- **Zasada:** dane testowe wyglądające jak sekret (token, przypisanie `*_PASSWORD=`, `*_TOKEN=`,
+  `SECRET=`) składasz w czasie testu z kawałków — **nazwę zmiennej też**, np.
+  `${['DB', 'PASSWORD'].join('_')}="${['R7m', 'K2p'].join('')}"`. Przed raportem wykonawca
+  uruchamia `node core/guardrails/secret-scan.js <pliki testów>` i oczekuje `BRAK` przy każdym.
+  `--no-verify` nie jest obejściem. Dotyczy każdego wykonawcy, w szczególności Codeksa (Aneks C).
+
 ## Lekcje zwinięte
 
 Pełne wpisy lekcji, których zasady żyją w destylacie „Zasady aktywne" (kompresja 2026-08-20).

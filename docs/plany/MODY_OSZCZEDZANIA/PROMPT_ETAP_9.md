@@ -35,6 +35,8 @@ Plan: MODY_OSZCZEDZANIA • Etap: **E9 z E10** • Wygenerowano: 2026-11-13 (aut
   notatek, routingu i rejestru poza konieczną zgodnością.
 - Pomiar na żywo, dokumentacja użytkownika całego pakietu, migracja BenAI i jedyne wydanie
   to E10 (Aneks C). Nie zaczynasz E10; nie odnawiasz tematu dystrybucji G1.
+- Dane testowe wyglądające jak sekret składasz z kawałków razem z nazwą zmiennej; przed raportem
+  `node core/guardrails/secret-scan.js <pliki testów>` → `BRAK` przy każdym (L-0337).
 
 ## Stan wyjściowy — co realnie zastajesz
 
