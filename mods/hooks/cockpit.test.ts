@@ -184,6 +184,14 @@ function scopeInput(over: Partial<ScopeInput> = {}): ScopeInput {
 }
 
 describe('the row "RelAI w tym projekcie"', () => {
+  test('the set covers all eight switchable mods and excludes the cockpit', () => {
+    expect([...RELAI_SET]).toEqual([
+      'relai@relai', 'relai-panel@relai', 'relai-progress@relai', 'relai-cache-keeper@relai',
+      'relai-browser@relai', 'relai-input-router@relai', 'relai-model-router@relai',
+      'relai-effort@relai', 'relai-research@relai',
+    ])
+    expect([...RELAI_SET]).not.toContain('relai-mods@relai')
+  })
   test('no row in the home folder, whatever its slashes and case; a project folder has one (plan, section 8)', () => {
     expect(scopeRowOf(scopeInput({ cwd: 'c:/users/ktos/' }))).toBeNull()
     expect(scopeRowOf(scopeInput({ cwd: HOME }))).toBeNull()
@@ -224,12 +232,12 @@ describe('the row "RelAI w tym projekcie"', () => {
     expect(scopeWant(on)).toBe(false)
     // a plugin already holding the wanted value locally is skipped
     expect(scopePlan('claude', on, true).calls).toEqual([])
-    expect(scopePlan('claude', on, false).calls).toHaveLength(4)
+    expect(scopePlan('claude', on, false).calls).toHaveLength(9)
   })
 
   test('partly on: x/y toward the whole set', () => {
     const row = scopeRowOf(scopeInput({ localText: enabled({ 'relai-panel@relai': false }) }))!
-    expect(scopeStateWord(row)).toBe('◐ częściowo: 3/4 włączone')
+    expect(scopeStateWord(row)).toBe('◐ częściowo: 8/9 włączone')
   })
 
   test('the CLI refusal "already": done with the value in the file, the pair without it, any other error an error', () => {
@@ -256,7 +264,7 @@ describe('the row "RelAI w tym projekcie"', () => {
   test('the card names the file, the plugins and the line', () => {
     const { facts, question } = scopeFacts(scopeRowOf(scopeInput({ gitKind: 'dir' }))!, true)
     expect(facts[0]).toEqual(['Plik', `${CWD}/.claude/settings.local.json`])
-    expect(facts[1]?.[1]).toBe('relai → true, relai-panel → true, relai-progress → true, relai-cache-keeper → true')
+    expect(facts[1]?.[1]).toBe('relai → true, relai-panel → true, relai-progress → true, relai-cache-keeper → true, relai-browser → true, relai-input-router → true, relai-model-router → true, relai-effort → true, relai-research → true')
     expect(facts.some(([l]) => l === 'Worktree')).toBe(true)
     expect(question).toBe('Włączyć RelAI w tym projekcie?')
   })

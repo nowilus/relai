@@ -1,3 +1,4 @@
+import { mockCacheConfig } from './config-fixture'
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, RenderNode, TurnStepResult } from 'claude-code'
 import { BAND as THEME } from './relai/theme.mjs'
@@ -13,6 +14,7 @@ const BAND = (bodyColumns: number) => ({
 })
 
 function world(on: On, beneath = 'engine') {
+  mockCacheConfig(on)
   mock.clock(on, { now: 1_000_000 })
   mock.store(on)
   on('turn.step', async function* ($, e) {
@@ -79,6 +81,7 @@ describe('the cache card above the prompt', () => {
 
   // Brief v2 §9: calm, cooling (its second row with two buttons), kept and cold, each at 40 columns
   test('nothing is wider than 40 columns, in calm and with each second row', async ($, on) => {
+    mockCacheConfig(on)
     const clock = mock.clock(on, { now: 1_000_000 })
     mock.store(on)
     on('ui.toast', () => ({ value: undefined }) as never)

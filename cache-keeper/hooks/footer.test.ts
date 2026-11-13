@@ -1,3 +1,4 @@
+import { mockCacheConfig } from './config-fixture'
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, TurnStepResult } from 'claude-code'
 
@@ -18,6 +19,7 @@ const week = (percentUsed: number) => ({ kind: 'seven_day', percentUsed, resetsA
 
 function world(on: On, disk: Record<string, string>) {
   const statuses: (string | undefined)[] = []
+  mockCacheConfig(on)
   const clock = mock.clock(on, { now: NOW })
   mock.store(on)
   mock.env(on, {})

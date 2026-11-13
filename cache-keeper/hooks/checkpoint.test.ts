@@ -1,3 +1,4 @@
+import { mockCacheConfig } from './config-fixture'
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, RenderNode, TurnStepResult } from 'claude-code'
 import { BAND, BAR } from './relai/theme.mjs'
@@ -49,6 +50,7 @@ function world(on: On, options: { git?: string | Error | null, focus?: string, r
     card: DISMISS, threshold: DISMISS, scope: DISMISS, id: 's1',
     resume: DISMISS, discard: DISMISS, commands: [], existsFails: false,
   }
+  mockCacheConfig(on)
   const clock = mock.clock(on, { now: NOW })
   const kept = new Map<string, unknown>()
   on('store.get', ($, e) => ({ value: kept.get(e.key) as never }))

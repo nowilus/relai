@@ -11,7 +11,7 @@
 // ESM without engine or Node API, for the same reason as cache-timer.mjs; the plugin carries a
 // byte-identical copy written by core/tools/sync-panel-core.js.
 
-import { NUMERALS } from './headings.mjs';
+import { NUMERALS } from './numerals.mjs';
 
 /** @typedef {{ value: number, color: string }} Slice */
 

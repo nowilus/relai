@@ -88,26 +88,26 @@ i dokładny błąd; kod wyjścia 0 z plugin test nie wystarcza — czytaj result
       core/guardrails/tests, core/process/tests, core/panel/tests, adapters/codex/tests,
       adapters/cursor/tests; `claude plugin test --file <mod>/hooks/<plik> <mod>` dla dziewięciu
       modów. Baza pełna od Claude przed przebiegiem (L-0333); blokady sandboxu jawne.
-- [ ] `node core/tools/validate-adapters.js`, `node core/tools/sync-panel-core.js --check`
+- [x] `node core/tools/validate-adapters.js`, `node core/tools/sync-panel-core.js --check`
       i `claude plugin validate <mod>` dla zmienionych modów; brak ręcznych rozjazdów kopii.
-- [ ] Bajty przed/po oraz identyczne zachowanie eksportów i widoków; stary wariant odtwarzany
+- [x] Bajty przed/po oraz identyczne zachowanie eksportów i widoków; stary wariant odtwarzany
       w katalogu roboczym. Nie deklaruj zysku na podstawie samej liczby plików.
-- [ ] Dziewięć modów w kokpicie oraz planie zakresu; stan prawdziwej instalacji niezmieniony.
+- [x] Dziewięć modów w kokpicie oraz planie zakresu; stan prawdziwej instalacji niezmieniony.
       Testy HOME: brak markerów, projekt z markerem, odmowa, nadpisanie lokalne, nieznany mod.
-- [ ] Układ Input Routera: 40, 47, 48, 143, 144, 160 kolumn, najdłuższe realne dane;
+- [x] Układ Input Routera: 40, 47, 48, 143, 144, 160 kolumn, najdłuższe realne dane;
       props i kliknięcie w teście, bez width=0 w kolumnie; mutant zabity.
-- [ ] Dowody negatywne i mutacje ochron konfiguracji/zestawu oraz zgodności istniejących ustawień;
+- [x] Dowody negatywne i mutacje ochron konfiguracji/zestawu oraz zgodności istniejących ustawień;
       stary klucz po przejściu nadal ma tę samą wartość, nie tylko nowy klucz istnieje.
-- [ ] Trivy: `trivy fs --scanners vuln --skip-db-update .` z tą samą bazą i zakresem co E8
+- [x] Trivy: `trivy fs --scanners vuln --skip-db-update .` z tą samą bazą i zakresem co E8
       (0 CRITICAL / 42 HIGH — FAKT, obejmuje fixtury); brak nowych HIGH/CRITICAL.
       Gdy brak binarki/bazy: audyt ekosystemu w środowisku z siecią, wynik do bramki Claude.
       Skaner sekretów z kontrolą pozytywną, brak nowych zależności bez uzasadnienia;
       wejście walidowane, ścieżki ograniczone, bez sklejanej powłoki i sekretów w logach.
-- [ ] Sonda i pomiar na żywo przeniesione do E10 (Aneks C); przegląd Sol i pełna bramka
+- [x] Sonda i pomiar na żywo przeniesione do E10 (Aneks C); przegląd Sol i pełna bramka
       należą do Claude. Do pomiaru zachować cztery zastane reproduktory wyglądu z E8.
-- [ ] STATUS, wpis DZIENNIKA na końcu, STATE, ARTEFAKTY gdy zmieniono instrukcję,
+- [x] STATUS, wpis DZIENNIKA na końcu, STATE, ARTEFAKTY gdy zmieniono instrukcję,
       PROMPT_ETAP_10 wygenerowany z realnego stanu, dziewięć elementów specyfikacji.
-- [ ] Katalog E9 przejrzany raportem `node .claude/relai/tools/clean-work.js raport`
+- [x] Katalog E9 przejrzany raportem `node .claude/relai/tools/clean-work.js raport`
       (otwarty etap pomijany → inwentarz plików i bajtów); skasowanie po „tak” robi Claude.
       Artefakty zewnętrzne wypisane z nazwy i opisane; Codex niczego nie usuwa ani nie commituje.
 

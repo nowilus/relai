@@ -1,3 +1,4 @@
+import { mockCacheConfig } from './config-fixture'
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, RenderNode, TurnStepResult } from 'claude-code'
 import { BAND, BAR, BATTERY, CHIP_KEY } from './relai/theme.mjs'
@@ -34,6 +35,7 @@ type World = { ctx: number, window: number | undefined, limits: Limit[], cost: n
 
 function world(on: On, options: { store?: Record<string, unknown>, ctx?: number, window?: number, limits?: Limit[], cost?: number, compact?: number | null, env?: Record<string, string> } = {}) {
   const w: World = { ctx: options.ctx ?? 200_000, window: options.window, limits: options.limits ?? [], cost: options.cost, compact: options.compact, asked: [] }
+  mockCacheConfig(on)
   const clock = mock.clock(on, { now: NOW })
   const kept = new Map<string, unknown>(Object.entries(options.store ?? {}))
   on('store.get', ($, e) => ({ value: kept.get(e.key) as never }))

@@ -386,6 +386,35 @@ describe('input-router: connectors (rule 3: negative proof on the untouched list
 })
 
 describe('input-router: the hand-off pane', () => {
+  test('hand-off layout follows the viewport without zero-width words in a column', async ($, on) => {
+    // Longest connected Google Drive tool name at E9 (64 chars); copy path is produced normally.
+    const tool = 'mcp__codex_apps__google_drive_duplicate_sheet_in_new_spreadsheet'
+    const w = world(on, {}, { mcp: big('issue', 600) })
+    on('ui.invalidate', () => ({ value: undefined }) as never)
+    await start($)
+    await mcpOf($, tool)
+    // Use the produced copy, not a hand-drawn card: retain the full path for the Full action.
+    expect(Object.keys(w.disk).some(p => p.includes('/pelne/'))).toBe(true)
+    for (const columns of [40, 47, 48, 143, 144, 160]) {
+      const ui = await $.ui.mount({ ...PANE, surface: 'desktop', viewport: { columns, rows: 40 } } as never)
+      const notes: any = await ui.find({ type: 'Button', text: /^Notes$/ })
+      expect(notes).toBeTruthy()
+      const key = String(notes.key).slice(0, -2)
+      const row: any = await ui.find({ key: `${key}~r` } as never)
+      const words: any = await ui.find({ key: `${key}~w` } as never)
+      expect(await ui.find({ type: 'Text', text: new RegExp(tool) })).toBeTruthy()
+      expect([columns, row?.props?.flexDirection, words?.props?.width]).toEqual([
+        columns, columns >= 144 ? 'row' : 'column', columns >= 144 ? 0 : undefined,
+      ])
+      await ui.press({ key: String(notes.key) })
+      expect(await ui.find({ type: 'Text', text: /a log of lorem lines/ })).toBeTruthy()
+      const full: any = await ui.find({ type: 'Button', text: /^Full result$/ })
+      await ui.press({ key: String(full.key) })
+      expect(await ui.find({ type: 'Button', text: /^Copy path$/ })).toBeTruthy()
+      await ui.press({ key: String(full.key) })
+      await ui.unmount()
+    }
+  })
   test('a card per hand-off with its numbers; Notes opens the notes in place, Connectors off flips the switch', async ($, on) => {
     const prices = JSON.stringify({ v: 1, versions: [{ date: '2026-10-09', source: 'test', from: 0, models: { 'claude-haiku-5-5': { input: 1, output: 5 } } }] })
     world(on, { [`${CWD}/.claude/relai/panel/cennik.json`]: prices }, { mcp: big('issue', 600) })

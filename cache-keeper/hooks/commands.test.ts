@@ -1,3 +1,4 @@
+import { mockCacheConfig } from './config-fixture'
 import { expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On } from 'claude-code'
 
@@ -7,6 +8,7 @@ const run = ($: Engine, command: string, args = '') =>
   $.command.run({ command, args, origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 120 } }).then((r) => JSON.stringify(r))
 
 function world(on: On) {
+  mockCacheConfig(on)
   mock.clock(on, { now: 1_000_000 })
   mock.store(on)
 }
@@ -59,6 +61,7 @@ test('/keepwarm refuses when there is no cache to keep yet', async ($, on) => {
 })
 
 test('the band draws above the bands beneath it instead of hiding them, on terminal and desktop', async ($, on) => {
+  mockCacheConfig(on)
   mock.clock(on, { now: 10_000_000 })
   mock.store(on, { 'snap:s1': { id: 's1', lastActivity: 10_000_000 - 60_000, savedAt: 10_000_000 - 60_000, ctx: 200_000, handoff: { phase: 'idle', notTurn: '', relai: false, body: '', path: '' } } })
   mock.env(on, {})
@@ -97,10 +100,11 @@ const DISMISS = new Error('dismissed') // Esc on the dialog rejects the ask
 
 type Asked = { question: string, header: string, options: string[] }
 
-type Options = { broken?: string[], clearAfter?: string } // reads that fail; a card header after which a /clear changes the id
+type Options = { broken?: string[], clearAfter?: string, commands?: string[], config?: Parameters<typeof mockCacheConfig>[3] } // reads that fail; a card header after which a /clear changes the id
 
 function project(on: On, files: Record<string, string>, answers: Record<string, string | Error> = {}, options: Options = {}) {
   const session = { id: 's1' }
+  mockCacheConfig(on, undefined, options.commands, options.config)
   const clock = mock.clock(on, { now: Date.UTC(2026, 9, 11, 10) })
   const kept = new Map<string, unknown>()
   on('store.get', ($, e) => ({ value: kept.get(e.key) as never }))
@@ -134,6 +138,33 @@ function project(on: On, files: Record<string, string>, answers: Record<string, 
 }
 
 const startIn = ($: Engine) => $.session.start({ cwd: 'C:/proj', surface: 'terminal', isInteractive: true })
+
+test('E9 review 1: occupied aliases are not registered or intercepted, free aliases still work', async ($, on) => {
+  const commands: string[] = []
+  const occupied = ['cache', 'keepwarm', 'handoff', 'ckp-cache', 'ckp-keepwarm', 'ckp-handoff']
+  project(on, {}, {}, { commands, config: { occupied } })
+  on('command.run', ($, e) => ({ text: 'foreign:' + e.command }))
+  await startIn($)
+  expect(commands).toEqual(['relai-cache-keeper', 'relai-cache-keeper-keepwarm', 'relai-cache-keeper-handoff'])
+  for (const name of occupied) expect(await run($, name)).toContain('foreign:' + name)
+  expect(await run($, 'relai-cache-keeper')).toContain('okno cache')
+})
+
+test('E9 review 1: free aliases are registered and handled', async ($, on) => {
+  const commands: string[] = []
+  project(on, {}, {}, { commands })
+  on('command.run', () => ({ text: 'unhandled alias' }))
+  await startIn($)
+  for (const name of ['cache', 'ckp-cache', 'keepwarm', 'ckp-keepwarm', 'handoff', 'ckp-handoff']) expect(commands.includes(name)).toBe(true)
+  expect(await run($, 'ckp-cache')).toContain('okno cache')
+  expect(await run($, 'ckp-keepwarm')).toContain('Nie ma jeszcze czego podtrzymywać')
+  expect(await run($, 'ckp-handoff', 'dalej')).toContain('Brak gotowego przekazania')
+  await startIn($)
+  expect(commands.filter(name => name === 'ckp-cache').length).toBe(1)
+  expect(await run($, 'ckp-cache')).toContain('okno cache')
+  expect(await run($, 'ckp-keepwarm')).toContain('Nie ma jeszcze czego podtrzymywać')
+  expect(await run($, 'ckp-handoff', 'dalej')).toContain('Brak gotowego przekazania')
+})
 
 test('/cache limit-warn refuses 101, abc and 0 in Polish, asks nothing and keeps the defaults', async ($, on) => {
   const { kept, disk, asked, clock } = project(on, {})

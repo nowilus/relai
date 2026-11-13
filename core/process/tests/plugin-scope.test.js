@@ -19,6 +19,38 @@ const TOOL = path.join(__dirname, '..', '..', 'tools', 'relai-scope.js');
 const USTAWIENIA = '# USTAWIENIA\n\nWersja RelAI: 3.5.0 · zainicjowano: 2026-10-27\n';
 const ZESTAW = zp.ZESTAW;
 
+test('zestaw obejmuje RelAI i osiem modow, bez kokpitu i obcego pluginu', () => {
+  assert.deepEqual(ZESTAW, [
+    'relai@relai', 'relai-panel@relai', 'relai-progress@relai', 'relai-cache-keeper@relai',
+    'relai-browser@relai', 'relai-input-router@relai', 'relai-model-router@relai',
+    'relai-effort@relai', 'relai-research@relai',
+  ]);
+  assert.ok(!ZESTAW.includes('relai-mods@relai'));
+  assert.ok(!ZESTAW.includes('other@other'));
+});
+
+test('E9 HOME: marker, odmowa, brak markera i lokalne false dla nowych modow; obcy nietkniety', () => {
+  const m = maszyna();
+  try {
+    const active = m.projekt('Active');
+    const denied = m.projekt('Denied', { gosc: true });
+    const plain = m.projekt('Plain', { marker: false });
+    const override = m.projekt('Override', { lokalne: { 'relai-research@relai': false, 'unknown@relai': true } });
+    const before = sumaDrzewa(m.baza);
+    const installed = zp.zainstalowaneZestawu(m.home);
+    const { kroki } = zp.planZmian({ foldery: [active, denied, plain, override].map(zp.klasyfikuj), zainstalowane: installed, uzytkownik: m.uzytkownik() });
+    assert.ok(kroki.some(k => k.folder === active && k.id === 'relai-research@relai' && k.wartosc === true));
+    assert.ok(kroki.some(k => k.folder === active && k.id === 'relai-effort@relai' && k.wartosc === true));
+    assert.ok(kroki.some(k => k.zakres === 'user' && k.id === 'relai-research@relai' && k.wartosc === false));
+    assert.ok(!kroki.some(k => k.folder === denied || k.folder === plain));
+    assert.ok(!kroki.some(k => k.folder === override && k.id === 'relai-research@relai'));
+    assert.ok(!kroki.some(k => k.id === 'unknown@relai' || k.id === 'relai-mods@relai'));
+    assert.equal(sumaDrzewa(m.baza), before);
+    const marketplace = JSON.parse(fs.readFileSync(path.join(__dirname, '../../../.claude-plugin/marketplace.json'), 'utf8'));
+    for (const id of ZESTAW) assert.ok(marketplace.plugins.some(p => p.name === id.split('@')[0]), id);
+  } finally { m.sprzataj(); }
+});
+
 const FAKE_CLI = [
   "'use strict';",
   "const fs = require('fs');",
@@ -171,7 +203,7 @@ test('plan: wszystkie lokalne kroki przed globalnymi; gosc i inny bez krokow', (
     const pierwszyUser = kroki.findIndex((k) => k.zakres === 'user');
     assert.ok(pierwszyUser > 0);
     assert.ok(kroki.slice(pierwszyUser).every((k) => k.zakres === 'user'));
-    assert.equal(kroki.filter((k) => k.zakres === 'user').length, 4);
+    assert.equal(kroki.filter((k) => k.zakres === 'user').length, ZESTAW.length);
     assert.ok(kroki.every((k) => k.zakres === 'user' || /[\\/]p[\\/](A|B)$/.test(k.folder)));
     assert.equal(kroki.filter((k) => k.typ === 'worktreeinclude').length, 2);
     assert.ok(!kroki.some((k) => k.id === 'relai-mods@relai'));
@@ -200,7 +232,7 @@ test('plan: worktree (.git jako plik) dostaje lokalne enable, ale bez .worktreei
     assert.equal(k.maGit, true);
     assert.equal(k.jestWorktree, true);
     const { kroki } = zp.planZmian({ foldery: [repo, wt].map(zp.klasyfikuj), zainstalowane: ZESTAW, uzytkownik: m.uzytkownik() });
-    assert.equal(kroki.filter((s) => s.folder === wt && s.typ === 'plugin').length, 4);
+    assert.equal(kroki.filter((s) => s.folder === wt && s.typ === 'plugin').length, ZESTAW.length);
     assert.ok(!kroki.some((s) => s.folder === wt && s.typ === 'worktreeinclude'));
     assert.ok(kroki.some((s) => s.folder === repo && s.typ === 'worktreeinclude'));
   } finally { m.sprzataj(); }
@@ -232,7 +264,7 @@ test('apply, potem undo: oba poziomy wracaja do stanu sprzed apply', () => {
     const lokalnyA = czytaj(lokalnyPlik(a));
     const r = m.narzedzie(['apply']);
     assert.equal(r.status, 0, r.stderr + r.stdout);
-    assert.deepEqual(m.uzytkownik(), { 'relai@relai': false, 'relai-panel@relai': false, 'relai-progress@relai': false, 'relai-cache-keeper@relai': false, 'relai-mods@relai': true, 'inny@x': true });
+    assert.deepEqual(m.uzytkownik(), { ...Object.fromEntries(ZESTAW.map((id) => [id, false])), 'relai-mods@relai': true, 'inny@x': true });
     for (const p of [a, b, c]) for (const id of ZESTAW) assert.equal(zp.wartosciZestawu(lokalnyPlik(p))[id], true, p + ' ' + id);
     assert.equal(czytaj(path.join(a, '.worktreeinclude')), 'node_modules\n.claude/settings.local.json\n');
     assert.equal(czytaj(path.join(b, '.worktreeinclude')), '.claude/settings.local.json\n');

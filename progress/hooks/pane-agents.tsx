@@ -17,7 +17,7 @@ import type { AgentRun, ToolStep } from './core/agents.mjs'
 import { TOOL_KIND_WORD } from './core/agents.mjs'
 import { AGENT_HUES, CARD_BAR, MASCOT, ROLES, STILL_FRAME, cardBarSvg, mascotGlyph, mascotSvg } from './core/mascots.mjs'
 import { CARD_FRAME, cardFrameEndSvg, cardFrameMiddleSvg, cardFrameTopSvg, contextWords, modelName, nameSvg } from './core/agentcard.mjs'
-import { HEADING_ART } from './core/headings.mjs'
+import { HEADING_ART } from './core/headings-progress.mjs'
 import { THEME } from './core/theme.mjs'
 import { clip, duration, tokens, usd } from './fmt'
 

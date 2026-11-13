@@ -1,3 +1,4 @@
+import { mockCacheConfig } from './config-fixture'
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, TurnStepResult } from 'claude-code'
 
@@ -29,6 +30,7 @@ type World = { id: string, model: string, asked: string[], sent: string[], toast
 
 function world(on: On, options: { answer?: string | Error, compact?: 'skip' | 'reject', relai?: boolean, model?: string } = {}) {
   const w: World = { id: 's1', model: options.model ?? 'claude-opus-5-5', asked: [], sent: [], toasts: [], store: new Map() }
+  mockCacheConfig(on)
   const clock = mock.clock(on, { now: NOW })
   on('store.get', ($, e) => ({ value: w.store.get(e.key) as never }))
   on('store.set', ($, e) => { w.store.set(e.key, e.value); return { value: undefined } })

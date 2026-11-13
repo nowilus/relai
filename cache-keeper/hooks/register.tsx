@@ -7,8 +7,9 @@
 // API TTL) the next message writes the whole context again at 1.25x-2x input.
 
 import type { EngineInterface, Register } from 'claude-code'
-import { DEFAULT_SETTINGS, MAX_PAYBACK_TURNS, MIN, RELAI_MARKER, applySetting, cacheState, dueWarning, judgeStep, mergeSettings, msLeft, pingDue, pingMissed, type Settings } from './core'
+import { DEFAULT_SETTINGS, MAX_PAYBACK_TURNS, MIN, RELAI_MARKER, applySetting, cacheState, dueWarning, judgeStep, msLeft, pingDue, pingMissed, type Settings } from './core'
 import { basename, clip, clock, fileStamp, limitsText, minutes, tokens, usd } from './fmt'
+import { CONFIG_KEYS, MIGRATED, loadConfiguration, readOptions, writeOptions } from './config'
 import { barCard, barRule } from './bar-card'
 import { BAND, BAR, BAR_LOOK, CHIP_KEY, KEY } from './relai/theme.mjs'
 import { TERM, batteryRows, cacheMeasure, columnsOf, compactThreshold, contextMeasure, contextRow, glyphColor, limitMeasure, measureGlyph, resetMeasure, termColumns, termRows, type Limit, type Measure } from './rings'
@@ -28,7 +29,6 @@ import {
 type $T = EngineInterface
 
 const TICK_MS = 30_000
-const STORE_SETTINGS = 'settings'
 const FIVE_HOUR = 'five_hour'
 const SEVEN_DAY = 'seven_day'
 const KEEP_TURNS = 5 // the mean output and the 5-hour pace come from this many recent main turns
@@ -99,7 +99,7 @@ let H: Handoff = IDLE
 let V: Save = NO_SAVE
 let settings: Settings = DEFAULT_SETTINGS
 let home = ''
-let names = { cache: 'cache', keepwarm: 'keepwarm', handoff: 'handoff' }
+let names = { cache: 'relai-cache-keeper', keepwarm: 'relai-cache-keeper-keepwarm', handoff: 'relai-cache-keeper-handoff' }
 let pinging = false // one fork at a time, however long it takes
 let skipPingUntil = 0 // after a reload the turn state is unknown for one tick
 let prices: Prices = BUILT_IN // the core's list laid over by the project's cennik.json (Z5)
@@ -115,6 +115,26 @@ const ttlAssumed = () => !settings.ttlMin && !S.ttlMeasured
 const snapKey = () => 'snap:' + S.id
 const state = (now: number) => cacheState(S.lastActivity, ttl(), now, S.keepWarm, settings.warnMin)
 const later = ($: $T, fn: () => Promise<unknown>) => $.clock.after(50, () => { fn().catch(() => {}) })
+// Before session.start, the test harness can call the legacy entry points directly.
+// Once initialized, only aliases actually owned by this session may be handled.
+let ownedAliases: Set<string> | null = null
+
+async function configRows($: $T) {
+  return (await $.config.list()).filter(r => r.key.startsWith('relai-cache-keeper.') || r.key.startsWith('relai-cache-keeper@'))
+}
+async function configuration($: $T) {
+  const rows = await configRows($)
+  return {
+    get: async (key: string) => $.store.get(key),
+    put: async (key: string, value: unknown) => $.store.set(key, value as never),
+    options: async () => Object.fromEntries((await configRows($)).map(r => [r.key.slice(r.key.lastIndexOf('.') + 1), r.value])),
+    set: async (key: string, value: string | number | boolean) => {
+      const row = rows.find(r => r.key.endsWith('.' + key))
+      if (!row) throw new Error('Missing Cache Keeper config row: ' + key)
+      return $.config.set({ key: row.key, value })
+    },
+  }
+}
 
 // Saved when the state changed (AUDYT_MODOW Z4), not at every tick; and at least once within
 // SNAP_FRESH_MS, so restoreSnap's two-hour guard keeps accepting the snapshot of an idle session
@@ -299,14 +319,7 @@ function eventText(now: number): string {
 }
 
 async function registerCommand($: $T, name: string, description: string, argumentHint: string): Promise<string> {
-  for (const candidate of [name, 'ckp-' + name]) {
-    try {
-      await $.command.register({ name: candidate, description, argumentHint })
-      return candidate
-    } catch {
-      // taken by another plugin: try the prefixed name
-    }
-  }
+  await $.command.register({ name, description, argumentHint })
   return name
 }
 
@@ -1059,7 +1072,7 @@ export const register: Register = (on) => {
     // No user turn in the transcript yet: a fresh session, not a resume or a reload (Z9)
     const isFresh = (await $.session.turns().catch(() => 1)) === 0
     S = { ...FRESH, id: await $.session.id(), cwd: root ?? here, model: await $.session.model(), isRelai: root !== null, startPending: isFresh }
-    settings = mergeSettings(await $.store.get(STORE_SETTINGS))
+    settings = await loadConfiguration(await configuration($))
     await loadThreshold($)
     await loadPrices($)
     await restoreSnap($, now)
@@ -1068,9 +1081,24 @@ export const register: Register = (on) => {
     await loadStartLayer($)
     verdict = null
     names = {
-      cache: await registerCommand($, 'cache', 'Stan cache promptu i ustawienia relai-cache-keeper', '[ttl 5|60|auto] [straznik on|off] [prog 150k] [alerty on|off] [progi 10,5] [limit-warn 90] [limit-warn-week 98] [zwrot 20]'),
-      keepwarm: await registerCommand($, 'keepwarm', 'Podtrzymuj cache tej sesji (domyślnie 4 h) albo /keepwarm off', '[godziny|off]'),
-      handoff: await registerCommand($, 'handoff', 'Przekazanie do świeżego czatu (w projekcie RelAI przez dokumenty); /handoff dalej kończy', '[dalej]'),
+      cache: await registerCommand($, 'relai-cache-keeper', 'Stan cache promptu i ustawienia relai-cache-keeper', '[ttl 5|60|auto] [straznik on|off] [prog 150k] [alerty on|off] [progi 10,5] [limit-warn 90] [limit-warn-week 98] [zwrot 20]'),
+      keepwarm: await registerCommand($, 'relai-cache-keeper-keepwarm', 'Podtrzymuj cache tej sesji (domyślnie 4 h)', '[godziny|off]'),
+      handoff: await registerCommand($, 'relai-cache-keeper-handoff', 'Przekazanie do świeżego czatu', '[dalej]'),
+    }
+    // Old entry points stay available when free; canonical commands never compete with them.
+    const listed = await $.command.list()
+    const previousAliases = ownedAliases
+    ownedAliases = new Set()
+    for (const [name, description] of [['cache', 'Alias /relai-cache-keeper'], ['ckp-cache', 'Alias /relai-cache-keeper'], ['keepwarm', 'Alias /relai-cache-keeper-keepwarm'], ['ckp-keepwarm', 'Alias /relai-cache-keeper-keepwarm'], ['handoff', 'Alias /relai-cache-keeper-handoff'], ['ckp-handoff', 'Alias /relai-cache-keeper-handoff']]) {
+      const existing = listed.find(c => c.name === name)
+      if (existing) {
+        if (previousAliases?.has(name) && existing.source === 'plugin' && (existing.plugin === 'relai-cache-keeper' || existing.plugin?.startsWith('relai-cache-keeper@'))) ownedAliases.add(name)
+        continue
+      }
+      try {
+        await $.command.register({ name, description })
+        ownedAliases.add(name)
+      } catch { /* Optional alias refused by the host; do not handle it. */ }
     }
     $.clock.every(TICK_MS, () => { tick($).catch(() => {}) })
     clearOldStatus($)
@@ -1087,6 +1115,19 @@ export const register: Register = (on) => {
       resetSession($, id !== ending ? id : '', true)
     }
     return next(e)
+  })
+
+  on('config.set', async ($, e, next) => {
+    if (!(await configRows($)).some(row => row.key === e.key)) return next(e)
+    const key = e.key.slice(e.key.lastIndexOf('.') + 1)
+    if (!CONFIG_KEYS.includes(key as keyof Settings)) return next(e)
+    try { readOptions({ [key]: e.value }, settings) } catch (err) { return { deny: String(err) } }
+    const result = await next(e)
+    if (!result?.deny) {
+      settings = readOptions({ [key]: result.value }, settings)
+      $.ui.invalidate('ui.render')
+    }
+    return result
   })
 
   on('prompt.submit', async ($, e, next) => {
@@ -1214,7 +1255,8 @@ export const register: Register = (on) => {
     return next(e)
   })
 
-  on('command.run', { command: ['handoff', 'ckp-handoff'] }, async ($, e) => {
+  on('command.run', { command: ['relai-cache-keeper-handoff', 'handoff', 'ckp-handoff'] }, async ($, e, next) => {
+    if (e.command !== 'relai-cache-keeper-handoff' && ownedAliases && !ownedAliases.has(e.command)) return next(e)
     const arg = String(e.args || '').trim().toLowerCase()
     if (arg === 'dalej' || arg === 'continue') {
       if (H.phase !== 'ready') return { text: `Brak gotowego przekazania. Najpierw /${names.handoff}.` }
@@ -1225,7 +1267,8 @@ export const register: Register = (on) => {
     return { text: S.isRelai ? 'Przekazanie RelAI: synchronizacja dokumentów, potem pytanie o świeży czat.' : 'Przekazanie: spisanie stanu sesji, potem pytanie o świeży czat.' }
   })
 
-  on('command.run', { command: ['cache', 'ckp-cache'] }, async ($, e) => {
+  on('command.run', { command: ['relai-cache-keeper', 'cache', 'ckp-cache'] }, async ($, e, next) => {
+    if (e.command !== 'relai-cache-keeper' && ownedAliases && !ownedAliases.has(e.command)) return next(e)
     const now = await $.clock.now()
     const [key, ...rest] = String(e.args || '').trim().split(/\s+/).filter(Boolean)
     await loadPrices($)
@@ -1245,13 +1288,22 @@ export const register: Register = (on) => {
     }
     const result = applySetting(settings, key, rest.join(' '))
     if (result.error) return { text: `${result.error}\n\n${statusText(now)}` }
-    settings = result.settings
-    await $.store.set(STORE_SETTINGS, settings)
+    const changed = CONFIG_KEYS.filter(k => JSON.stringify(settings[k]) !== JSON.stringify(result.settings[k]))
+    try {
+      const io = await configuration($)
+      settings = await writeOptions(io, result.settings, changed)
+      // Old command consumers still see their saved settings. Mark this as new-format data:
+      // a later /config edit must not be overwritten by a first migration on the next reload.
+      await $.store.set('settings', settings)
+      await $.store.set(MIGRATED, [...CONFIG_KEYS])
+    }
+    catch (err) { return { text: `Nie zapisano ustawienia: ${String(err)}` } }
     $.ui.invalidate('ui.render')
     return { text: statusText(now) }
   })
 
-  on('command.run', { command: ['keepwarm', 'ckp-keepwarm'] }, async ($, e) => {
+  on('command.run', { command: ['relai-cache-keeper-keepwarm', 'keepwarm', 'ckp-keepwarm'] }, async ($, e, next) => {
+    if (e.command !== 'relai-cache-keeper-keepwarm' && ownedAliases && !ownedAliases.has(e.command)) return next(e)
     const now = await $.clock.now()
     const arg = String(e.args || '').trim().toLowerCase()
     if (arg === 'off' || (arg === '' && S.keepWarm)) {

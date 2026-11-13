@@ -164,7 +164,7 @@ export const isSettled = (p: Pick<PluginItem, 'state'>, want: boolean): boolean 
  * for the user. relai-mods is never among them — it stays on everywhere, as it is what turns
  * RelAI on in a new folder (plan ZASIEG_PLUGINU, section 5).
  */
-export const RELAI_SET = ['relai@relai', 'relai-panel@relai', 'relai-progress@relai', 'relai-cache-keeper@relai'] as const
+export const RELAI_SET = ['relai@relai', 'relai-panel@relai', 'relai-progress@relai', 'relai-cache-keeper@relai', 'relai-browser@relai', 'relai-input-router@relai', 'relai-model-router@relai', 'relai-effort@relai', 'relai-research@relai'] as const
 
 /** The line a worktree needs to copy the ignored local settings (P-058 pt 2). */
 export const WORKTREE_LINE = '.claude/settings.local.json'

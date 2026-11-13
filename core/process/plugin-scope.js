@@ -21,7 +21,7 @@ const fs = require('fs');
 const path = require('path');
 const { isGuest, relaiMarkerFile } = require('./session-signals.js');
 
-const ZESTAW = ['relai@relai', 'relai-panel@relai', 'relai-progress@relai', 'relai-cache-keeper@relai'];
+const ZESTAW = ['relai@relai', 'relai-panel@relai', 'relai-progress@relai', 'relai-cache-keeper@relai', 'relai-browser@relai', 'relai-input-router@relai', 'relai-model-router@relai', 'relai-effort@relai', 'relai-research@relai'];
 const LINIA_WORKTREE = '.claude/settings.local.json';
 const PLIK_DZIENNIKA = ['.claude', 'relai', 'zasieg-pluginu.json'];
 const ODCZYT_JSONL = 64 * 1024; // pierwsze pole cwd stoi zwykle w pierwszych ~9 KB (pomiar 2026-10-27)

@@ -1,3 +1,4 @@
+import { mockCacheConfig } from './config-fixture'
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, RenderNode, TurnStepResult } from 'claude-code'
 import { BAR } from './relai/theme.mjs'
@@ -22,6 +23,7 @@ const LIMITS: Limit[] = [
 ]
 
 function world(on: On, cost: number | undefined) {
+  mockCacheConfig(on)
   mock.clock(on, { now: NOW })
   const kept = new Map<string, unknown>()
   on('store.get', ($, e) => ({ value: kept.get(e.key) as never }))

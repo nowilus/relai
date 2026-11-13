@@ -8,6 +8,21 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-071 — `config.list` działa w hooku, lecz nie jest metodą obiektu testu · 2026-11-13 · AKTYWNA
+
+- **Objaw:** w ciele testu `$.config.list()` daje `TypeError: $.config.list is not a function`.
+  Hook korzystający z tej operacji bez atrapy zgłasza `no implementation for config.list`.
+- **Przyczyna:** zestaw testowy udostępnia na obiekcie testu `config.set` i `config.describe`,
+  a odczyt listy przez skompilowany hook jest osobnym wywołaniem wymagającym liścia testowego.
+  Nowy, nienadpisujący błędu zapis `command.register` także wymaga jawnej odpowiedzi testu.
+- **Obejście:** dla hooka podstawić `on('config.list', ...)` z rzeczywistym kształtem wierszy
+  `{key, value, provider}`, zapis obsłużyć `on('config.set', ...)`, rejestrację komend osobno.
+  W E9 robi to `cache-keeper/hooks/config-fixture.ts`; test migracji przechodzi przez prawdziwy
+  `session.start`, komendę i `config.set`, obok testów czystej logiki. Odpowiedź zapisu może
+  nieść inną wartość niż żądana — runtime czyta wynik, nie pierwotne wejście.
+- **Zasięg:** Claude Code 2.1.323, Windows, E9 MODY_OSZCZEDZANIA. Dowody w katalogu E9:
+  `config-api.txt`, `config-review-red2.txt`, `config-final.txt`. Nie zastępuje pomiaru `/config` w E10.
+
 ### P-070 — Silnik 2.1.323 i sandbox Codeksa: limity HTTP, przestrzenie `$` i zastane testy wyglądu · 2026-11-13 · AKTYWNA
 
 - **Objaw:** `$.http.fetch(url, { timeoutMs, redirect })` nie przekazuje tych dwóch opcji do

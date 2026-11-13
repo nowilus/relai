@@ -13,7 +13,7 @@
 // Pure logic only; the mod lists the files, runs the process and draws. Same ESM rule and same
 // copy as plan-state.mjs (source here, synced copies in the plugins' hooks/core/).
 
-import { LABELS, LABEL_CAP } from './headings.mjs';
+import { LABELS, LABEL_CAP } from './labels.mjs';
 
 /**
  * @typedef {{ path: string, bytes: number, mtimeMs: number }} FileEntry  path relative to the root, with "/"

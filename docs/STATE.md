@@ -1,7 +1,7 @@
 # STATE — RelAI
 
 Stan na: 2026-11-13 (RelAI 3.8.0 wydany; aktywny plan MODY_OSZCZEDZANIA, E1–E8 zrealizowane,
-E9 gotowy do startu)
+E9 zrealizowany 2026-11-13; E10 gotowy do startu)
 
 ## Gdzie jesteśmy
 
@@ -17,7 +17,10 @@ są włączone na poziomie użytkownika, a w projektach z markerem RelAI także 
 z `relai-scope.js status`, 2026-11-10); tryb „RelAI tylko w projektach” jest dostępny
 (`relai-scope.js apply`), ale nie jest włączony. Plan OPTYMALIZACJA_PO_AUDYCIE zamknięty
 2026-11-10 (14 etapów w dwa dni, E9–E13 wykonał Codex wg Aneksu A, jedno wydanie 3.8.0); aktywny
-plan: MODY_OSZCZEDZANIA (E1–E4 zrealizowane 2026-11-11 — E4 bez kliknięcia karty panelu, przeniesione do E10; E5 zrealizowany 2026-11-12 z Aneksem B; E6 zrealizowany 2026-11-12 — karta załogi w `/relai-crew`; E7 zrealizowany 2026-11-12 — `relai-effort` 0.1.0 przez Codeksa, bramka Claude zielona; E8 zrealizowany 2026-11-13 — `relai-research` 0.1.0 i routing z Aneksu D, bramka Claude zielona po poprawce Sol; E9 gotowy do startu). Każdy push do `main` uruchamia testy rdzenia i adapterów (`testy.yml`).
+plan: MODY_OSZCZEDZANIA (E1–E9 zrealizowane; E9 2026-11-13 — podział zasobów headings, userConfig
+Cache Keepera z migracją, zestaw nowych modów i układ Input Routera, bramka Claude dodatnia;
+E10 gotowy do startu — pomiar integracji i wydanie nadal przed nami).
+Każdy push do `main` uruchamia testy rdzenia i adapterów (`testy.yml`).
 PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projektu nadal nie ma.
 
 ## Co działa
@@ -144,7 +147,16 @@ PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projek
   wynikiem dla agenta, rejestr i rejestracja (dziewiąty cel sync). Aneks D wdrożony bez zmiany
   wersji routera; przegląd Sol BLOCK (1 HIGH, 3 MEDIUM) → naprawione; Research 66/66 testów
   silnika + 6/6 Node, router 103/103, 52 mutacje zabite; bramka Claude poza sandboxem bez
-  nowych czerwieni. E9 gotowy do startu; sonda i pomiar na żywo w E10. Cel planu:
+  nowych czerwieni. E9 zrealizowany 2026-11-13 — kontynuacja Sol po decyzji Łukasza (L-0336): generator dzieli
+  nagłówki według odbiorców, cyfry i etykiety osobno; eksporty i SVG zgodne ze starym wariantem,
+  pakiety LF mniejsze o 542 123 B względem HEAD. Cache Keeper ma userConfig i komendy z prefiksem;
+  migracja wariantu A zachowuje stare wartości, późniejszy `/config` wygrywa. Kokpit/scope znają
+  nowe mody (kokpit globalny wg D-92), Input Router sprawdzony przy sześciu szerokościach.
+  Mody bez nowych czerwieni, 11/11 mutantów zabitych; przegląd Sol WARN (5 × MEDIUM, Cache
+  Keeper) → 5/5 naprawione, 13/13 mutacji; bramka Claude poza sandboxem dodatnia (Node 764/764).
+  [Raport E9](plany/MODY_OSZCZEDZANIA/RAPORT_E9.md) i
+  [prompt E10](plany/MODY_OSZCZEDZANIA/PROMPT_ETAP_10.md) gotowe; E10 gotowy do startu.
+  Sonda i pomiar na żywo w E10. Cel planu:
   pięć modów oszczędzania tokenów (własny kod, zachowanie jak paczka BenAI) i zakładka
   „Oszczędności” w `relai-panel`, 10 etapów. Pozostali kandydaci (`/relai-update`, G1) — w „Co dalej”.
 - **PANEL_CODEX — nieaktywny, WSTRZYMANY 2026-10-27** decyzją Łukasza (plan
@@ -167,8 +179,8 @@ PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projek
   [POMIARY.md](archiwum/plany/OPTYMALIZACJA_PO_AUDYCIE/POMIARY.md); decyzja Łukasza: później, wdrożenie
   osobnym planem); pomiar na żywo, czy koder w Cursorze bez `-f` uruchomi testy (K-D7);
   wpisy lokalne pluginów w innych projektach zostały na 3.6.0–3.7.0 (P-062). **Świadomie
-  odłożone:** znaleziska niskiej wagi raportu audytu poza planem; podział `headings.mjs`
-  i `register.tsx`, los `cache-timer.mjs` do decyzji o PANEL_CODEX (K-F4, K-F5); rotacja
+  odłożone:** znaleziska niskiej wagi raportu audytu poza planem; podział `register.tsx`
+  i los `cache-timer.mjs` do decyzji o PANEL_CODEX (K-F4, K-F5; `headings.mjs` podzielony w E9); rotacja
   `DZIENNIK.md` (235 KB / 150 KB) i `LEKCJE.md` (76,5 KB / 50 KB); katalog
   `adapters/claude-code/hooks/.claude/` z 2026-10-27 (ignorowany, 0,9 MB — prowizja hooka
   w złym katalogu sesji); skrót startu tego repo 23 542 B po zamknięciu planu wobec 26 633 B

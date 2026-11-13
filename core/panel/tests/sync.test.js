@@ -29,6 +29,15 @@ function fixture(t, prefix, dirs, files) {
 
 const uses = (...names) => names.map((n) => `import { x as ${n.replace(/\W/g, '_')} } from './core/${n}';\n`).join('');
 
+test('E9: consumers carry only their heading assets, not the compatibility barrel', () => {
+  const { copies } = require(TOOL).check();
+  for (const names of Object.values(copies)) assert.ok(!names.includes('headings.mjs'));
+  assert.ok(copies['progress/hooks/core'].includes('headings-progress.mjs'));
+  assert.ok(!copies['progress/hooks/core'].includes('heading-art.mjs'));
+  assert.ok(copies['mods/hooks/core'].includes('headings-mods.mjs'));
+  assert.ok(!copies['mods/hooks/core'].includes('heading-art.mjs'));
+});
+
 test('panel/hooks/core matches core/panel', () => {
   const r = require(TOOL).check();
   assert.deepEqual(r.problems, []);

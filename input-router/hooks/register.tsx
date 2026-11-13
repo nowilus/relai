@@ -476,7 +476,7 @@ export const register: Register = (on) => {
         {cards.map((c) => {
           const at = c.key
           const words = (
-            <Box key={`${c.key}~w`} flexDirection="column" flexGrow={1} width={0}>
+            <Box key={`${c.key}~w`} flexDirection="column" flexGrow={1} width={isWide ? 0 : undefined}>
               <Text color={c.tone === 'bad' ? 'error' : c.tone === 'ok' ? 'text' : 'inactive'}>{c.sign} {c.word} · {c.tool}</Text>
               {c.path !== '' && <Text color="inactive" wrap="truncate">{c.path}</Text>}
               {c.numbers !== '' && <Text color="inactive">{c.numbers}</Text>}

@@ -4090,3 +4090,131 @@ Autor: RelAI (Opus 5.5 w Claude Code, terminal Herdr) + Lukasz
 **Świadomie odłożone:** agent startowany przyciskiem „+” w layoucie PolyFlow (proces główny
 `powershell.exe`, pod nim `claude.exe`) nie zgłasza stanu OSC 7501 i nie trafia na listę Agents
 w Herdrze; agent z `hc run` trafia. Sprawa projektu `desktop/herdr`, poza RelAI.
+
+### 2026-11-13 — MODY_OSZCZEDZANIA E9: kontynuacja Sol, porządki i kod do bramki
+
+Autor: RelAI (gpt-6.1-terra → gpt-6.1-sol w Codeksie) + Lukasz
+
+**Zrobione:**
+
+- Łukasz przekazał dokończenie etapu Sol po przebiegach Terra kończących po 2–5 minutach bez
+  realnej blokady (L-0336). Zachowano zastane zmiany kokpitu/scope i układu Input Routera.
+- Generator headings dzieli nagłówki panelu, postępu i kokpitu, cyfry oraz etykiety dokumentów;
+  kompatybilny barrel nadal ma cztery eksporty. Odbiorcy importują potrzebne moduły, kopie
+  i usunięcie nadmiarowych kopii wyłącznie przez sync-panel-core. Zachowano adnotacje typów.
+- Cache Keeper ma dziewięć opcji userConfig i komendy `/relai-cache-keeper`,
+  `/relai-cache-keeper-keepwarm`, `/relai-cache-keeper-handoff`; aliasy stare i `ckp-*` zachowane,
+  o ile ich nazwy wolne. Rozstrzygnięcie Łukasza **wariant A**: stare wartości `$.store.settings`
+  przeżywają migrację; późniejszy jawny `/config` wygrywa. Checkpoint per pole zapobiega
+  nadpisaniu późniejszej decyzji po częściowej odmowie. Sama migracja starego klucza nie zmienia;
+  dawne komendy nadal zapisują zgodny magazyn, oznaczając dane jako już zmigrowane.
+- Kokpit i scope znają nowe mody; nazwy sprawdzone z marketplace. D-92 zachowana: rdzeń + osiem
+  modów przełączanych projektowo, kokpit globalny. Bez przełączeń prawdziwej instalacji.
+- Input Router w kolumnie nie ma width=0; test obejmuje sześć szerokości, nazwę rzeczywistego
+  narzędzia Google Drive długości 64 znaków oraz otwieranie notatek i pełnego wyniku.
+- Release-map poprawiona dla dziewięciu celów. STATUS, STATE i zgodna linia CLAUDE/AGENTS
+  aktualne; PROMPT_ETAP_10 wygenerowany, bez rozpoczęcia E10. P-071 opisuje ograniczenia
+  konfiguracji w harnessie testowym. ARTEFAKTY bez zmiany: prompty etapowe są wprost wyłączone
+  z rejestru, nie zmieniono instrukcji pluginu. Raport: [RAPORT_E9.md](plany/MODY_OSZCZEDZANIA/RAPORT_E9.md).
+
+**Zweryfikowane — jak dokładnie:**
+
+- Baza od Claude: `BAZA_PRZED.md` w katalogu E9, pełny przebieg poza sandboxem. Nowa regresja
+  headings najpierw 0/1 z asercji; migracja najpierw dwie czerwone asercje; poprawki przeglądu
+  najpierw czerwień faktycznie zapisanej wartości i minimalnego zakresu w manifeście.
+- Po: każdy plik przez `claude plugin test --file <mod>/hooks/<plik> <mod>`, odczyt
+  `results[].failure` i `error`: panel 218/220, progress 50/51, Cache Keeper 211/212,
+  mods 92/92, browser 28/28, Input Router 80/80, Model Router 103/103, Effort 33/33,
+  Research 66/66; konfiguracja 6/6, kontrakt manifestu Node 1/1, Research Node 6/6.
+  Cztery porażki wyglądu odtworzone na pełnych źródłach HEAD w tym samym silniku 2.1.323;
+  katalogi i raporty baseline-* pozostawione jako reproduktory. Nie zmieniono oczekiwań migawek.
+- Node każdym plikiem z `--test-isolation=none`: guardrails 23 pass / 10 fail, process 248/184,
+  panel core 236/7, Codex 19/9, Cursor 0/10. Sonda: `spawnSync node EPERM`, `spawnSync git EPERM`;
+  test documents pada także na `stdout.split`. `release-check.js`: „NIE DA SIE SPRAWDZIC -
+  git rev-parse --show-toplevel: kod null”. Pełna bramka nadal przy Claude poza sandboxem.
+- `mutations.ps1`: 11/11 mutantów zabitych asercjami, źródła odtwarzane w finally. Ochrony:
+  migracja, jej jednokrotność, zachowanie starej wartości, odmowa zapisu, walidacja wejścia,
+  faktycznie zapisana wartość, zestaw i lista zamknięta, kokpit, width=0 i ciężki barrel.
+  Test układu 38/38 przy 40/47/48/143/144/160 kolumnach; nie zastępuje zrzutu na żywo.
+- Wszystkie eksporty headings, SVG, metryki i podzbiory odbiorców identyczne przed/po.
+  Pakiety (bloby HEAD LF vs bieżące śledzone + nowe nieignorowane, bez SDK):
+  **3 530 683 → 2 988 560 B, mniej o 542 123 B (15,35%)**. Miara obejmuje nowe testy;
+  dodatkowy pomiar lokalnych drzew i stary wariant w E9. Nie jest to miara pobrania ani G1.
+- Pomocnicze przeglądy Sol: core APPROVE; TS dwa MEDIUM (wartość zwrócona przez config.set,
+  stary legalny zakres ułamkowy) → naprawione z czerwonymi regresjami, ponowny przegląd bez
+  HIGH/MEDIUM. Walidator adapterów i sync zgodne; plugin validate zmienionych modów
+  passed with warnings (zastane ikony, type-checker bez odpowiedzi). Polecenie `tsc` niedostępne.
+- Trivy bez aktualizacji bazy: pełny `trivy-final.json`, **0 CRITICAL / 42 HIGH / 62 MEDIUM /
+  14 LOW**, zakres z fixturami jak E8, brak nowych HIGH/CRITICAL i nowych zależności.
+  Skaner: 46 zmienionych/nowych plików źródłowych BRAK, kontrola pozytywna SEKRET;
+  wszystkie zmienione testy osobno BRAK. Wejście konfiguracji walidowane przed zapisem.
+- Katalog E9 w pomiarze końcowym: **496 plików / 6 228 066 B** (stan przed zapisem inwentarza).
+  Raport clean-work wywołany CLI z preloaderem przekierowującym wyłącznie zapis raportu do E9;
+  także `clean-raport-final.json` i `inventory.json`. Sandbox nie rozpoznaje Gita, otwarty etap
+  pominięty przez skaner — dlatego dodatkowy inwentarz. Zastany `.claude/relai/clean-raport.json`
+  zachowany bajt w bajt. Nie kasowano artefaktów i nie commitowano.
+- Zewnętrzne artefakty: brak nowych pozostawionych katalogów `relai-*` w TEMP między migawkami.
+  Zastany `C:/Users/Lukasz/AppData/Local/Temp/relai-e7-validator-vOzuLs` zniknął w trakcie testów,
+  bez ręcznego kasowania. Wszystkie własne instrumenty i wyniki w E9; cudzy `.claude/launch.json`
+  nietknięty. Kontrola końcowa: cztery identyczne porażki bazy, zgodne CLAUDE/AGENTS,
+  dziewięć elementów promptu E10, istniejące linki STATE/STATUS; `git diff --check` czysty.
+
+**Poprawki po przeglądzie Sol — WARN, 5 × MEDIUM (Aneks C, 6c):**
+
+- RelAI (gpt-6.1-sol w Codeksie, effort high) + Lukasz: pięć znalezisk Cache Keepera naprawionych
+  wyłącznie w konfiguracji, rejestracji i ich testach. Aliasy tylko wolne, cudze wywołania
+  przepuszczane; potwierdzone wartości zapisu zamiast starej listy po migracji i komendzie;
+  brak zbędnych zapisów, odmowa zarządzanego pola nie przerywa startu; rzeczywiste klucze
+  konfiguracji obejmują inline. Wariant A bez zmiany, stary magazyn migracji nietknięty.
+- Przed poprawkami 7 czerwonych asercji; po config 11/11, komendy 19/19, kontrakt Node 1/1,
+  13/13 mutacji zabitych asercjami, bajty źródeł odtworzone w `finally` i sprawdzone SHA-256.
+  Cache Keeper plikami 218/219; jedyna porażka `terminal-grid` z identycznymi hashami jak baza.
+  Pełny `claude plugin test cache-keeper` blokuje `uv_spawn EPERM` — powtarza bramka Claude.
+  Sync dziewięciu celów zgodny, skan sekretów ośmiu zmienionych plików BRAK 8/8.
+  Przegląd własnego diffu bez nowych usterek, `git diff --check` czysty. Dowody `review-*` w E9; szczegóły w dopisku
+  [raportu E9](plany/MODY_OSZCZEDZANIA/RAPORT_E9.md#poprawki-po-przeglądzie--2026-11-13-aneks-c-krok-6c).
+  Bez commita, kasowania, instalacji i przełączeń; E9 W TOKU, E10 OCZEKUJE.
+
+**Świadomie odłożone:**
+
+- Sonda i pomiar integracji E7–E9, ponowne E6, kliknięcie E4, migracja BenAI, dokumentacja
+  użytkownika całego pakietu i jedyne wydanie — E10 (Aneks C). Wersje niewydanych modów 0.1.0
+  bez podbijania. G1 i PANEL_CODEX nieotwierane; nie czytano kodu BenAI.
+- Przegląd ryzyk: R1/C1 wysoki (zmienne API; testy nie zastępują E10), R7 średni
+  (bliźniaki; bez przełączeń przed zgodą), R10 niski (mapa/sync zgodne), AC3–AC5 nadal pod
+  formalną bramką Claude. Brak podstaw do zamknięcia tych ryzyk samym wynikiem offline.
+
+**Do zrobienia przez człowieka:**
+
+- Claude: pełna bramka poza sandboxem i formalny przegląd; po dodatnim wyniku E9 → ZREALIZOWANY,
+  E10 → GOTOWY DO STARTU. Do tej chwili E9 W TOKU, E10 OCZEKUJE mimo istniejącego promptu.
+- Claude: przegląd raportu i sprzątanie E9 dopiero po „tak”, zachowanie reproduktorów do pomiaru,
+  liczby przed/po oraz propozycja commita. Codex bez commita, push, instalacji i przełączeń.
+- E10: pomiar z Łukaszem i przełączenia BenAI, dwie decyzje biznesowe z PLAN §9 oraz
+  odinstalowanie BenAI przez Łukasza po dodatnim pomiarze; bramki jawnie OTWARTE w STATUS.
+
+**Bramka Claude — 2026-11-13: E9 ZREALIZOWANY**
+
+Autor: RelAI (Opus 5.5 w Claude Code) + Lukasz
+
+- Przebieg: terra `crew.js run --role coder` bez `--raw` → `STOP:` (preambuła roli zabrania
+  `docs/`; L-0332 powtórzona przez Claude); terra `--raw` → `PYTANIE:` o konflikt `$.store` ↔
+  `userConfig` (Łukasz: wariant A); dwa kolejne przebiegi terra po 2–5 min „nieukończony”
+  (L-0336 powtórzona — ponowienie zamiast zmiany wykonawcy); Sol: pierwszy przebieg na limicie
+  Codeksa, drugi (44 min) dowiózł zakres i rytuał. Reguły `--raw` i L-0336 dopisane do pamięci.
+- Przegląd Sol (`crew.js run --role reviewer`, tylko odczyt): WARN, 5 × MEDIUM w Cache Keeperze
+  (aliasy komend bez sprawdzenia zajętości, opóźniony odczyt konfiguracji w dwóch miejscach,
+  zbędne zapisy pól zarządzanych, przestrzeń `@inline`) → poprawki Sol 5/5, 7 czerwonych asercji
+  przed kodem, 13/13 mutacji zabitych. Raport: `PRZEGLAD_SOL_E9.md` w folderze planu.
+- Poza sandboxem: `node --test --test-isolation=none` — guardrails 33, process 432, panel 255,
+  codex 28, cursor 10, Research 6 — 0 porażek. `claude plugin test`: browser 28, effort 33,
+  input-router 80, model-router 103, mods 92, research 66 bez porażek; cache-keeper 218/219,
+  panel 218/220, progress 50/51 — te same cztery zastane czerwienie wyglądu (nazwy testów jak
+  w bazie). `validate-adapters.js` kod 0, `sync-panel-core --check` zgodne 9 celów, skaner
+  sekretów `BRAK` dla zmienionych plików Cache Keepera. `release-check.js` kod 2 „brak bazy
+  modu relai-browser” — odłożone do E10, nie regres.
+- Katalog roboczy E9 (8,3 MB) i przebiegi `CREW/mody-e9*` skasowane po zgodzie Łukasza.
+  E9 → ZREALIZOWANY, E10 → GOTOWY DO STARTU.
+- **Świadomie odłożone:** `crew.js review` nie działa z bieżącym CLI Codeksa — `codex review`
+  odrzuca `--color` („unexpected argument '--color' found”); przegląd szedł przez
+  `crew.js run --role reviewer`. Naprawa poza zakresem E9 — odnoga albo E10.

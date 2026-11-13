@@ -1,3 +1,4 @@
+import { mockCacheConfig } from './config-fixture'
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, RenderNode, TurnStepResult } from 'claude-code'
 import { KEY } from './relai/theme.mjs'
@@ -30,6 +31,7 @@ type World = { ctx: number, limits: Limit[], turns: number, store: Map<string, u
 
 function world(on: On, options: { store?: Record<string, unknown>, turns?: number, disk?: Record<string, string> } = {}) {
   const w: World = { ctx: 0, limits: [], turns: options.turns ?? 5, store: new Map(Object.entries(options.store ?? {})) }
+  mockCacheConfig(on)
   const clock = mock.clock(on, { now: NOW })
   on('store.get', ($, e) => ({ value: w.store.get(e.key) as never }))
   on('store.set', ($, e) => { w.store.set(e.key, e.value); return { value: undefined } })

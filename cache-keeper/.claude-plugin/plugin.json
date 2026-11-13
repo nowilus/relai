@@ -5,5 +5,16 @@
   "description": "Early access — needs Claude Code with mods (measured on 2.1.295). Four batteries above the prompt in an even grid — the prompt cache's time left, the 5-hour limit, the time to its reset and the weekly limit — each showing what is left, with the full words in the app's tooltip, and a context row: used / the model's window · %, a notch at the auto-compact threshold (CLAUDE_AUTOCOMPACT_PCT_OVERRIDE included) and the bar's colour by the way left to it; the session's cost once, on the right; asks before a cold send of a big context and says when a fresh session pays off (/cache shows the reckoning). Plan limits: a 5-hour threshold (90 %) and a weekly one (98 %), each set per session, project or everywhere; past a threshold a card after the turn offers to save the work (tests, a local commit, the docs, a resume file) and, after the reset, Wznów pracę starts a fresh chat from that file. Calls the model only on the person's request (keep-warm pings, hand-off, save and resume).",
   "homepage": "https://github.com/nowilus/relai",
   "repository": "https://github.com/nowilus/relai",
-  "license": "MIT"
+  "license": "MIT",
+  "userConfig": {
+    "ttlMin": { "type": "number", "title": "Cache TTL", "description": "Minutes: 0 (auto), 5 or 60.", "default": 0, "min": 0, "max": 60 },
+    "guard": { "type": "boolean", "title": "Cold-send guard", "description": "Ask before rewriting a large cold cache.", "default": true },
+    "bigTokens": { "type": "number", "title": "Large context", "description": "Token threshold for the cold-send guard.", "default": 150000, "min": 1 },
+    "alerts": { "type": "boolean", "title": "Cooling alerts", "description": "Warn before the cache expires.", "default": true },
+    "alertTokens": { "type": "number", "title": "Alert threshold", "description": "Minimum cached tokens for cooling alerts.", "default": 50000, "min": 1 },
+    "warnMin": { "type": "string", "title": "Warning minutes", "description": "Comma-separated minutes before expiry, each greater than 0 and less than 60.", "default": "10,5" },
+    "keepWarmHours": { "type": "number", "title": "Keep-warm hours", "description": "Duration used when no hours are specified; greater than zero.", "default": 4, "min": 0, "max": 12 },
+    "maxLimitPercent": { "type": "number", "title": "Keep-warm stop", "description": "Stop keep-warm at this plan usage percentage; greater than zero.", "default": 90, "min": 0, "max": 100 },
+    "paybackTurns": { "type": "number", "title": "Payback turns", "description": "Whole number of messages for a fresh session to pay off.", "default": 20, "min": 1, "max": 50 }
+  }
 }

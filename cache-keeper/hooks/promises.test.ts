@@ -1,3 +1,4 @@
+import { mockCacheConfig } from './config-fixture'
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, TurnStepResult } from 'claude-code'
 
@@ -27,6 +28,7 @@ const WROTE: Usage = { input_tokens: 10, output_tokens: 2, cache_read_input_toke
 
 function world(on: On, options: { relai?: boolean } = {}) {
   const w: World = { limits: [], forks: [], pings: [], toasts: [], log: [], asked: [], answer: STAY }
+  mockCacheConfig(on)
   const clock = mock.clock(on, { now: NOW })
   const kept = new Map<string, unknown>()
   on('store.get', ($, e) => ({ value: kept.get(e.key) as never }))

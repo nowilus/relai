@@ -1,3 +1,4 @@
+import { mockCacheConfig } from './config-fixture'
 import { describe, expect, mock, test, type TestBody } from 'claude-code/testing'
 import type { On, TurnStepResult } from 'claude-code'
 
@@ -17,6 +18,7 @@ const BAND = (bodyColumns: number) => ({
 
 function world(on: On) {
   const n = { invalidate: 0, store: 0 }
+  mockCacheConfig(on)
   const clock = mock.clock(on, { now: NOW })
   // The plugin's store in memory, counted: mock.store would answer the same nouns uncounted
   const kept = new Map<string, unknown>()

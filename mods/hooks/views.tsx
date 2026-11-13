@@ -14,7 +14,7 @@ import {
 } from './cockpit'
 import type { Filter, Queue, ScopeRow } from './cockpit'
 import { KEY, KIND_KEY, LOCK, RULE, SWITCH, lockAlt, lockSvg, switchAlt, switchSvg } from './look'
-import { HEADING_ART } from './core/headings.mjs'
+import { HEADING_ART } from './core/headings-mods.mjs'
 import { twoTone } from './core/theme.mjs'
 
 export type El = ReturnType<EngineInterface['ui']['resolve']>
