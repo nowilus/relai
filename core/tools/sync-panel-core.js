@@ -40,7 +40,7 @@ const SRC = path.join(ROOT, 'core', 'panel');
 // relai-mods joined in E3 of plan RELAI_MODS (Annex B), for the theme keys of its cockpit.
 // relai-browser joined in E1 of plan MODY_OSZCZEDZANIA (the first token-saving mod),
 // relai-input-router in its E3, relai-model-router in its E5.
-const PLUGINS = [['panel', 'panel/hooks/core'], ['progress', 'progress/hooks/core'], ['cache-keeper', 'cache-keeper/hooks/relai'], ['mods', 'mods/hooks/core'], ['browser', 'browser/hooks/core'], ['input-router', 'input-router/hooks/core'], ['model-router', 'model-router/hooks/core'], ['effort', 'effort/hooks/core']];
+const PLUGINS = [['panel', 'panel/hooks/core'], ['progress', 'progress/hooks/core'], ['cache-keeper', 'cache-keeper/hooks/relai'], ['mods', 'mods/hooks/core'], ['browser', 'browser/hooks/core'], ['input-router', 'input-router/hooks/core'], ['model-router', 'model-router/hooks/core'], ['effort', 'effort/hooks/core'], ['research', 'research/hooks/core']];
 const present = () => PLUGINS.filter(([p]) => fs.existsSync(path.join(ROOT, p)));
 const ICONS = path.join(ROOT, 'docs', 'zasoby', 'branding', 'ikony');
 const ICONS_MODULE = 'icons.mjs';

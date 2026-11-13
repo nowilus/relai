@@ -1,8 +1,7 @@
 # STATE — RelAI
 
-Stan na: 2026-11-10 (ostatni zamknięty plan OPTYMALIZACJA_PO_AUDYCIE ZREALIZOWANY — RelAI 3.8.0
-z naprawami po audycie i cztery mody; poprzednio KONTEKST_STARTU 2026-10-28 — wydanie 3.7.0;
-aktywnego planu brak)
+Stan na: 2026-11-13 (RelAI 3.8.0 wydany; aktywny plan MODY_OSZCZEDZANIA, E1–E8 zrealizowane,
+E9 gotowy do startu)
 
 ## Gdzie jesteśmy
 
@@ -18,7 +17,7 @@ są włączone na poziomie użytkownika, a w projektach z markerem RelAI także 
 z `relai-scope.js status`, 2026-11-10); tryb „RelAI tylko w projektach” jest dostępny
 (`relai-scope.js apply`), ale nie jest włączony. Plan OPTYMALIZACJA_PO_AUDYCIE zamknięty
 2026-11-10 (14 etapów w dwa dni, E9–E13 wykonał Codex wg Aneksu A, jedno wydanie 3.8.0); aktywny
-plan: MODY_OSZCZEDZANIA (E1–E4 zrealizowane 2026-11-11 — E4 bez kliknięcia karty panelu, przeniesione do E10; E5 zrealizowany 2026-11-12 z Aneksem B; E6 zrealizowany 2026-11-12 — karta załogi w `/relai-crew`; E7 zrealizowany 2026-11-12 — `relai-effort` 0.1.0 przez Codeksa, bramka Claude zielona; E8 gotowy). Każdy push do `main` uruchamia testy rdzenia i adapterów (`testy.yml`).
+plan: MODY_OSZCZEDZANIA (E1–E4 zrealizowane 2026-11-11 — E4 bez kliknięcia karty panelu, przeniesione do E10; E5 zrealizowany 2026-11-12 z Aneksem B; E6 zrealizowany 2026-11-12 — karta załogi w `/relai-crew`; E7 zrealizowany 2026-11-12 — `relai-effort` 0.1.0 przez Codeksa, bramka Claude zielona; E8 zrealizowany 2026-11-13 — `relai-research` 0.1.0 i routing z Aneksu D, bramka Claude zielona po poprawce Sol; E9 gotowy do startu). Każdy push do `main` uruchamia testy rdzenia i adapterów (`testy.yml`).
 PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projektu nadal nie ma.
 
 ## Co działa
@@ -140,7 +139,12 @@ PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projek
   startem `/relai-crew`, członek rozstrzygnięty bez drugiej karty; krok 5a komendy; błąd układu
   `relai-input-router` odłożony do E9), E7 (Effort) zrealizowany 2026-11-12
   (`relai-effort` 0.1.0, 33 testy, przegląd Sol BLOCK → 12/12 naprawione; pomiar na żywo w E10),
-  E8 (Research) gotowy do startu:
+  E8 (Research) zrealizowany 2026-11-13 — wykonawca gpt-6.1-sol (L-0336).
+  `relai-research` 0.1.0: auto/quick/deep, panel, komenda w tle, bramki, skaner także przed
+  wynikiem dla agenta, rejestr i rejestracja (dziewiąty cel sync). Aneks D wdrożony bez zmiany
+  wersji routera; przegląd Sol BLOCK (1 HIGH, 3 MEDIUM) → naprawione; Research 66/66 testów
+  silnika + 6/6 Node, router 103/103, 52 mutacje zabite; bramka Claude poza sandboxem bez
+  nowych czerwieni. E9 gotowy do startu; sonda i pomiar na żywo w E10. Cel planu:
   pięć modów oszczędzania tokenów (własny kod, zachowanie jak paczka BenAI) i zakładka
   „Oszczędności” w `relai-panel`, 10 etapów. Pozostali kandydaci (`/relai-update`, G1) — w „Co dalej”.
 - **PANEL_CODEX — nieaktywny, WSTRZYMANY 2026-10-27** decyzją Łukasza (plan
@@ -232,6 +236,9 @@ PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projek
 
 ## Co blokuje
 
+- Cztery zastane czerwienie wyglądu (panel 2, progress 1, cache-keeper 1) w silniku 2.1.323,
+  obecne także na HEAD; sandbox Codeksa daje `spawnSync node/git EPERM`, więc pełne zestawy
+  i `release-check` robi bramka Claude poza nim.
 - Ochrona konfiguracji jest doradcza (`ask`): w sesji z automatyczną akceptacją przepuszcza zapis.
 - Sesja Cursora w tym folderze nie ma kontekstu RelAI ani blokady sekretu (D-89).
 - Świeża sesja CLI bywa niedostępna — etap oparty na niej sprawdza ją przed startem.

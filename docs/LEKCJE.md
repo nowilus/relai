@@ -1158,6 +1158,18 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
   Do czasu poprawki `buildReviewCommand` przegląd Codeksa idzie przez `crew.js run --role reviewer`
   z plikiem zadania (bez `--write`).
 
+### L-0336 — Terra kończy cały etap modu po ok. 2,5 min raportem „nieukończony” bez blokady · 2026-11-13 · AKTYWNA
+
+- **Trigger:** MODY_OSZCZEDZANIA E8, dwa przebiegi `crew.js run --model gpt-6.1-terra --raw`
+  (drugi z wprost zapisanym „nie kończ bez realnej blokady”): każdy ok. 2,5 min i ok. 110 tys.
+  tokenów, potem raport „nieukończony” z samymi czystymi modułami logiki (5/5 testów), bez modu,
+  panelu, rejestracji i rytuału. W logu nie ma błędu, który by blokował; terra sam ocenia
+  „ograniczenia czasu i wyjścia”. Kontynuacja z `crew.js check` nie zmieniła wyniku.
+- **Zasada:** etapu o zakresie całego nowego modu (mod, panel, rejestracja, rytuał) nie oddajesz
+  terra w jednym przebiegu. Po pierwszym takim stopie nie ponawiasz go tym samym zadaniem:
+  zmieniasz wykonawcę na Sol (decyzja Łukasza 2026-11-13) albo tniesz etap na pod-zadania
+  z osobną granicą plików. Czas przebiegu poniżej 5 min przy dużym zakresie = sygnał tego stopu.
+
 ## Lekcje zwinięte
 
 Pełne wpisy lekcji, których zasady żyją w destylacie „Zasady aktywne" (kompresja 2026-08-20).

@@ -1,0 +1,10 @@
+{
+  "name": "relai-research",
+  "version": "0.1.0",
+  "description": "Early access — needs Claude Code with mods. RelAI Research: scanned WebSearch notes with an original copy, quick parallel page reads with checked citations, deep research routed without an explicit model. Project consent and an active BenAI twin gate every helper. Live measurement deferred to E10.",
+  "author": { "name": "nowilus", "url": "https://github.com/nowilus" },
+  "homepage": "https://github.com/nowilus/relai",
+  "repository": "https://github.com/nowilus/relai",
+  "license": "MIT",
+  "types": "./types/index.d.ts"
+}

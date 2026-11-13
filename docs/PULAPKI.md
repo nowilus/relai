@@ -8,6 +8,24 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-070 — Silnik 2.1.323 i sandbox Codeksa: limity HTTP, przestrzenie `$` i zastane testy wyglądu · 2026-11-13 · AKTYWNA
+
+- **Objaw:** `$.http.fetch(url, { timeoutMs, redirect })` nie przekazuje tych dwóch opcji do
+  transportu; wrapper wydanego builda zachowuje tylko method, headers, body, compress, auth
+  i socketPath. `withDeadline($.clock, ...)` odrzuca kompilator hooków: „$.clock is used as a
+  value”; wolno przekazać funkcję wołającą `$.clock.after(ms, fn)`, nie samą przestrzeń nazw.
+- **Obejście:** zapasowy GET Research używa tablicy argumentów curl, limitu 20 s i 40 000 B,
+  bez śledzenia przekierowań. Deadline WebSearch porzuca odpowiedź po 90 s; nie dowodzi
+  zatrzymania narzędzia. Pomiar transportu na żywo pozostaje w E10 (Aneks C).
+- **Testy:** `mock.clock().advance()` uruchamia callback, ale nie czeka na jego dalszą pracę
+  async; test kończy się odczytem stanu po opróżnieniu dispatchy, nie zaraz po advance.
+  W sandboxie `spawnSync node EPERM` i `spawnSync git EPERM` czerwienią także asercje
+  `null !== 0`, a test documents pada wcześniej na `stdout.split`. Sam brak słowa EPERM
+  w raporcie nie oznacza regresji. Cztery czerwienie wyglądu panel/progress/cache-keeper
+  powtórzone na kopiach HEAD w tym samym silniku — nie są zmianą E8; bramka poza sandboxem.
+- **Zasięg:** E8 MODY_OSZCZEDZANIA, Claude Code 2.1.323, Node 24.13.1, Windows.
+  Dowody: katalog roboczy E8, `baseline-*.txt`, `environment-probe.cjs`, testy runtime.
+
 ### P-069 — `claude plugin test`: kolejność `--file` decyduje o procesie potomnym · 2026-11-12 · AKTYWNA
 
 - **Objaw:** w sandboxie Codeksa `claude plugin test model-router --file hooks/judge.test.ts`

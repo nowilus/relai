@@ -60,17 +60,17 @@ rejestracji oraz dowodu kontroli źródeł.
 
 ## Weryfikacja
 
-- [ ] Wynik bramki E7 i stan drzewa sprawdzone; cudze zmiany nietknięte.
-- [ ] Testy przed zmianą czerwone z asercji, po zmianie zielone; liczby i komendy w raporcie.
-- [ ] Każdy przypis quick wskazuje faktycznie przeczytaną stronę; nieprzeczytane źródło deep
+- [x] Wynik bramki E7 i stan drzewa sprawdzone; cudze zmiany nietknięte.
+- [x] Testy przed zmianą czerwone z asercji, po zmianie zielone; liczby i komendy w raporcie.
+- [x] Każdy przypis quick wskazuje faktycznie przeczytaną stronę; nieprzeczytane źródło deep
       jawnie oznaczone, a źródła przy scalaniu nie giną.
-- [ ] Oryginał wyniku auto zapisany, ścieżka działa; awaria nie niszczy treści.
-- [ ] Dowody negatywne i mutacje wszystkich warunków ochronnych; sekret nie idzie do pomocnika.
+- [x] Oryginał wyniku auto zapisany, ścieżka działa; awaria nie niszczy treści.
+- [x] Dowody negatywne i mutacje wszystkich warunków ochronnych; sekret nie idzie do pomocnika.
 - [ ] Układ panelu sprawdzony w progach szerokości; testy i walidacja pluginu, pozostałych modów,
       rdzenia, procesu i adapterów; `sync-panel-core --check` zgodne.
-- [ ] Trivy bez nowych CRITICAL/HIGH względem E7; brak nowych zależności i sekretów, kontrola
+- [x] Trivy bez nowych CRITICAL/HIGH względem E7; brak nowych zależności i sekretów, kontrola
       pozytywna instrumentu. Granica plików i katalog roboczy sprawdzone.
-- [ ] Sonda i pomiar na żywo przeniesione do E10 (Aneks C); przegląd Sol pozostaje bramce Claude.
+- [x] Sonda i pomiar na żywo przeniesione do E10 (Aneks C); przegląd Sol pozostaje bramce Claude.
 
 ## Na koniec
 

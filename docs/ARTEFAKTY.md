@@ -30,6 +30,7 @@ z gita, żeby było widać, które artefakty żyją. Pełna historia treści jes
 | Artefakt | Plik | Wersja | Data | Co się zmieniło | Po co |
 |---|---|---|---|---|---|
 | Prompt sędziego effort | `effort/hooks/judge-prompt.ts` | 2 | 2026-11-12 | v1: cztery pytania, reguła keep i odpowiedź JSON. v2 (po przeglądzie Sol, przed pierwszym commitem): wszystkie pola wejściowe oznaczone jako niezaufane dane, poprzednia odpowiedź w osobnej granicy. | Jedna instrukcja klasyfikacji poziomu pracy, z treścią zadania traktowaną jak dane. |
+| Prompty Research (auto, planer, trafność, quick, deep, scalenie) | `research/hooks/prompts.mjs` | 1 | 2026-11-13 | Nowy zestaw: dane w JSON, wspólna instrukcja niezaufanych danych, granice słów i przypisów, wymagany blok SOURCES. Treść v1 nietknięta w kontynuacji Sol; podłączona do runtime `research/`, sprawdzona testami i mutacjami. | Rozdzielić instrukcje od źródeł i zachować liczby, daty, nazwy oraz URL; pomiar na żywo w E10, bez deklaracji jego wykonania. |
 
 ## Specyfikacje dokumentów — `core/templates/` (24)
 

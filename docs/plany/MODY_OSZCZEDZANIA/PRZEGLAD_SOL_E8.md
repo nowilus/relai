@@ -1,0 +1,21 @@
+BLOCK
+
+Powtórny przegląd E8, 2026-11-13, na ponowne zlecenie. Bieżący kod nadal zawiera cztery poniższe usterki. Znaleziska: CRITICAL 0 / HIGH 1 / MEDIUM 3 / LOW 0.
+
+## Znaleziska
+
+- research/hooks/workflow.mjs:42 — HIGH — Skanowanie dopiero po JSON.stringify ukrywa przypisania sekretów z cudzysłowami. Surowe syntetyczne DB_PASSWORD="…" jest wykrywane, ale ten sam tekst w serializowanej kopercie nie. Reproduktor na rzeczywistym compressAuto: sekret w commentary, niesekretne pytanie → jedno wysłanie sekretu do pomocnika i zwrócone notatki. Ten sam błąd obejmuje agentResult (runtime.ts:20) oraz kontrole kopert w register.tsx:105 i :224; wynik narzędzia może więc dotrzeć do agenta Research mimo trafienia skanera na surowej treści. — Skanować rekurencyjnie surowe wartości tekstowe przed serializacją, także na końcowej granicy wysyłki i wyniku dla agenta; dodać regresje dla cytowanych przypisań konfiguracji, nie tylko tokenu sk-ant.
+
+- research/hooks/runtime.ts:44 — MEDIUM — toolText ignoruje isError koperty i zwraca result będący napisem bez kontroli sukcesu. Quick dostaje więc komunikat błędu WebFetch/Firecrawl jako stronę; jeśli ma ≥200 znaków i kontrola trafności zwróci true, workflow.mjs:113 oznacza niepobraną stronę jako read/verified, zamiast przejść do następnego czytnika. Reproduktor quickResearch z takim tekstem błędu zwrócił ok:true i read:true. — Zachować status odpowiedzi, odrzucać isError oraz niesukces HTTP przed ekstrakcją tekstu; regresja na błędnej kopercie czytnika ma dowodzić fallbacku i braku verified.
+
+- research/hooks/workflow.mjs:98 — MEDIUM — Okno czasu odrzuca każdy link bez pola date przed pobraniem strony. URL-e planera powstają jako samo {url}, a obsługiwany i testowany kształt linków WebSearch również zawiera title/url bez date. Pytanie z rokiem lub zakresem dat może zatem wyciąć wszystkie źródła, nawet oficjalny URL z planu. Reproduktor: okno 2026, planer URL + wynik title/url z datą w tytule → ok:false, zero pobrań i kontroli trafności. — Datę nieznaną rozstrzygać po pobraniu/metadanych, nie utożsamiać jej z datą poza zakresem; dodać test na rzeczywistym kształcie WebSearch oraz URL-u planera.
+
+- research/hooks/workflow.mjs:36 — MEDIUM — usageOf uznaje dowolny obiekt usage za znany koszt, a brakujące/nieprawidłowe liczniki zamienia na zera. Przy usage:{} helper dostaje measured:true, compressAuto ustawia knownUsage i deklaruje dodatnią oszczędność bez znanego kosztu. Powtórny reproduktor na compressAuto: puste usage → 1091 tokenów deklarowanego zysku; koszt pomocnika zapisany jako zero. Zastany test braku usage sprawdza wyłącznie całkowity brak obiektu. — Walidować obecność i poprawność wymaganych liczników, oddzielić koszt nieznany od rzeczywistego zera; regresje dla pustego i częściowego usage mają wykluczać dodatni zysk.
+
+## Zakres i dowody
+
+- Odczytano całe research/ (kod, testy, kopie rdzenia, manifest, typy i README), diff routera i rejestracji oraz wymagania E8 i Aneksów C/D. Rejestracja dziewiątego celu i wyjątek skipOf są zgodne z zakresem; stare asercje routera nie zostały osłabione.
+- AC3: nie znaleziono usuniętych asercji ani mocka zastępującego testowaną logikę. Luki dowodów negatywnych opisano przy znaleziskach: cytowane sekrety, błędne koperty czytników, źródła bez date, niepełne usage. Test runtime deep obejmuje odmowę spawnu, nie działający cykl własnego agenta; sondy E10 pozostają otwarte zgodnie z Aneksem C.
+- AC5: zmiany dokumentów procesu mieszczą się w rytuale Aneksu C, zmiany routera w Aneksie D. Zastany nieśledzony .claude/launch.json jest poza E8 (konfiguracje podglądu strony); sam status nie dowodzi autorstwa, więc nie przypisano go wykonawcy ani nie zmieniano.
+- Ponownie uruchomiono tylko małe reproduktory w pamięci na świeżych importach modułów MJS, bez sieci i zapisów. Wyniki: surowy sekret wykryty / koperta niewykryta / jedno wysłanie do pomocnika; puste usage → dodatni zysk 1091; okno czasu → ok:false i zero pobrań; tekst błędu czytnika → ok:true/read:true. Ostatni reproduktor potwierdza workflow; utratę isError w toolText potwierdza odczyt kodu, nie wykonanie runtime.ts. Kopie savings-gates i savings-ledger zgodne bajtowo ze źródłami SHA-256.
+- Pełnych testów nie powtarzano. Bez subagentów, commitów, przełączeń pluginów i zmian kodu. Jedyny zapis przeglądu: ten raport.

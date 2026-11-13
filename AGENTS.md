@@ -42,7 +42,7 @@ Pierwsza wiadomość sesji to komenda (zaczyna się od `/`) → najpierw komenda
 | Plany zamknięte | 22, ostatni OPTYMALIZACJA_PO_AUDYCIE 2026-11-10 (wydany w 3.8.0) | [archiwum planów](docs/archiwum/plany/), [docs/STATE.md](docs/STATE.md) |
 | Odnogi i wątki samodzielne | 1 otwarta: `OPIS_REPO` (od 2026-09-24); zamknięte — karty w [docs/fixy/](docs/fixy/) | [docs/STATE.md](docs/STATE.md) |
 
-Aktywny plan: brak. Ostatni zamknięty: [OPTYMALIZACJA_PO_AUDYCIE](docs/archiwum/plany/OPTYMALIZACJA_PO_AUDYCIE/STATUS.md), 2026-11-10 (naprawy po [audycie](docs/AUDYT_RELAI_2026-11-09.md): skaner sekretów, guardy, `bash-guard`, tańszy start, mody, CI; wydany w 3.8.0). [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) (Codex) **nieaktywny — WSTRZYMANY 2026-10-27** decyzją Łukasza.
+Aktywny plan: [MODY_OSZCZEDZANIA](docs/plany/MODY_OSZCZEDZANIA/STATUS.md) — ZAAKCEPTOWANY 2026-11-11, E1–E8 zrealizowane (Aneks B 2026-11-12; E7 `relai-effort` i E8 `relai-research` przez Codeksa, routing z Aneksu D), E9 GOTOWY DO STARTU. E7–E10 wg [Aneksu C](docs/plany/MODY_OSZCZEDZANIA/ANEKS_C_WYKONANIE_CODEX.md), Claude tylko bramka (pięć modów oszczędzania tokenów + zakładka „Oszczędności”). Ostatni zamknięty: [OPTYMALIZACJA_PO_AUDYCIE](docs/archiwum/plany/OPTYMALIZACJA_PO_AUDYCIE/STATUS.md), 2026-11-10 (naprawy po [audycie](docs/AUDYT_RELAI_2026-11-09.md): skaner sekretów, guardy, `bash-guard`, tańszy start, mody, CI; wydany w 3.8.0). [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) (Codex) **nieaktywny — WSTRZYMANY 2026-10-27** decyzją Łukasza.
 
 ## Reguły procesu
 

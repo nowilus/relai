@@ -3973,3 +3973,116 @@ niepotwierdzony na żywo. C1 — wysokie, API early access nadal wymaga bramki i
   115 KB → 0), przebiegi `.claude/relai/work/CREW/mody-e7*` (6 folderów, ok. 5,2 MB → 0)
   i `.claude/relai/clean-raport.json`. Katalogi TEMP z przerwanych testów (`relai-e7-validator-*`,
   `relai-esm-*`) leżały w TEMP sandboksu Codeksa — w TEMP użytkownika ich nie ma.
+
+### 2026-11-13 — MODY_OSZCZEDZANIA E8: kontynuacja Sol 2, Aneks D i kod do bramki
+
+Autor: RelAI (gpt-6.1-terra w Codeksie) + Lukasz
+
+**Zrobione:**
+
+- Kontynuację wykonał gpt-6.1-sol zgodnie z decyzją Łukasza i Aneksem D. Wąski wyjątek routera:
+  wyłącznie relai-research bez jawnego modelu; inne mody, model jawny, fork i resume pomijane.
+  Wersja routera 0.1.0 bez zmian. Podpis wpisu zachowuje format nakładki Aneksu C.
+- `research/` 0.1.0: manifest, hooki i typy, auto z kopią całej koperty WebSearch, quick
+  z równoległymi czytnikami i kontrolą przypisów, deep z renumeracją wszystkich źródeł;
+  komenda w tle z raportem jako wiadomość, panel ze stanem i dwoma przełącznikami.
+- Zgoda projektowa, skaner przed pomocnikami i przed wynikami narzędzi własnych agentów,
+  blokada lokalnych odczytów/programów agenta Research, uśpienie przy bliźniaku, unieważnianie
+  pracy przy zmianie ustawień; atomowy snapshot bramek usuwa wyścig równoległych odczytów.
+  Osobny plik producenta rejestru z kolejką i zmianą daty; brak usage nie deklaruje zysku.
+- Marketplace, release-map i dziewiąty cel sync; kopie rdzenia wyłącznie przez narzędzie.
+  Prompty v1 bez zmiany treści, opis w ARTEFAKTY zaktualizowany. STATUS i STATE opisują bramkę,
+  CLAUDE/AGENTS mają zgodną sekcję Stan prac; PROMPT_ETAP_9 gotowy, E9 nie startuje przed bramką.
+  Dopisano P-070. Nie dublowano rozstrzygniętej bramki AC5 ani wpisu pierwszej kontynuacji Sol.
+
+**Zweryfikowane — jak dokładnie:**
+
+- Przed: nowa regresja `claude plugin test --file model-router/hooks/judge.test.ts model-router`
+  — 23/24, czerwona asercja Expected null / Received „spawned by the mod relai-research”.
+  `node --test --test-isolation=none research/hooks/runtime-contract.test.mjs` — 0/1 z asercji
+  brakującego manifestu, bez błędu importu. Dowód oraz stare 14 czerwonych przepływów w E8.
+- Po: pojedyncze `claude plugin test --file research/hooks/<plik> research` — 47/47;
+  router 103/103. Node dla sześciu testów Research — 6/6. Instrument run-tests.ps1 zapisuje
+  każdy raport i czyta results[].failure, nie sam kod wyjścia. Mutacje 39/39 zabitych asercją,
+  w tym usunięcie i poszerzenie wyjątku routera; źródła odtwarzane w finally.
+- Pozostałe mody, każdy plik osobno: effort 33/33, mods 91/91, browser 28/28,
+  input-router 79/79; panel 218/220, progress 50/51, cache-keeper 205/206. Cztery czerwienie
+  wyglądu odtworzone na kopiach HEAD w 2.1.323; brak zmian w tych trzech modach. To nie jest
+  dodatnia pełna bramka. Dokładne asercje i reproduktory baseline-*.txt w katalogu E8.
+- Node plikami z `--test-isolation=none`: guardrails 23 pass / 10 fail, process 246/184,
+  panel core 235/7, Codex 19/9, Cursor 0/10. Proces potomny z sondy środowiska:
+  `spawnSync node EPERM`, `spawnSync git EPERM`; dokumenty padają też przed rejestracją
+  testów na `stdout.split`. `release-check.js` — „git rev-parse --show-toplevel: kod null”.
+- `validate-adapters.js` zgodne (zastane ostrzeżenie rozmiaru skilla), `sync-panel-core --check`
+  zgodne, 9 celów. `claude plugin validate research` passed with warnings: brak odpowiedzi
+  type-checkera i ikony; nie deklarowano pełnego sprawdzenia typów.
+- Trivy bezpośrednio, bo wrapper blokuje spawnSync: zakres jak E7, `trivy fs --scanners vuln
+  --skip-db-update ... .` — 0 CRITICAL / 42 HIGH / 62 MEDIUM / 14 LOW, bez nowych zależności.
+  Zakres produkcyjny skilla (bez fixtur i katalogów roboczych): 0 we wszystkich wagach.
+  Skaner kodu: 27 plików, 0 trafień, kontrola pozytywna trafia. Panel: props przy
+  40/47/48/143/144/160 kolumnach i kliknięcia przełączników, mutant width=0 zabity.
+- Katalog E8 zinwentaryzowany, skrypty i raporty pozostawione do bramki; nie kasowano.
+  W trakcie testów zaobserwowano TEMP sandboxu `relai-esm-XtcS4D` i `relai-esm-yj2buC`;
+  przy końcowym odczycie bieżącego TEMP nieobecne. Nie usuwano niczego poza repozytorium.
+
+**Świadomie odłożone:**
+
+- Sonda i pomiar na żywo, identyfikacja agentów przed ich narzędziami, routing silnika,
+  karty/panel i bilans względem savingsView — E10 (Aneks C). Test nie zastępuje pomiaru.
+- Naprawy czterech zastanych czerwieni wyglądu poza AC5: nie zmieniano tych modów;
+  najpierw powtórka bramki poza sandboxem. Porządki AUDYT_MODOW i kokpit/scope — E9.
+- Rytuał 1a i commit — Claude po bramce; żadnej instalacji, przełączania, commita ani push.
+
+**Do zrobienia przez człowieka:**
+
+- Bramka Claude: przegląd Sol, pełne zestawy i release-check poza sandboxem, rozstrzygnięcie
+  czterech zastanych czerwieni; po dodatnim wyniku E8 → ZREALIZOWANY, E9 → GOTOWY DO STARTU.
+  Następnie decyzja o skasowaniu katalogu E8 i commit (Aneks C).
+- Pomiar Research na żywo i kliknięcia — E10; odpowiednia bramka pozostaje OTWARTA w STATUS.
+
+**Ryzyka:** R1/C1 wysokie — API early access, aktualny silnik 2.1.323, typy i live nadal
+do bramki; R2 wysokie — skaner oraz ograniczenia agenta dowiedzione testami i mutacjami,
+kolejność własności agenta do sondy E10; R5 średnie — limity, bez pomiaru czasów na żywo;
+R6 średnie — usage i osobny producent przetestowane, rzeczywisty hand-back do E10;
+R7 średnie — bliźniak testowany, bez przełączeń maszyny; R10 niskie — rejestracja i sync zgodne.
+
+**Przebieg poprawki Sol 3 — 2026-11-13:**
+
+Autor: RelAI (gpt-6.1-sol w Codeksie) + Lukasz
+
+- Naprawiono cztery znaleziska przeglądu (1 HIGH, 3 MEDIUM): skan surowych wartości i JSON
+  przed pomocnikiem oraz wynikiem dla agenta; odrzucanie błędnych kopert czytników; odczyt
+  źródła bez daty i weryfikacja daty publikacji po pobraniu; niepełne usage jako koszt nieznany.
+- Regresje najpierw czerwone z asercji: sekrety 3, czytniki 2, daty 4, usage 7. Po poprawkach
+  `claude plugin test --file research/hooks/<plik>.test.ts research`: runtime 7/7,
+  workflow 30/30, register 27/27, ledger 2/2 — razem 66/66 (zastane 49 zachowane).
+  `node --test research/hooks/*.test.mjs`: w sandboxie `spawn EPERM`, po zgodzie poza nim 6/6.
+- Mutacje nowych ochron: 12/12 zabitych asercjami (sekrety 6, czytniki 2, daty 2, usage 2);
+  źródła odtwarzane w `finally`. Zakres: trzy pliki logiki Research i ich trzy pliki testów,
+  ten dopisek, jedna linia STATUS oraz `RAPORT_SOL3.md`; router i rdzeń nietknięte.
+- Raport poprawki nie zastępuje ponownego przeglądu ani pełnej bramki Claude; E8 nadal W TOKU,
+  E9 oczekuje, sondy i pomiary na żywo nadal E10. Bez subagentów, commita i przełączeń pluginów.
+
+**Bramka Claude — 2026-11-13: E8 ZREALIZOWANY**
+
+Autor: RelAI (Opus 5.5 w Claude Code, terminal Herdr) + Lukasz
+
+- Przegląd Sol (Codex w terminalu `hc`, tylko odczyt): BLOCK — 1 HIGH (skan po
+  `JSON.stringify` przepuszczał cytowane przypisanie sekretu do pomocnika i agenta), 3 MEDIUM
+  (błąd czytnika jako `verified`, link bez daty odrzucany przed pobraniem, puste `usage` jako znany
+  koszt). Poprawka Sol 3 (wyżej). Raporty przeniesione do folderu planu: `PRZEGLAD_SOL_E8.md`,
+  `RAPORT_SOL3_E8.md`, dowód routingu `DOWOD_ROUTING_E8.txt`.
+- Poza sandboxem: `node --test` rdzenia (guardrails 33, process 428 + 2 pominięte, panel 254),
+  adapterów (codex 27 + 1 pominięty, cursor 10) i Research 6 — 0 porażek;
+  `validate-adapters.js` kod 0. `claude plugin test` wszystkich modów: effort 33, mods 91,
+  browser 28, input-router 79, model-router 103, research 66 bez porażek; panel 2, progress 1,
+  cache-keeper 1 porażka — te same cztery zastane czerwienie wyglądu co na HEAD (nie z E8).
+- `release-check.js` kod 2 „brak bazy modu relai-browser” — pierwsze wydanie modu, odłożone do E10
+  decyzją Łukasza z E1; nie regres.
+- AC3: regresje sekretu cytowanego sprawdzone wybiórczo — `requests.length` 0 i pusty dysk
+  (dowód negatywny) obok kontroli pozytywnej `scanText`.
+- Katalog roboczy E8 (5 MB) skasowany po zgodzie Łukasza. E9 → GOTOWY DO STARTU.
+
+**Świadomie odłożone:** agent startowany przyciskiem „+” w layoucie PolyFlow (proces główny
+`powershell.exe`, pod nim `claude.exe`) nie zgłasza stanu OSC 7501 i nie trafia na listę Agents
+w Herdrze; agent z `hc run` trafia. Sprawa projektu `desktop/herdr`, poza RelAI.

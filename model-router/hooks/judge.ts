@@ -171,7 +171,7 @@ export type Spawn = { model?: string, parentModel?: string, fork?: boolean, resu
 export function skipOf(s: Spawn): string | null {
   if (s.fork) return 'fork: runs on the parent model'
   if (s.resume) return 'resume: the agent keeps its model'
-  if (s.origin && s.origin.plugin && s.origin.plugin !== 'engine') return `spawned by the mod ${s.origin.plugin}: its own choice`
+  if (s.origin && s.origin.plugin && s.origin.plugin !== 'engine' && !(s.origin.plugin === 'relai-research' && !s.model)) return `spawned by the mod ${s.origin.plugin}: its own choice`
   return null
 }
 

@@ -146,6 +146,16 @@
       "homepage": "https://github.com/nowilus/relai",
       "repository": "https://github.com/nowilus/relai",
       "keywords": ["relai", "tokens", "effort", "mods", "early-access"]
+    },
+    {
+      "name": "relai-research",
+      "source": "./research",
+      "version": "0.1.0",
+      "description": "Early access — needs Claude Code with mods. RelAI Research: scanned WebSearch notes with an original copy, quick parallel page reads with checked citations, deep research routed without an explicit model. Project consent and an active BenAI twin gate every helper. Live measurement deferred to E10.",
+      "category": "productivity",
+      "homepage": "https://github.com/nowilus/relai",
+      "repository": "https://github.com/nowilus/relai",
+      "keywords": ["relai", "tokens", "research", "mods", "early-access"]
     }
   ]
 }

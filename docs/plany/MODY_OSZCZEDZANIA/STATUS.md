@@ -1,6 +1,6 @@
 # STATUS — plan MODY_OSZCZEDZANIA
 
-Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-11-11 · Status planu: **ZAAKCEPTOWANY 2026-11-11** · Model wykonawczy etapów: E1–E6 Opus (D-85, świeże sesje w Claude Code); **E7–E10 gpt-6.1-terra w Codeksie, poprawki i przegląd gpt-6.1-sol, Claude tylko bramka** ([Aneks C](ANEKS_C_WYKONANIE_CODEX.md), 2026-11-12)
+Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-11-11 · Status planu: **ZAAKCEPTOWANY 2026-11-11** · Model wykonawczy etapów: E1–E6 Opus (D-85, świeże sesje w Claude Code); **E7–E10 gpt-6.1-terra w Codeksie, poprawki i przegląd gpt-6.1-sol, Claude tylko bramka** ([Aneks C](ANEKS_C_WYKONANIE_CODEX.md), 2026-11-12); E8 od kontynuacji gpt-6.1-sol (decyzja Łukasza 2026-11-13, L-0336); granica E8 + wyjątek routera ([Aneks D](ANEKS_D_ROUTER_RESEARCH.md), 2026-11-13)
 
 Załącznik planu (zamrażany razem z nim): [specyfikacja funkcji](SPECYFIKACJA_FUNKCJI.md) —
 zachowanie sześciu modów BenAI i zmiany w RelAI; etapy pracują z niej, nie z kodu BenAI.
@@ -16,8 +16,8 @@ zachowanie sześciu modów BenAI i zmiany w RelAI; etapy pracują z niej, nie z 
 | E5 | Model Router | ZREALIZOWANY 2026-11-12 | [PROMPT_ETAP_5.md](PROMPT_ETAP_5.md) | pomiar: [POMIAR_E5.md](POMIAR_E5.md); Aneks B (domyślny subagenta z ustawień); `relai-model-router` 0.1.0 w repo, niewydany |
 | E6 | Router w `/relai-crew` | ZREALIZOWANY 2026-11-12 | [PROMPT_ETAP_6.md](PROMPT_ETAP_6.md) | pomiar: [POMIAR_E6.md](POMIAR_E6.md); karta załogi w `relai-model-router` 0.1.0 (niewydany), krok 5a w `/relai-crew` |
 | E7 | Effort | ZREALIZOWANY 2026-11-12 | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | `relai-effort` 0.1.0 w repo, niewydany (33 testy, 11 mutacji zabitych); przegląd Sol BLOCK → 12/12 naprawione; sonda i pomiar na żywo w E10 (AC1) |
-| E8 | Research | GOTOWY DO STARTU | [PROMPT_ETAP_8.md](PROMPT_ETAP_8.md) | subagenci deep przez router |
-| E9 | Porządki AUDYT_MODOW | OCZEKUJE | — | wchłonięte 2026-11-11 z „Czeka na człowieka” |
+| E8 | Research | ZREALIZOWANY 2026-11-13 | [PROMPT_ETAP_8.md](PROMPT_ETAP_8.md) | `relai-research` 0.1.0 w repo, niewydany (66/66 silnik + 6/6 Node, 52 mutacje zabite); Aneks D wdrożony, router 103/103; przegląd Sol BLOCK ([PRZEGLAD_SOL_E8.md](PRZEGLAD_SOL_E8.md)) → 4/4 naprawione ([RAPORT_SOL3_E8.md](RAPORT_SOL3_E8.md)); sonda i pomiar na żywo w E10 |
+| E9 | Porządki AUDYT_MODOW | GOTOWY DO STARTU | [PROMPT_ETAP_9.md](PROMPT_ETAP_9.md) | prompt gotowy; bramka E8 dodatnia 2026-11-13. Wchłonięte 2026-11-11 z „Czeka na człowieka” |
 | E10 | Migracja, pomiar i wydanie | OCZEKUJE | — | jedyne wydanie planu; odinstalowanie paczki BenAI robi Łukasz |
 
 ## Bramki manualne
@@ -32,6 +32,9 @@ zachowanie sześciu modów BenAI i zmiany w RelAI; etapy pracują z niej, nie z 
 - E6 — wyłączenie BenAI `model-router` na czas pomiaru na żywo i `/reload-plugins` — ROZSTRZYGNIĘTA 2026-11-12 — wyłączone za zgodą Łukasza (`claude plugin disable --scope user`), `/reload-plugins` zrobił Łukasz, po pomiarze włączone, kopie dev-mods (`relai-model-router`, `relai-e6-sonda`) skasowane.
 - E6 — kliknięcie karty załogi i panelu przez człowieka (L-0289) — ROZSTRZYGNIĘTA 2026-11-12 — Łukasz przestawił wiersze w panelu i wybrał „Start with the picks above” (przebieg B); przebieg A ujawnił rozjazd panelu, poprawiony.
 - E7 — wyłączenie BenAI `effort-optimizer` i kliknięcie karty `relai-effort` — OTWARTA — przeniesiona do E10 (Aneks C).
+- E8 — zgoda na rozszerzenie AC5 o wyjątek dla `relai-research` w `model-router/hooks/judge.ts` i testach routera — ROZSTRZYGNIĘTA 2026-11-13 — Łukasz wybrał wąski wyjątek ([Aneks D](ANEKS_D_ROUTER_RESEARCH.md)); wcześniej blokowała wymagany routing deep. Dowód offline w [DOWOD_ROUTING_E8.txt](DOWOD_ROUTING_E8.txt); pomiary na żywo nadal w E10 (Aneks C).
+- E8 — bramka Claude: przegląd Sol, pełne zestawy i release-check poza sandboxem — ZAMKNIĘTA 2026-11-13 — przegląd Sol BLOCK (1 HIGH, 3 MEDIUM) → poprawka Sol 3; poza sandboxem Node rdzenia i adapterów 0 porażek, walidator zielony, mody bez nowych czerwieni (cztery zastane wyglądu jak na HEAD), Research 66/66, router 103/103. `release-check` kod 2 „brak bazy relai-browser” — pierwsze wydanie modu odłożone do E10 (decyzja Łukasza z E1).
+- E8 — sonda, pomiar Research (w tym identyfikacja agentów, skaner przed ich wynikiem i routing) oraz kliknięcie panelu — OTWARTA — przeniesione do E10 (Aneks C); przełączenia BenAI wyłącznie za zgodą Łukasza przez Claude.
 
 ## Dziennik wdrożenia
 
@@ -65,3 +68,8 @@ zachowanie sześciu modów BenAI i zmiany w RelAI; etapy pracują z niej, nie z 
   w E10; E8 pozostaje oczekujący do wyniku bramki.
 - 2026-11-12 — E7, poprawki Sol po przeglądzie BLOCK (Aneks C, 6c): 12/12 znalezisk naprawionych, wszystkie 3 HIGH z regresjami najpierw czerwonymi; 33/33 testy effort i 17/17 testów bramek/rejestru rdzenia, validate i sync zielone; osobny plik effort usuwa wyścig bez zmiany core; 11 kotwic mutacji zgodnych, pełna powtórka blokowana EPERM — bramka Claude pozostaje otwarta.
 - 2026-11-12 — E7 zrealizowany (bramka Claude): pełne zestawy zielone bez spadku, `effort` 33 testy, `mutacje.cjs` 11/11 zabitych, Trivy jak E6; przegląd Sol BLOCK → 12/12 naprawione z regresjami. E8 gotowy do startu.
+- 2026-11-13 — E8 rozpoczęty (wykonawca gpt-6.1-terra w Codeksie, Claude — bramka; Aneks C).
+- 2026-11-13 — E8, kontynuacja Sol (decyzja Łukasza, L-0336): nowe przepływy najpierw 14/14 czerwonych z asercji, potem 14/14 zielonych; zastane testy 5/5. STOP AC5: silnik nadaje spawnowi modu `origin.plugin = relai-research`, a rzeczywisty `skipOf` routera odrzuca ten origin. Reproduktor 1/2 (oczekiwany routing czerwony, kontrola zielona). Nie zmieniano routera; E8 nie zamknięty, E9 nadal oczekuje.
+- 2026-11-13 — E8, kontynuacja Sol 2 po Aneksie D: wąski wyjątek routera najpierw czerwony z asercji, po zmianie 103/103; `relai-research` 0.1.0 z runtime, panelem, komendą, rejestrem i rejestracją, 49/49 silnik + 6/6 Node, 40/40 mutacji zabitych (końcowe dwie regresje także najpierw czerwone). Walidator i sync 9 celów zgodne; Trivy 0 CRITICAL / 42 HIGH jak E7. Rytuał 1–5 i PROMPT_ETAP_9 przygotowane. E8 W TOKU do bramki Claude: EPERM pełnych zestawów Node/release-check oraz 4 zastane czerwienie wyglądu potwierdzone na HEAD; E9 oczekuje. Pomiar na żywo w E10.
+- 2026-11-13 — E8, poprawka Sol 3: cztery znaleziska (1 HIGH, 3 MEDIUM) naprawione; regresje najpierw 16 czerwonych asercji, po zmianach Research 66/66 testów silnika (49 zastanych zachowanych), Node 6/6 poza sandboxem po `spawn EPERM`, mutacje nowych ochron 12/12 zabitych asercjami; router i rdzeń nietknięte. Szczegóły: [RAPORT_SOL3_E8.md](RAPORT_SOL3_E8.md).
+- 2026-11-13 — E8 zrealizowany (bramka Claude): pełne zestawy poza sandboxem bez nowych czerwieni, Research 66/66 + Node 6/6, router 103/103, walidator zielony; regresje sekretu cytowanego z dowodem negatywnym sprawdzone wybiórczo. Katalog roboczy E8 (5 MB) skasowany po zgodzie, dowody w folderze planu. E9 gotowy do startu.

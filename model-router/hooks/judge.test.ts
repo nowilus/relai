@@ -115,6 +115,15 @@ describe('judge: the rules', () => {
 })
 
 describe('judge: what is left alone', () => {
+  test('Annex D: only model-less research spawns enter the router', () => {
+    expect(skipOf({ origin: { plugin: 'relai-research' } })).toBe(null)
+    expect(skipOf({ origin: { plugin: 'relai-research' }, model: 'haiku' })).not.toBe(null)
+    for (const plugin of ['relai-browser', 'relai-effort', 'unknown-mod']) {
+      expect(skipOf({ origin: { plugin } })).not.toBe(null)
+    }
+    expect(skipOf({ origin: { plugin: 'relai-research' }, fork: true })).not.toBe(null)
+    expect(skipOf({ origin: { plugin: 'relai-research' }, resume: { agentId: 'a' } })).not.toBe(null)
+  })
   test('fork, resume and a mod\'s own spawn are skipped; a plain subagent is judged', () => {
     expect(skipOf({ fork: true })).not.toBe(null)
     expect(skipOf({ resume: { agentId: 'a1' }, model: 'claude-haiku-5-5' })).not.toBe(null)
