@@ -91,7 +91,8 @@ export async function compressAuto(original, options, d) {
   } catch (err) { await d.fail?.(String(err)); return original }
 }
 
-const sourceList = (sources) => sources.map((s, i) => `[${i + 1}] ${s.url} (${s.read ? 'verified: page read' : 'unverified: page not read'})`).join('\n')
+// A deep source is an agent's citation: the engine never shows a mod its own agents' reads (Aneks E.7)
+const sourceList = (sources) => sources.map((s, i) => `[${i + 1}] ${s.url} (${s.read ? 'verified: page read' : 'unverified: cited by an agent, not read by the mod'})`).join('\n')
 function sections(text, briefLimit, notesLimit) {
   const brief = /<brief>([\s\S]*?)<\/brief>/.exec(text)?.[1]?.trim()
   const notes = /<notes>([\s\S]*?)<\/notes>/.exec(text)?.[1]?.trim()
@@ -171,11 +172,13 @@ export function parsePart(answer) {
 export async function deepResearch(question, plan, d) {
   const parts = [], errors = []
   if (scanContent(question, d.scan) || !(await d.live())) return { ok: false, text: 'Research question held back', sources: [] }
+  // Only the mod's reader type (web tools only): never an agent with every tool (Aneks E.7)
+  if (!d.agentType) return { ok: false, text: 'Research reader agent type not registered; no deep agents started', sources: [] }
   await Promise.all((plan.parts || []).slice(0, 4).map(async part => {
     const prompt = partPrompt(question, part, plan.window)
     try {
       if (scanContent(prompt, d.scan) || !(await d.live())) throw Error('Deep task held back')
-      const answer = await d.spawn({ prompt, subagentType: 'general-purpose', description: `RelAI research: ${String(part).slice(0, 80)}` })
+      const answer = await d.spawn({ prompt, subagentType: d.agentType, description: `RelAI research: ${String(part).slice(0, 80)}` })
       await d.record({ action: 'research-deep-part', measured: !!answer?.usage, ...(answer?.usage ? { helper: answer.usage } : {}), detail: 'Agent usage; hand-back may also reach main chat, no saving claimed' })
       if (!(await d.live()) || scanContent(String(answer?.text || ''), d.scan)) throw Error('Deep result held back')
       const parsed = parsePart(answer)

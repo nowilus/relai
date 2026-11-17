@@ -1,7 +1,7 @@
 {
   "name": "relai-research",
   "version": "0.1.0",
-  "description": "Early access — needs Claude Code with mods. RelAI Research: scanned WebSearch notes with an original copy, quick parallel page reads with checked citations, deep research routed without an explicit model. Project consent and an active BenAI twin gate every helper. Live measurement deferred to E10.",
+  "description": "Needs Claude Code with mods (measured on 2.1.325). RelAI Research: quick research reads up to four pages in parallel and cites only pages it read ('verified: page read'); deep research splits a question into 2–4 parts run by the mod's own reader agent type (WebSearch, WebFetch and ToolSearch only), labels its sources 'unverified: cited by an agent, not read by the mod', and drops a part over 250 words. Auto compresses a main-chat WebSearch comment only above 800 tokens, which the engine rarely lets happen. Deep parts are routed by the model router without an explicit model. Project consent and an active BenAI twin ('research-router') gate every helper; the secret scanner runs before each one. Copies and reports go to ~/.claude/relai/oszczednosci/research/. Commands: [deep] question, pane, on, off, auto, manual, stats, model id.",
   "author": { "name": "nowilus", "url": "https://github.com/nowilus" },
   "homepage": "https://github.com/nowilus/relai",
   "repository": "https://github.com/nowilus/relai",

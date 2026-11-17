@@ -47,6 +47,8 @@ export function normPath(p: string, cwd: string): string {
 // Files whose content is a secret by their name: they never reach the helper (spec, section 7)
 const SECRET_FILE_RE = [/(?:^|\/)\.env(?:\.[^/]*)?$/i, /\.pem$/i, /\.key$/i, /\.p12$/i, /\.pfx$/i, /(?:^|\/)id_(?:rsa|dsa|ecdsa|ed25519)$/i]
 
+const IMAGE_FILE_RE = /\.(?:png|jpe?g|gif|webp|bmp)$/i
+
 export type Pass = { kind: 'pass', why: string }
 export type Route = Pass | { kind: 'notes', why: string }
 
@@ -54,6 +56,8 @@ export type Route = Pass | { kind: 'notes', why: string }
 export function fileGuard(path: string, relaiRoot: string | null): string | null {
   if (isVerbatimFile(path, relaiRoot)) return 'process or instruction file'
   if (SECRET_FILE_RE.some((re) => re.test(path))) return 'secret file'
+  // Read of an image returns pixels, not text: notes of its bytes help no one (E10, Aneks E.1)
+  if (IMAGE_FILE_RE.test(path)) return 'image file'
   // An 8.3 short name (PROMPT~1.MD) may be any file, a guarded one too: it passes (review E3, LOW)
   if (/~\d/.test(path.split('/').pop() ?? '')) return 'short file name'
   return null

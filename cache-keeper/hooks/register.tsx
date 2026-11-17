@@ -10,7 +10,10 @@ import type { EngineInterface, Register } from 'claude-code'
 import { DEFAULT_SETTINGS, MAX_PAYBACK_TURNS, MIN, RELAI_MARKER, applySetting, cacheState, dueWarning, judgeStep, msLeft, pingDue, pingMissed, type Settings } from './core'
 import { basename, clip, clock, fileStamp, limitsText, minutes, tokens, usd } from './fmt'
 import { CONFIG_KEYS, MIGRATED, loadConfiguration, readOptions, writeOptions } from './config'
-import { barCard, barRule } from './bar-card'
+import { barBelow, barCard, barRule, orderRelai } from './bar-card'
+
+/** Whether another RelAI bar stands right under ours: read from the band's arrangement (Aneks E.10). */
+let isBarBelow = false
 import { BAND, BAR, BAR_LOOK, CHIP_KEY, KEY } from './relai/theme.mjs'
 import { TERM, batteryRows, cacheMeasure, columnsOf, compactThreshold, contextMeasure, contextRow, glyphColor, limitMeasure, measureGlyph, resetMeasure, termColumns, termRows, type Limit, type Measure } from './rings'
 
@@ -1065,6 +1068,7 @@ function secondButtons($: $T, e: Resolved, kind: SecondKind) {
 
 export const register: Register = (on) => {
   on('session.start', async ($, e, next) => {
+    isBarBelow = false
     const now = await $.clock.now()
     home = (await $.env.get('USERPROFILE')) || (await $.env.get('HOME')) || ''
     const here = await $.session.cwd()
@@ -1331,6 +1335,17 @@ export const register: Register = (on) => {
     // No width here: the engine refuses its own node under a Box with "width" and draws its own
     // instead, which drops every band (live, desktop, 2.1.293; plugin test does not see it)
     // No gap: on the desktop the rule under the card brings the air (WYGLAD_PANELU E1, variant 3b)
-    return <Box key="relai-cache-keeper" flexDirection="column">{[ours, barRule($.ui.resolve(e), BAR_LOOK, e.surface !== 'terminal', below), below]}</Box>
+    return <Box key="relai-cache-keeper" flexDirection="column">{[ours, barRule($.ui.resolve(e), BAR_LOOK, e.surface !== 'terminal', below, isBarBelow), below]}</Box>
+  })
+
+  // The band's arrangement names each row's plugin (2.1.323+: an AbovePrompt hook no longer sees
+  // the rows beneath it). Read only, never rewritten; a change redraws the bar once (Aneks E.10)
+  on('ui.render', { component: 'AbovePromptList' }, async ($, e, next) => {
+    const rows = (e.props as { rows?: { plugin: string }[] }).rows
+    // RelAI bars always plan, progress, cache (Łukasz, E10); the same rows, other plugins in place
+    const ordered = Array.isArray(rows) ? orderRelai(rows) : rows
+    const now = barBelow(ordered, 'relai-cache-keeper')
+    if (now !== isBarBelow) { isBarBelow = now; $.ui.invalidate('ui.render') }
+    return next(Array.isArray(rows) ? { ...e, props: { ...e.props, rows: ordered } } as typeof e : e)
   })
 }

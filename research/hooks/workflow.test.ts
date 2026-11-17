@@ -15,8 +15,10 @@ function io(overrides: any = {}) {
     search: async () => ({ text: 'search commentary', links: [{ url: URL, title: 'Release', date: '2026-11-13' }] }),
     fetch: async (url: string) => { w.fetched.push(url); return PAGE },
     get: async () => '', firecrawl: async () => '',
-    spawn: async (request: any) => { w.spawned.push(request); return { text: 'Acme [1]\nSOURCES:\n[{"url":"https://example.org/release"}]', readUrls: [], usage: { model: 'sonnet', in: 30, out: 10 } } },
+    // each part its own page: one URL shared by parts merges into one source (Aneks E.6)
+    spawn: async (request: any) => { w.spawned.push(request); return { text: `Acme [1]\nSOURCES:\n[{"url":"https://example.org/release/${w.spawned.length}"}]`, readUrls: [], usage: { model: 'sonnet', in: 30, out: 10 } } },
     record: async (r: any) => { w.records.push(r) },
+    agentType: 'relai-research:reader',
     ...overrides,
   }
   return { ...w, deps }
@@ -166,19 +168,27 @@ describe('research workflow: real outcomes', () => {
     expect((await quickResearch('Acme', { queries: ['Acme'], urls: [], window: { from: '2027-01-01', to: '2027-12-31' } }, old.deps)).ok).toBe(false)
     expect(old.fetched.length).toBe(0)
   })
-  test('deep uses parallel general-purpose agents without model, labels unverified and retains all sources after merge', async () => {
+  test('deep uses parallel reader agents without model, labels unverified and retains all sources after merge', async () => {
     const w = io()
-    const result = await deepResearch('Acme', { parts: ['Release', 'Cost'] }, w.deps)
+    const result = await deepResearch('Acme', { parts: ['Release', 'Cost'] }, { ...w.deps, agentType: 'relai-research:reader' })
     expect(result.ok).toBe(true)
     expect(w.spawned.length).toBe(2)
-    for (const r of w.spawned) { expect(r.subagentType).toBe('general-purpose'); expect('model' in r).toBe(false) }
+    for (const r of w.spawned) { expect(r.subagentType).toBe('relai-research:reader'); expect('model' in r).toBe(false) }
+    // a deep source is the agent's citation: the mod never sees its agents' reads (engine recursion skip, Aneks E.7)
+    expect(result.text.includes('unverified: cited by an agent, not read by the mod')).toBe(true)
     expect(result.sources.length).toBe(2)
     expect(result.sources.every((s: any) => s.read === false && s.label === 'unverified')).toBe(true)
     expect(result.text.includes('[2]')).toBe(true)
-    expect(result.text.includes('unverified')).toBe(true)
+  })
+  test('deep without the reader type spawns nothing: no agent with every tool (Aneks E.7)', async () => {
+    const w = io()
+    const result = await deepResearch('Acme', { parts: ['Release', 'Cost'] }, { ...w.deps, agentType: null })
+    expect(result.ok).toBe(false)
+    expect(w.spawned.length).toBe(0)
   })
   test('a deep source is verified only by tool-read evidence, not the agent claim', async () => {
-    const w = io({ spawn: async () => ({ text: 'Fact [1]\nSOURCES:\n[{"url":"https://example.org/release","read":true}]', readUrls: [] }) })
+    let n = 0
+    const w = io({ spawn: async () => ({ text: `Fact [1]\nSOURCES:\n[{"url":"https://example.org/release/${++n}","read":true}]`, readUrls: [] }) })
     const result = await deepResearch('Acme', { parts: ['Release', 'Cost'] }, w.deps)
     expect(result.sources.length).toBe(2)
     expect(result.sources[0].read).toBe(false)

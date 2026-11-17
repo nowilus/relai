@@ -344,6 +344,10 @@ describe('the band among the other mods above the prompt', () => {
     world(on, BASE, {}, 0, NOW, 'relai-cache-card')
     await start($)
     for (const surface of ['terminal', 'desktop'] as const) {
+      // 2.1.323+: the band's arrangement names the row beneath (Aneks E.10); next(e) is the engine's
+      // handle. The harness renders the rows itself (ours, then the stub beneath) for the list
+      const list = await $.ui.mount({ plugin: 'relai-panel', surface, component: 'AbovePromptList', props: { rows: [], hasSurvey: false, isCollapsed: false, isWorking: false, maxRows: 10, bodyColumns: 140, scroll: { offset: 0, bodyRows: 9 }, view: {} } } as never)
+      await list.unmount()
       const ui = await $.ui.mount({ plugin: 'relai-panel', surface, component: 'AbovePrompt', props: { hasSurvey: false, isWorking: false, maxRows: 10, bodyColumns: 140, scroll: { offset: 0, bodyRows: 9 }, view: {} } })
       const rule = await ui.find({ key: 'rule' })
       if (surface === 'desktop') expect(JSON.stringify(rule)).toContain('prefers-color-scheme: light')

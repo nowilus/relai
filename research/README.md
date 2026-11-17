@@ -1,45 +1,44 @@
-# RelAI Research — 0.1.0 (niewydany)
+# RelAI Research — 0.1.0
 
-Mod Claude Code, early access. Kod sprawdzony w testach silnika 2.1.323; sonda i pomiar
-na żywo przeniesione do E10 planu MODY_OSZCZEDZANIA (Aneks C). Zielony test nie dowodzi
-przyjęcia wszystkich argumentów w działającej sesji.
+Mod Claude Code. Wymaga Claude Code z modami (zmierzono na Claude Code 2.1.325).
 
-## Obsługa
+## Co robi
 
-- `/relai-research pane` — stan i przełączniki w jednej kolumnie, także w wąskim panelu.
-- `/relai-research <pytanie>` — planer wybiera quick albo deep. Komenda wraca od razu;
-  raport pojawia się później jako wiadomość. Nie badaj tego samego równolegle samodzielnie.
-- `/relai-research deep <pytanie>` — wymusza deep; 2–4 równoległe zadania general-purpose,
-  bez jawnego modelu, z wąskim wyjątkiem w routerze (Aneks D).
-- `/relai-research on|off`, `auto|manual`, `model <id>`, `stats` — droga zapasowa ustawień.
-  Domyślny pomocnik: `claude-haiku-5-5`; wybrany model zapisuje się w magazynie modu.
+Planer wybiera dla pytania tryb quick albo deep. Quick czyta do czterech stron równolegle i cytuje tylko strony, które rzeczywiście przeczytał. Deep dzieli pytanie na 2–4 części, które badają agenci typu `relai-research:reader` z narzędziami WebSearch, WebFetch i ToolSearch. Tryb `auto` streszcza komentarz WebSearch w głównym czacie, gdy jest większy niż 800 tokenów; oryginał zostaje zapisany.
 
-Auto obejmuje wyłącznie komentarz głównego WebSearch większy niż 800 tokenów (ceil znaków/4).
-Struktura linków zostaje; pełna koperta wyniku trafia na dysk przed pomocą modelu.
-Wyłączenie lub zmiana ustawień unieważnia wynik rozpoczętej pracy.
+## Polecenia
 
-## Źródła i ochrona
+- `/relai-research <pytanie>` — planer wybiera quick albo deep. Komenda wraca od razu, a raport przychodzi później jako wiadomość. Do tego czasu nie badaj tego samego pytania samodzielnie.
+- `/relai-research deep <pytanie>` — wymusza tryb deep.
+- `/relai-research on` / `off` — przełącznik modu.
+- `/relai-research auto` / `manual` — streszczanie komentarza WebSearch.
+- `/relai-research model <id>` — model pomocniczy, domyślnie `claude-haiku-5-5`. Wybór zapisuje się w magazynie modu.
+- `/relai-research pane` — stan i przełączniki.
+- `/relai-research stats` — stan.
 
-Quick czyta do czterech stron równolegle: WebFetch, następnie GET przez `curl` (20 s,
-40 000 znaków, bez śledzenia przekierowań), następnie dostępny konektor Firecrawl.
-Brak narzędzia lub konektora uruchamia dalsze wyjście awaryjne. WebSearch ma limit oczekiwania
-90 s; przekroczenie porzuca odpowiedź, nie deklaruje zatrzymania narzędzia silnika.
-Przypisy quick odsyłają tylko do stron rzeczywiście zwróconych przez czytnik.
-Deep zachowuje źródła wszystkich poprawnych części; brak dowodu WebFetch oznacza „unverified”.
+## Kiedy mod jest bierny
 
-Zgoda „Mody oszczędzania” raz na projekt z markerem RelAI. Przed zgodą sesja bez człowieka
-pozostaje bierna. Aktywny `research-router@token-saving-mods` usypia mod, z jednym komunikatem.
-Skaner pracuje przed każdym pomocnikiem; agenci Research dostają wyłącznie publiczne WebSearch
-i WebFetch, nie Read, Bash ani kolejne Agent. Wynik narzędzia z sekretem jest zatrzymywany
-przed przekazaniem agentowi. Zachowanie tych hooków na żywo nadal wymaga E10.
+- Zgoda: wiersz „Mody oszczędzania” w `docs/USTAWIENIA.md` pyta raz na projekt. Do czasu odpowiedzi sesja bez człowieka zostaje bierna.
+- Bliźniak BenAI: gdy włączony jest `research-router@token-saving-mods`, mod śpi.
+- Skaner sekretów: pytanie z sekretem jest wstrzymywane. Wynik narzędzia z sekretem zatrzymuje się przed przekazaniem agentowi.
+- Agenci deep nie dostają Read, Bash ani kolejnych Agent.
 
-## Pliki i pomiar
+## Źródła
 
-Kopie i raporty: `~/.claude/relai/oszczednosci/research/`, nazwy z datą UTC, sesją i numerem.
-Horyzont retencji to 14 dni (SZACUNEK wspólnego rdzenia); datowane kopie są materiałem
-do sprzątania przez mechanizm artefaktów, nie obietnicą automatycznego kasowania przez mod.
-Błąd zapisuje bez treści źródła do `ostatni-blad.txt`.
-Koszt każdego pomocnika, także niepoprawnej odpowiedzi, trafia do osobnego pliku producenta
-`rejestr/<data>-<sesja>.relai-research.jsonl`, czytelnego przez obecną zakładkę oszczędności.
-Tokeny auto są szacunkiem; brak usage oznacza brak deklarowanej oszczędności.
-Deep nie deklaruje oszczędności tokenów (hand-back agenta może trafić do czatu osobno).
+Quick próbuje kolejno: WebFetch, potem GET przez `curl` (20 s, najwyżej 40 000 znaków, bez śledzenia przekierowań), potem konektor Firecrawl, jeśli jest dostępny. Limit oczekiwania na WebSearch to 90 s; po jego przekroczeniu odpowiedź jest porzucana.
+
+Źródło oznaczone „verified: page read” to strona, którą czytnik faktycznie zwrócił. Źródła deep oznaczone są jako „unverified: cited by an agent, not read by the mod”, bo mod nie widzi wywołań narzędzi swoich agentów. Jeden URL dostaje jeden numer we wszystkich częściach. Część dłuższa niż 250 słów jest odrzucana w całości z komunikatem „Invalid deep part size”. Części deep przydziela router modeli, bo nie podają jawnego modelu.
+
+## Rejestr i pliki
+
+Kopie źródeł i raporty leżą w `~/.claude/relai/oszczednosci/research/`, z datą UTC, sesją i numerem w nazwie. Planowany horyzont przechowywania to 14 dni; mod nie kasuje kopii sam.
+
+Koszt każdego pomocnika, także przy niepoprawnej odpowiedzi, zapisuje się w `~/.claude/relai/oszczednosci/rejestr/<data>-<sesja>.relai-research.jsonl`. Tokeny oszczędzone w trybie auto są szacunkiem. Brak danych o zużyciu oznacza brak deklarowanej oszczędności. Tryb deep nie deklaruje oszczędności tokenów.
+
+Błąd zapisuje się bez treści źródła do `ostatni-blad.txt` w tym samym folderze.
+
+## Znane ograniczenia
+
+- Tryb auto praktycznie się nie włącza na silniku 2.1.325, który sam streszcza WebSearch. W pomiarze trzy wyniki miały 379, 601 i 664 tokeny, czyli poniżej progu 800. Próg pozostaje bez zmian.
+- Źródła deep nie są sprawdzane przez mod, a jedynie zgłoszone przez agentów.
+- Quick zależy od tego, co uda się pobrać. Jeśli oficjalnej dokumentacji nie ma w wynikach, raport to mówi i nie potwierdza faktu.

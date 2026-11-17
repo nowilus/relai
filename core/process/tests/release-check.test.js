@@ -81,6 +81,27 @@ test('nieśledzony nowy plik modu liczy sie do zmian modu', (t) => {
   assert.equal(panel.zmienionych, 1);
 });
 
+test('pierwsze wydanie modu (E10, Aneks E.9): numer bez wydania i bez poprzednika - baza to stan sprzed modu, nie kod 2', (t) => {
+  const f = repo(t);
+  const market = JSON.parse(f.czytaj('.claude-plugin/marketplace.json'));
+  market.plugins.push({ name: 'relai-browser', source: './browser', version: '0.1.0' });
+  f.zapisz('.claude-plugin/marketplace.json', JSON.stringify(market));
+  f.zapisz('browser/.claude-plugin/plugin.json', '{\n  "name": "relai-browser",\n  "version": "0.1.0"\n}\n');
+  f.zapisz('browser/hooks/register.tsx', 'export {}\n');
+  f.commit('feat(browser): add relai-browser 0.1.0');
+  const r = f.uruchom(['--tylko', 'podbicie']);
+  assert.notEqual(r.kod, 2, JSON.stringify(r.json.blad || ''));
+  const browser = r.json.bazy.mody.find((m) => m.nazwa === 'relai-browser');
+  assert.equal(browser.zrodlo, 'pierwsze wydanie');
+  assert.equal(browser.wersjaBazy, null);
+  assert.equal(browser.zmienionych, 2, 'wszystkie pliki modu od stanu sprzed modu');
+  const p = r.json.propozycje.find((x) => x.komponent === 'relai-browser');
+  assert.equal(p.stan, 'pierwsze wydanie');
+  assert.equal(p.propozycja, '0.1.0');
+  const podbicie = r.json.kontrole.find((k) => k.id === 'podbicie');
+  assert.deepEqual(podbicie.bledy.filter((b) => b.includes('relai-browser')), []);
+});
+
 test('brak tagu v*: kod 2 z nazwa brakujacej bazy (przypadek b7)', (t) => {
   const f = repo(t, { tag: false });
   const r = spawnSync(process.execPath, [SKRYPT, '--repo', f.dir, '--szybko'], { encoding: 'utf8' });

@@ -232,6 +232,14 @@ export function defaultCardQuestion(o: { description: string, dflt: Alias, sugge
 
 /** The judge's usage summed as one helper call (cache reads and writes count as plain input, R6). */
 export type Usage = { model: string, in: number, out: number }
+/** A subagent's usage with its cache apart: the panel prices reads and writes at their own rates (Aneks E.8). */
+export type StepUsage = Usage & { cacheRead: number, cacheWrite: number }
+
+export function stepUsageOf(model: string, u: Record<string, unknown> | null | undefined): StepUsage | null {
+  if (!u) return null
+  const n = (x: unknown) => (typeof x === 'number' && Number.isFinite(x) && x > 0 ? x : 0)
+  return { model, in: n(u.input_tokens), out: n(u.output_tokens), cacheRead: n(u.cache_read_input_tokens), cacheWrite: n(u.cache_creation_input_tokens) }
+}
 export function usageOf(model: string, u: Record<string, unknown> | null | undefined): Usage | null {
   if (!u) return null
   const n = (x: unknown) => (typeof x === 'number' && Number.isFinite(x) && x > 0 ? x : 0)
@@ -246,10 +254,10 @@ export const JUDGE_ID = 'claude-haiku-5-5'
  * before/after stay out; the judge's cost is the helper and is subtracted (spec, section 5).
  * The subagent's own usage joins the same record when it finishes (same tool_use_id: the later wins).
  */
-export function routeRecord(o: { toolUseId: string, action: string, from: string, to: string, usage: Usage | null, ms: number, why: string, subagent?: Usage | null, part?: string }): Record<string, unknown> {
+export function routeRecord(o: { toolUseId: string, action: string, from: string, to: string, usage: Usage | null, ms: number, why: string, subagent?: StepUsage | null, part?: string }): Record<string, unknown> {
   // part: '0' for a single spawn; `crew-<task id>` for a task judged on the crew card (E6), one record each
   const base = { tool_use_id: o.toolUseId, part: o.part ?? '0', tool: 'Agent', action: o.action, from: o.from, to: o.to, detail: `${o.why}; ${o.ms} ms` }
-  const sub = o.subagent ? { subagent: { model: o.subagent.model, in: o.subagent.in, out: o.subagent.out } } : {}
+  const sub = o.subagent ? { subagent: { model: o.subagent.model, in: o.subagent.in, out: o.subagent.out, cacheRead: o.subagent.cacheRead, cacheWrite: o.subagent.cacheWrite } } : {}
   return o.usage
     ? { ...base, ...sub, measured: true, helper: { model: o.usage.model, in: o.usage.in, out: o.usage.out } }
     : { ...base, ...sub, measured: false }

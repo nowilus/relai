@@ -1,7 +1,7 @@
 {
   "name": "relai-effort",
   "version": "0.1.0",
-  "description": "Early access — needs Claude Code with mods. RelAI Effort suggests a reasoning effort before a main chat turn using a helper model; a card or auto mode chooses whether to switch. An explicit RelAI stage effort is protected in auto mode. The secret scanner and project consent gate the helper, and an enabled BenAI effort optimizer puts this mod to sleep.",
+  "description": "Needs Claude Code with mods (measured on 2.1.325). RelAI Effort suggests a reasoning effort (low, medium or high) before a main chat turn using a helper model (the balanced model of the project's list); a card (ask) or auto mode chooses whether to switch. An explicit RelAI stage effort is protected in auto mode. When a verdict fails the engine returns to the base level; the record's from is the level the mod last applied. The secret scanner and project consent gate the helper, and an enabled BenAI effort optimizer puts this mod to sleep. Commands: stats, on, off, ask, auto, pane.",
   "author": { "name": "nowilus", "url": "https://github.com/nowilus" },
   "homepage": "https://github.com/nowilus/relai",
   "repository": "https://github.com/nowilus/relai",

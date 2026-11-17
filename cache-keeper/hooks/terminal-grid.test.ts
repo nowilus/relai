@@ -272,4 +272,8 @@ describe('the terminal cache bar as a grid of columns (ZGLOSZENIA E3, #2)', () =
   })
 })
 
-const DESKTOP_BEFORE: string[] = ['b2293fa1', '705cb674']
+// Recorded on Claude Code 2.1.325 (E10, Aneks E.10). The engine changed the drawn tree's shape in
+// 2.1.323 (rows with "part", the engine's own node as { type: 'engine' }, props it adds to Svg),
+// so the 2.1.29x prints (b2293fa1, 705cb674) no longer match. The desktop drawing itself did not
+// change: the cache-keeper code of E8 (32bc113) gives the same tree as this one on 2.1.325.
+const DESKTOP_BEFORE: string[] = ['3fc08fc9', 'aca6c790']

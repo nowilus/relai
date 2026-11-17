@@ -12,8 +12,8 @@ import type { CrewDecision, CrewJudged, CrewRow, CrewTask } from './crew'
 import { consentRow, guardHelper, hasMarker, isHumanOrigin, isTwinActive, readConsent, settingsCandidates, withConsentRow } from './core/savings-gates.mjs'
 import { scanText } from './core/secret-scan.mjs'
 import { createQueue, ledgerFile } from './core/savings-ledger.mjs'
-import { CARD_HEADER, CARD_OPTIONS, DEFAULT_TIERS, JUDGE_ID, aliasOf, answerOf, cardQuestion, chooseTier, defaultAnswerOf, defaultCardOptions, defaultCardQuestion, explicitAction, judgeRequest, parseVerdict, routeRecord, skipOf, subagentDefaultOf, tierOfModel, tiersOf, usageOf } from './judge'
-import type { Alias, Pref, Tier, Tiers, Usage } from './judge'
+import { CARD_HEADER, CARD_OPTIONS, DEFAULT_TIERS, JUDGE_ID, aliasOf, answerOf, cardQuestion, chooseTier, defaultAnswerOf, defaultCardOptions, defaultCardQuestion, explicitAction, judgeRequest, parseVerdict, routeRecord, skipOf, subagentDefaultOf, tierOfModel, tiersOf, stepUsageOf, usageOf } from './judge'
+import type { Alias, Pref, StepUsage, Tier, Tiers, Usage } from './judge'
 import { CONSENT_NO_LABEL, CONSENT_QUESTION, CONSENT_YES_LABEL, decide } from './gate'
 import type { Gate } from './gate'
 import { WIDE_COLUMNS, cardsOf, listsOf, prefWord, summaryOf } from './pane'
@@ -55,9 +55,9 @@ let prices: Lists = listsOf(null)
 let running = new Map<string, { rec: Parameters<typeof routeRecord>[0], used: Usage | null }>()
 /** Subagents remembered at once: their summed step usage, and those that ended before their spawn resolved. */
 const KEEP_AGENTS = 50
-let stepUsage = new Map<string, Usage>()
+let stepUsage = new Map<string, StepUsage>()
 let finished = new Set<string>()
-const capped = (m: Map<string, Usage>, id: string, u: Usage): Map<string, Usage> => {
+const capped = (m: Map<string, StepUsage>, id: string, u: StepUsage): Map<string, StepUsage> => {
   const out = new Map(m)
   out.delete(id)
   out.set(id, u)
@@ -187,13 +187,11 @@ async function askPerson($: any, description: string, mine: Alias, suggestion: A
 
 /** The session's answer to the card, kept here too: a $.state write is not seen by a parallel spawn's hook until its own ends (test E5). */
 let prefNow: Pref = 'ask'
-let cardChain: Promise<unknown> = Promise.resolve()
-/** Runs `work` after every earlier card's work has settled. */
-function oneAtATime<T>(work: () => Promise<T>): Promise<T> {
-  const run = cardChain.then(work, work)
-  cardChain = run.catch(() => undefined)
-  return run
-}
+/**
+ * Whether a spawn card waits for the person now. A parallel spawn never queues behind it: a plain wait
+ * counts against the hook's 10 s budget, a $.ui.ask does not (live E10, Aneks E.5; the crew card's rule).
+ */
+let isCardOpen = false
 
 type Spawned = { model: Alias | null, rec: Parameters<typeof routeRecord>[0] | null }
 
@@ -228,7 +226,7 @@ async function route($: any, x: any): Promise<Spawned> {
   const isProtected = isExplicit || subagentDefault !== null
   // No model of anyone's choosing: the chosen tier is always pinned, so a risky task never falls to a lighter default
   const settled: Settled = isProtected
-    ? await oneAtATime(() => protectedChoice($, { description, isExplicit, current, chosenTier: chosen.tier, rule: chosen.rule, fromAlias, suggestion, session }))
+    ? await protectedChoice($, { description, isExplicit, current, chosenTier: chosen.tier, rule: chosen.rule, fromAlias, suggestion, session })
     : { model: suggestion, how: `judge: ${chosen.rule}` }
   const isChanged = settled.model !== null && settled.model !== fromAlias
   await remember($, { ...base, to: settled.model ?? fromAlias, outcome: isChanged ? 'changed' : 'kept', why: settled.how, ...used })
@@ -240,7 +238,7 @@ type Settled = { model: Alias | null, how: string }
 
 /**
  * A model someone chose — named in the call, or the subagent default from the settings (Annex B).
- * Runs one at a time (oneAtATime): parallel spawns wait, and each reads the session's answer anew.
+ * One card at a time: a spawn arriving while a card is open keeps the chosen model at once, never waits (Aneks E.5).
  */
 async function protectedChoice($: any, o: { description: string, isExplicit: boolean, current: Tier, chosenTier: Tier, rule: string, fromAlias: Alias, suggestion: Alias, session: Alias | null }): Promise<Settled> {
   const act = explicitAction({ explicit: o.current, suggested: o.chosenTier, pref: prefNow, hasHuman: gate.hasHuman })
@@ -248,11 +246,17 @@ async function protectedChoice($: any, o: { description: string, isExplicit: boo
   if (act === 'keep') return { model: null, how: o.chosenTier === o.current ? `judge agrees with ${whose}: ${o.rule}` : `your session choice: always ${whose} (${o.rule})` }
   if (act === 'apply') return { model: o.suggestion, how: gate.hasHuman ? `your session choice: always the suggestion (${o.rule})` : `no person in the session: suggestion applied (${o.rule})` }
   if (act === 'session') return o.session ? { model: o.session, how: `your session choice: always the session's model (${o.rule})` } : { model: null, how: `session model unknown: ${whose} kept (${o.rule})` }
-  if (o.isExplicit) {
-    const isYes = await askPerson($, o.description, o.fromAlias, o.suggestion, o.rule)
-    return { model: isYes ? o.suggestion : null, how: `card: ${isYes ? 'suggestion' : 'yours'} (${o.rule})` }
+  if (isCardOpen) return { model: null, how: `another card is open: ${whose} kept (${o.rule})` }
+  isCardOpen = true
+  try {
+    if (o.isExplicit) {
+      const isYes = await askPerson($, o.description, o.fromAlias, o.suggestion, o.rule)
+      return { model: isYes ? o.suggestion : null, how: `card: ${isYes ? 'suggestion' : 'yours'} (${o.rule})` }
+    }
+    return await askDefault($, o.description, o.fromAlias, o.suggestion, o.session, o.rule)
+  } finally {
+    isCardOpen = false
   }
-  return askDefault($, o.description, o.fromAlias, o.suggestion, o.session, o.rule)
 }
 
 /** The card for the subagent default from the settings (Annex B). A card that fails keeps the default. */
@@ -437,6 +441,7 @@ export const register: Register = (on) => {
     stepUsage = new Map()
     finished = new Set()
     prefNow = asPref(await read($, pref))
+    isCardOpen = false
     // a reload keeps $.state: decided crew members still spawn with no second card
     crewDecisions = (await read($, crew)).map(decisionOfState)
     crewRows = []
@@ -554,10 +559,10 @@ export const register: Register = (on) => {
   on('turn.step', async function* ($, e, next) {
     const r: any = yield* next(e)
     const id = String((e as any).agentId ?? '')
-    const u = id && r?.usage ? usageOf(String((e as any).model ?? ''), r.usage) : null
+    const u = id && r?.usage ? stepUsageOf(String((e as any).model ?? ''), r.usage) : null
     if (u) {
       const was = stepUsage.get(id)
-      stepUsage = capped(stepUsage, id, { model: u.model, in: (was?.in ?? 0) + u.in, out: (was?.out ?? 0) + u.out })
+      stepUsage = capped(stepUsage, id, { model: u.model, in: (was?.in ?? 0) + u.in, out: (was?.out ?? 0) + u.out, cacheRead: (was?.cacheRead ?? 0) + u.cacheRead, cacheWrite: (was?.cacheWrite ?? 0) + u.cacheWrite })
     }
     return r
   })

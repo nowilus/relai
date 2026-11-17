@@ -45,6 +45,10 @@ function commity(git, repo, od, doRev, sciezki) {
 // pliki: Set plikow komponentu wymagajacych wydania; usuniete: komendy usuniete albo przemianowane.
 function propozycja(komponent, wersja, wersjaBazy, pliki, usuniete, lista) {
   if (!pliki.size) return null;
+  // Pierwsze wydanie (E10, Aneks E.9): nie ma czego podbijac — wydaje sie numer z drzewa.
+  if (wersjaBazy === null) {
+    return { komponent, wersjaBazy, wersja, poziom: 'pierwsze', propozycja: wersja, stan: 'pierwsze wydanie', plikow: pliki.size, commitow: 0, bezCommitu: 0, powody: ['pierwsze wydanie komponentu'] };
+  }
   const istotne = lista.filter((c) => c.pliki.some((p) => pliki.has(p)));
   let poziom = 'patch';
   const powody = [];

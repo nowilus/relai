@@ -72,9 +72,14 @@ export function savingsTab(c: Ctx, p: Parts, d: SavingsData, s: SavingsCtx) {
       : `Koszt helperów z usage: ${helper.calls} ${plural(helper.calls, 'wywołanie', 'wywołania', 'wywołań')}, ${nTokens(helper.in)} wejścia i ${nTokens(helper.out)} wyjścia${helper.unpriced > 0 ? ` — ${helper.unpriced} bez ceny w cenniku` : ''}.`)
   const estimated = tile('sv-estimated', v.estimatedUsd === null ? 'brak ceny' : `~${usd(v.estimatedUsd)}`, THEME.mark, 'szacowane',
     `SZACUNEK: ${nTokens(v.saved)}, których Claude nie przeczytał, × cena wejścia ${v.mainModel ?? 'modelu sesji'}, bez mnożnika cache.`)
+  const router = v.router
+  const routed = router.calls === 0 ? [] : [line('sv-router', router.unpriced > 0
+    ? `Model Router: ${router.calls} ${plural(router.calls, 'zmiana', 'zmiany', 'zmian')} modelu subagenta — ${router.unpriced} bez ceny w cenniku, różnicy nie liczę.`
+    : `Model Router (zmierzone): ${router.calls} ${plural(router.calls, 'zmiana', 'zmiany', 'zmian')} modelu subagenta, te same tokeny na dwóch modelach: ~${signed(router.usd)}.`,
+    router.usd < 0 ? THEME.accentText : THEME.title)]
   const net = line('sv-net', v.netUsd === null
     ? 'Bilans: brak — bez ceny któregoś modelu nie liczę, żeby nie zawyżyć.'
-    : `Bilans (szacowane − zmierzone): ~${signed(v.netUsd)} ${FILTER_WORDS[s.filter]}.`, v.netUsd !== null && v.netUsd < 0 ? THEME.accentText : THEME.title, true)
+    : `Bilans (szacowane${router.calls > 0 ? ' + router' : ''} − koszt helperów): ~${signed(v.netUsd)} ${FILTER_WORDS[s.filter]}.`, v.netUsd !== null && v.netUsd < 0 ? THEME.accentText : THEME.title, true)
   const rows = v.byMod.map((r, i) => line(`sv-row-${i}`, `${r.mod} · ${ACTION_WORDS[r.action] ?? r.action}: ${nRecords(r.count)}, ${nTokens(r.saved)} mniej (szacunek)`))
   const left = v.leftOut.count > 0
     ? [line('sv-left', `Odrzucone jako nieprawdopodobne (LEFT OUT): ${nRecords(v.leftOut.count)}, ${nTokens(v.leftOut.saved)} — poza sumą.`, THEME.accentText)]
@@ -93,6 +98,7 @@ export function savingsTab(c: Ctx, p: Parts, d: SavingsData, s: SavingsCtx) {
       [
         filters,
         <Box key="sv-tiles" flexDirection={isStacked ? 'column' : 'row'} flexWrap="wrap" columnGap={2} rowGap={1}>{[measured, estimated]}</Box>,
+        ...routed,
         net,
       ]),
     <Box key="sv-detail" flexDirection="column" gap={isGui ? 1 : 0}>

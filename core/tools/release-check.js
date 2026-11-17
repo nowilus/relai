@@ -123,6 +123,12 @@ function bazaModu(repo, mod, commit, rev) {
     }
     punkt = c + '^';
     wersja = wersjaZ(repo, punkt, rel);
+    if (!wersja) {
+      // Pierwsze wydanie modu (E10, Aneks E.9): przed commitem, ktory wprowadzil numer, modu nie bylo
+      // — baza to ten stan, bez numeru; wszystkie pliki modu wchodza do wydania.
+      const przed = (git(repo, ['rev-parse', punkt], true) || '').trim();
+      if (przed) return { nazwa: mod.nazwa, katalog: mod.katalog, wersja: mod.wersja, wersjaBazy: null, ref: 'brak (pierwsze wydanie)', commit: przed, zrodlo: 'pierwsze wydanie' };
+    }
   }
   throw new NieDaSie('brak bazy modu ' + mod.nazwa + ': nie znaleziono wydanego numeru przed ' + mod.wersja);
 }

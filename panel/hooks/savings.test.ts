@@ -100,6 +100,28 @@ describe('the savings tab', () => {
     }
   })
 
+  test('prices the router: one model change said measured and added to the net (E10)', async ($, on) => {
+    const route = (id: string, from: string) => JSON.stringify({ ts: '2026-11-11T11:00:00.000Z', session: 'sesja-a', tool_use_id: id, mod: 'relai-model-router', part: '0', tool: 'Agent', action: 'route-changed', from, to: 'haiku', measured: true, helper: { model: 'claude-haiku-5-5', in: 400, out: 45 }, subagent: { model: 'claude-haiku-5-5', in: 140000, out: 1000, cacheRead: 0, cacheWrite: 0 } })
+    world(on, { '2026-11-11-sesja-a.jsonl': route('r1', 'opus') + '\n' })
+    for (const surface of ['desktop', 'terminal'] as const) {
+      const ui = await savings($, surface)
+      const all = textOf(await ui.drawn())
+      expect(all).toContain('Model Router (zmierzone): 1 zmiana modelu subagenta, te same tokeny na dwóch modelach: ~$')
+      expect(all).toContain('Bilans (szacowane + router − koszt helperów): ~$')
+      expect(all).not.toContain('~$0.00')
+      await ui.unmount()
+    }
+  })
+
+  test('an unpriced routed model leaves no net, said in words (E10)', async ($, on) => {
+    const route = JSON.stringify({ ts: '2026-11-11T11:00:00.000Z', session: 'sesja-a', tool_use_id: 'r2', mod: 'relai-model-router', part: '0', tool: 'Agent', action: 'route-changed', from: 'claude-nieznany-9-9', to: 'haiku', measured: true, helper: { model: 'claude-haiku-5-5', in: 400, out: 45 }, subagent: { model: 'claude-haiku-5-5', in: 140000, out: 1000, cacheRead: 0, cacheWrite: 0 } })
+    world(on, { '2026-11-11-sesja-a.jsonl': route + '\n' })
+    const ui = await savings($, 'desktop')
+    const all = textOf(await ui.drawn())
+    expect(all).toContain('Model Router: 1 zmiana modelu subagenta — 1 bez ceny w cenniku, różnicy nie liczę.')
+    expect(all).toContain('Bilans: brak')
+  })
+
   test('says an empty ledger in words, never a zero sum', async ($, on) => {
     world(on, {})
     const ui = await savings($, 'desktop')

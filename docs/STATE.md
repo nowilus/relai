@@ -5,12 +5,14 @@ E9 zrealizowany 2026-11-13; E10 gotowy do startu)
 
 ## Gdzie jesteśmy
 
-RelAI **3.8.0** jest w repozytorium i publicznie (tag `v3.8.0`, 2026-11-10: naprawy po audycie —
-plan OPTYMALIZACJA_PO_AUDYCIE; poprzednio 3.7.0 z 2026-10-28, lżejszy start sesji). Plugin `relai` działa
+RelAI **3.9.0** jest w repozytorium, przygotowany do wydania (plan MODY_OSZCZEDZANIA, E10;
+poprzednio 3.8.0 z 2026-11-10, naprawy po audycie). Plugin `relai` działa
 w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu procesu, z szesnastoma
 komendami i piętnastoma hookami w Claude Code (piętnasty: `bash-guard`). Marketplace tego
-repozytorium niesie też cztery mody: `relai-panel` 0.22.2, `relai-progress` 0.7.2,
-`relai-cache-keeper` 0.13.1 („early access”) i kokpit `relai-mods` 0.3.1. Wydanie robi się frazą „gotowi do wydania?”
+repozytorium niesie też dziewięć modów: `relai-panel` 0.23.0, `relai-progress` 0.8.0,
+`relai-cache-keeper` 0.14.0 („early access”), kokpit `relai-mods` 0.4.0 oraz pięć modów
+oszczędzania tokenów 0.1.0: `relai-input-router`, `relai-browser`, `relai-model-router`,
+`relai-effort`, `relai-research`. Wydanie robi się frazą „gotowi do wydania?”
 (`/relai-release`): raport `release-check.js`, naprawy po jednej zgodzie, publikacja krok po kroku,
 bramka `pre-push` na tagi. Na maszynie Łukasza `relai`, `relai-panel` i `relai-cache-keeper`
 są włączone na poziomie użytkownika, a w projektach z markerem RelAI także lokalnie (stan

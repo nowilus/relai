@@ -2,6 +2,24 @@ import { describe, expect, mock, test, type TestBody } from 'claude-code/testing
 import type { On, RenderNode } from 'claude-code'
 import { FORMS } from './core/commands.mjs'
 import { CHIP_KEY, KEY } from './core/theme.mjs'
+import { barBelow, orderRelai } from './bar-card'
+
+describe('the band order (E10, Aneks E.10)', () => {
+  const row = (plugin: string) => ({ plugin, tree: { type: 'Box', props: { key: plugin } } })
+  test('RelAI bars always plan, progress, cache — in the places RelAI rows held; other plugins stay put', () => {
+    const rows = [row('relai-cache-keeper'), row('other'), row('relai-panel'), row('relai-progress')]
+    expect(orderRelai(rows).map((r) => r.plugin)).toEqual(['relai-panel', 'other', 'relai-progress', 'relai-cache-keeper'])
+    // the same rows, never new ones or copies: the engine compares a rewrite by value
+    expect(orderRelai(rows).every((r) => rows.includes(r))).toBe(true)
+    expect(orderRelai(orderRelai(rows))).toEqual(orderRelai(rows))
+  })
+  test('the rule follows the settled order: a bar has a rule only when a RelAI row is right beneath it', () => {
+    const rows = orderRelai([row('relai-cache-keeper'), row('relai-progress'), row('relai-panel'), row('other')])
+    expect(barBelow(rows, 'relai-panel')).toBe(true)
+    expect(barBelow(rows, 'relai-progress')).toBe(true)
+    expect(barBelow(rows, 'relai-cache-keeper')).toBe(false)
+  })
+})
 
 // The plan bar of brief v2 (docs/zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md §1–§2, AUDYT_MODOW Z1):
 // one calm row, and a second row only while a confirmation card waits for "Tak". The bar shows
@@ -77,6 +95,12 @@ const bar = (bodyColumns = 140) => ({
   component: 'AbovePrompt' as const,
   props: { hasSurvey: false, isWorking: false, maxRows: 10, bodyColumns, scroll: { offset: 0, bodyRows: 9 }, view: {} },
 })
+// The band's arrangement (2.1.323+): the harness renders every row itself (ours, then the stub
+// beneath) and hands them to AbovePromptList, as the engine does live (Aneks E.10)
+async function arrange($: { ui: { mount: (o: never) => Promise<{ unmount: () => Promise<void> }> } }, surface: 'terminal' | 'desktop') {
+  const ui = await $.ui.mount({ plugin: 'relai-panel', surface, component: 'AbovePromptList', props: { rows: [], hasSurvey: false, isCollapsed: false, isWorking: false, maxRows: 10, bodyColumns: 140, scroll: { offset: 0, bodyRows: 9 }, view: {} } } as never)
+  await ui.unmount()
+}
 const pane = {
   component: 'Pane' as const, requestId: 'relai-panel',
   props: { title: 'RelAI', isFocused: true, bodyColumns: 100, placement: 'dock' as const, scroll: { offset: 0, bodyRows: 60 }, view: {} },
@@ -432,6 +456,7 @@ describe('the bar in the tool\'s own colors (WYGLAD_PANELU E1)', () => {
     world(on, FILES, 'relai-cache-card') // a RelAI bar beneath, so the rule is drawn too
     await start($)
     for (const surface of ['terminal', 'desktop'] as const) {
+      await arrange($ as never, surface)
       const ui = await $.ui.mount({ plugin: 'relai-panel', surface, ...bar(140) })
       const drawn = await ui.drawn()
       expect(rawColors(drawn)).toEqual([])

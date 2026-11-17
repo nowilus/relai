@@ -20,6 +20,13 @@ describe('route: guarded files', () => {
     expect(fileGuard('C:/x/environment.md', null)).toBe(null)
   })
 
+  test('image files reach Claude as images, never as notes (E10, Aneks E.1)', () => {
+    // Read of a screenshot returns pixels, not text: a describer subagent got Haiku notes of JPEG bytes
+    for (const p of ['C:/x/tool-results/mcp-Claude_Browser-blob-1.jpg', 'C:/x/a.JPEG', 'C:/x/b.png', 'C:/x/c.gif', 'C:/x/d.webp', 'C:/x/e.bmp']) expect(fileGuard(p, null)).toBe('image file')
+    expect(fileGuard('C:/x/diagram.svg', null)).toBe(null) // SVG is text
+    expect(fileGuard('C:/x/jpg-notes.txt', null)).toBe(null)
+  })
+
   test('paths are made absolute and plain before any decision', () => {
     expect(normPath('logs\\..\\docs\\DZIENNIK.md', 'C:\\proj')).toBe('C:/proj/docs/DZIENNIK.md')
     expect(normPath('/home/u/./a/../b.txt', '/x')).toBe('/home/u/b.txt')

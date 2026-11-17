@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <em>Wersja 3.8.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; Claude Code, Cursor albo Codex, plus Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
+  <em>Wersja 3.9.0 &nbsp;·&nbsp; licencja MIT &nbsp;·&nbsp; Claude Code, Cursor albo Codex, plus Node.js 14+ &nbsp;·&nbsp; zero zależności npm</em>
 </p>
 
 **RelAI zamienia rozmowę z agentem w prowadzony projekt.** Ustalenia, decyzje, stan prac i historia
@@ -138,17 +138,23 @@ W Claude Code komendy mają pełną nazwę `/relai:relai-<nazwa>`.
 
 ## Panel w Claude Code (early access)
 
-Cztery osobne pluginy z tego samego marketplace rysują RelAI w oknie Claude Code. Działają na
-**modach**, czyli API Claude Code oznaczonym jako „early access”. To API może się zmienić bez
-zapowiedzi i wtedy panel przestanie się ładować. Zmierzone na wersjach 2.1.293–2.1.295 (`relai-mods`
-na 2.1.308), na desktopie i w terminalu.
+Dziewięć osobnych pluginów z tego samego marketplace działa w oknie Claude Code: cztery
+pierwsze rysują RelAI, pięć kolejnych oszczędza tokeny (sekcja „Mody oszczędzania tokenów” niżej).
+Działają na **modach**, czyli API Claude Code oznaczonym jako „early access”. To API może się
+zmienić bez zapowiedzi i wtedy mod przestanie się ładować. Zmierzone na wersjach 2.1.293–2.1.295
+(`relai-mods` na 2.1.308, mody oszczędzania na 2.1.325), na desktopie i w terminalu.
 
 | Plugin | Co pokazuje |
 |---|---|
-| `relai-panel` (0.22.2) | nad promptem: aktywny plan, etap i status, a wiersz „Tak / Nie” tylko, gdy karta decyzji czeka; `/relai-panel` otwiera panel z sekcją „Teraz” (stan punktów widać po kształcie znaczników, cały punkt w dymku po najechaniu), formularzami szesnastu komend, mapą planów i etapów, dokumentami projektu ze zmianami od commita i kosztami sesji. Na desktopie start etapu z karty otwiera nową sesję aplikacji z komendą w polu — jeden Enter, a rozmowa, w której kliknąłeś, zostaje |
-| `relai-progress` (0.7.2) | nad promptem: lista kroków etapu w toku albo przebiegu `/relai-crew` — cienkie segmenty ze zrobionymi od lewej, jedna linia z punktem w toku i „Rozwiń”, chip agentów; `/relai-agents` — subagenci sesji z kosztem |
-| `relai-cache-keeper` (0.13.1) | nad promptem: cztery baterie w równej siatce — czas cache promptu, limit 5 h, czas do jego resetu, limit tygodniowy — pełne słowa w dymku aplikacji, i wiersz kontekstu „użyte / okno modelu · %” z kreską progu auto-compactu (z `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`) i barwą liczoną do progu; koszt sesji; podpowiada, kiedy nowa sesja się zwróci (`/cache` pokazuje rachunek). Limit planu: progi 5 h (90 %) i tygodnia (98 %) z podpisem pod baterią, karta „pracuję dalej / zapisz pracę” po turze ponad progiem, a po resecie „Wznów pracę” — czysty czat od pliku wznowienia. Progi zmieniasz w panelu, zakładka Koszty |
-| `relai-mods` (0.3.1) | `/relai-mods` otwiera kokpit modów, pluginów i hooków z `settings.json` tej maszyny, czytany z dysku: przełącznik włącza albo wyłącza plugin przez `claude plugin` z PATH, a Przeładuj w terminalu przeładowuje od razu, na desktopie prosi o wpisanie `/reload-plugins`. Hooki, pluginy z polityki i sam kokpit mają kłódkę. Wiersz „RelAI w tym projekcie” nad listą włącza albo wyłącza RelAI i trzy dodatki w folderze sesji (`claude plugin … --scope local`, po karcie „Tak / Nie”) i dopisuje `.claude/settings.local.json` do `.worktreeinclude` — to jedyny plik, który kokpit zapisuje sam |
+| `relai-panel` (0.23.0) | nad promptem: aktywny plan, etap i status, a wiersz „Tak / Nie” tylko, gdy karta decyzji czeka; `/relai-panel` otwiera panel z sekcją „Teraz” (stan punktów widać po kształcie znaczników, cały punkt w dymku po najechaniu), formularzami szesnastu komend, mapą planów i etapów, dokumentami projektu ze zmianami od commita, kosztami sesji i zakładką „Oszczędności” (zysk modów oszczędzania, koszt ich pomocników i wycena Model Routera). Na desktopie start etapu z karty otwiera nową sesję aplikacji z komendą w polu — jeden Enter, a rozmowa, w której kliknąłeś, zostaje |
+| `relai-progress` (0.8.0) | nad promptem: lista kroków etapu w toku albo przebiegu `/relai-crew` — cienkie segmenty ze zrobionymi od lewej, jedna linia z punktem w toku i „Rozwiń”, chip agentów; `/relai-agents` — subagenci sesji z kosztem |
+| `relai-cache-keeper` (0.14.0) | nad promptem: cztery baterie w równej siatce — czas cache promptu, limit 5 h, czas do jego resetu, limit tygodniowy — pełne słowa w dymku aplikacji, i wiersz kontekstu „użyte / okno modelu · %” z kreską progu auto-compactu (z `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`) i barwą liczoną do progu; koszt sesji; podpowiada, kiedy nowa sesja się zwróci (`/cache` pokazuje rachunek). Limit planu: progi 5 h (90 %) i tygodnia (98 %) z podpisem pod baterią, karta „pracuję dalej / zapisz pracę” po turze ponad progiem, a po resecie „Wznów pracę” — czysty czat od pliku wznowienia. Progi zmieniasz w panelu, zakładka Koszty |
+| `relai-mods` (0.4.0) | `/relai-mods` otwiera kokpit modów, pluginów i hooków z `settings.json` tej maszyny, czytany z dysku: przełącznik włącza albo wyłącza plugin przez `claude plugin` z PATH, a Przeładuj w terminalu przeładowuje od razu, na desktopie prosi o wpisanie `/reload-plugins`. Hooki, pluginy z polityki i sam kokpit mają kłódkę. Wiersz „RelAI w tym projekcie” nad listą włącza albo wyłącza RelAI i trzy dodatki w folderze sesji (`claude plugin … --scope local`, po karcie „Tak / Nie”) i dopisuje `.claude/settings.local.json` do `.worktreeinclude` — to jedyny plik, który kokpit zapisuje sam |
+| `relai-input-router` (0.1.0) | duży plik, PDF albo wynik konektora najpierw czyta tańszy model pomocniczy; Claude dostaje notatki z numerami linii i ścieżkę do pełnego tekstu. Pliki procesu RelAI, instrukcje, sekrety, obrazy i błędy idą zawsze w całości |
+| `relai-browser` (0.1.0) | zrzuty i obrazy z narzędzi są zmniejszane, zanim Claude je przeczyta; współrzędne kliknięć przeliczone |
+| `relai-model-router` (0.1.0) | przed startem subagenta sędzia (Haiku) wybiera najtańszy model, który zadanie udźwignie; model wskazany przez kogoś zmienia się tylko po karcie, a `/relai-crew` dostaje jedną kartę dla całej załogi |
+| `relai-effort` (0.1.0) | przed turą głównego czatu podpowiada poziom `/effort`; karta albo tryb automatyczny |
+| `relai-research` (0.1.0) | `/relai-research` bada pytanie w sieci: tryb quick czyta strony sam i cytuje tylko przeczytane, deep rozdziela pytanie na części dla agentów z samymi narzędziami web |
 
 Paski i panel idą same za wyglądem aplikacji, jasnym albo ciemnym: tekst i ramki w kolorach
 narzędzia, panel na jednej kartce z palety Warsztat. Przełączać niczego nie trzeba.
@@ -179,6 +185,39 @@ claude plugin install relai-mods@relai
 ```
 
 Potem uruchom aplikację ponownie. Poza projektem RelAI paski milczą.
+
+## Mody oszczędzania tokenów
+
+Pięć ostatnich modów z tabeli wyżej (`relai-input-router`, `relai-browser`, `relai-model-router`,
+`relai-effort`, `relai-research`) zmniejsza to, co Claude czyta albo na czym pracuje; zmierzone
+na żywo na 2.1.325.
+
+Każdy mod pyta **raz na projekt** o zgodę na wysyłanie treści do modelu pomocniczego (wiersz
+„Mody oszczędzania” w `docs/USTAWIENIA.md`); po odmowie jest bierny. Tekst z sekretem znalezionym
+przez skaner RelAI nie trafia do pomocnika. Każdy mod śpi, gdy włączony jest jego odpowiednik
+z marketplace `token-saving-mods`. Zysk i koszt pomocników trafiają do rejestru
+`~/.claude/relai/oszczednosci/rejestr/`, a zakładka „Oszczędności” w panelu pokazuje je co do
+tokena — zmierzone osobno od szacowanego. Szczegóły: README każdego modu.
+
+```bash
+claude plugin install relai-input-router@relai
+```
+
+```bash
+claude plugin install relai-browser@relai
+```
+
+```bash
+claude plugin install relai-model-router@relai
+```
+
+```bash
+claude plugin install relai-effort@relai
+```
+
+```bash
+claude plugin install relai-research@relai
+```
 
 ## Zanim zaczniesz: jakość zależy od modelu
 

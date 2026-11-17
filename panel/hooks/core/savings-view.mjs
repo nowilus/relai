@@ -41,6 +41,67 @@ function helperRecord(r) {
 
 const hasHelper = (r) => r.helper && typeof r.helper === 'object' && (sizeOf(r.helper.in) > 0 || sizeOf(r.helper.out) > 0);
 
+const ROUTER = 'relai-model-router';
+const FAMILY = /^claude-([a-z]+)-(\d+)-(\d+)$/;
+
+/**
+ * A model name as the price lists know it: a full id stays; an alias ("opus") becomes the newest
+ * listed version of that family; null when nothing matches.
+ * @param {string} name @param {Readonly<Record<string, unknown>>} models
+ */
+function listedModel(raw, models) {
+  // "opus[1m]" is the alias of a 1M-context session: the context suffix is not part of the family
+  const name = raw.replace(/\[[^\]]*\]$/, '');
+  if (!name.match(/^[a-z]+$/)) return raw;
+  let best = null;
+  let bestVersion = -1;
+  for (const id of Object.keys(models)) {
+    const m = FAMILY.exec(id);
+    if (!m || m[1] !== name) continue;
+    const version = Number(m[2]) * 1000 + Number(m[3]);
+    if (version > bestVersion) { best = id; bestVersion = version; }
+  }
+  return best;
+}
+
+/** A cache count as the record states it; a record without it (before Aneks E.8) has none: null. */
+const cacheOf = (n) => (typeof n === 'number' && Number.isFinite(n) && n >= 0 ? n : null);
+
+/**
+ * The subagent's usage priced on one model: plain input, cache reads and cache writes each at
+ * their own rate (Aneks E.8). A record without the cache split is unpriced (null), never priced
+ * as plain input — that would overstate the saving several times over.
+ */
+function subagentRecord(r, model) {
+  const s = r.subagent;
+  return { ...helperRecord({ ts: r.ts, helper: { model, in: s.in, out: s.out } }), cacheRead: cacheOf(s.cacheRead), cacheWrite: cacheOf(s.cacheWrite), kind: 'subagent', agent: 'subagent' };
+}
+
+/** A router record that changed the model and has the subagent's usage: it can be priced. */
+const isRouted = (r) => r.mod === ROUTER && r.action === 'route-changed' && r.subagent && typeof r.subagent === 'object'
+  && typeof r.from === 'string' && r.from !== ''
+  && (sizeOf(r.subagent.in) > 0 || sizeOf(r.subagent.out) > 0 || sizeOf(r.subagent.cacheRead) > 0 || sizeOf(r.subagent.cacheWrite) > 0);
+
+/**
+ * The router's measured saving (spec, section 5): the same subagent tokens priced on the model
+ * before the router and on the model it ran on. The judge is the record's helper and is
+ * subtracted there, never here.
+ */
+function routerView(records, lists) {
+  const routed = records.filter(isRouted);
+  const models = newest(lists).models;
+  let usd = 0;
+  let unpriced = 0;
+  for (const r of routed) {
+    const from = listedModel(r.from, models);
+    const before = from ? priceAt(subagentRecord(r, from), lists) : { usd: null };
+    const after = priceAt(subagentRecord(r, String(r.subagent.model || '')), lists);
+    if (before.usd === null || after.usd === null) unpriced++;
+    else usd += before.usd - after.usd;
+  }
+  return { calls: routed.length, usd, unpriced };
+}
+
 /**
  * The tab's figures for one filter.
  * @param {readonly object[]} records  from parse() (already deduplicated)
@@ -71,6 +132,7 @@ export function savingsView(records, o) {
     usd: helperUsd,
     unpriced,
   };
+  const router = routerView(kept, o.lists);
 
   /** @type {Map<string, { mod: string, action: string, count: number, saved: number }>} */
   const rows = new Map();
@@ -88,8 +150,9 @@ export function savingsView(records, o) {
     mainModel: o.mainModel,
     isMainPriced: main !== null,
     helper,
-    // An unpriced helper would make the net look better than it is (R6): no net then
-    netUsd: estimatedUsd === null || unpriced > 0 ? null : estimatedUsd - helper.usd,
+    router,
+    // An unpriced helper or routed model would make the net look better than it is (R6): no net then
+    netUsd: estimatedUsd === null || unpriced > 0 || router.unpriced > 0 ? null : estimatedUsd + router.usd - helper.usd,
     leftOut: { count: left.length, saved: left.reduce((n, r) => n + savedOf(r), 0) },
     byMod: [...rows.values()].sort((a, b) => b.saved - a.saved),
   };

@@ -14,6 +14,11 @@ const PLUGIN_JSON_PATHS = Object.freeze({
   'relai-progress': ['progress', '.claude-plugin', 'plugin.json'],
   'relai-cache-keeper': ['cache-keeper', '.claude-plugin', 'plugin.json'],
   'relai-mods': ['mods', '.claude-plugin', 'plugin.json'],
+  'relai-browser': ['browser', '.claude-plugin', 'plugin.json'],
+  'relai-input-router': ['input-router', '.claude-plugin', 'plugin.json'],
+  'relai-model-router': ['model-router', '.claude-plugin', 'plugin.json'],
+  'relai-effort': ['effort', '.claude-plugin', 'plugin.json'],
+  'relai-research': ['research', '.claude-plugin', 'plugin.json'],
 });
 
 function readText(path) {

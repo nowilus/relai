@@ -35,7 +35,7 @@ Pierwsza wiadomość sesji to komenda (zaczyna się od `/`) → najpierw komenda
 
 | Co | Status | Gdzie |
 |---|---|---|
-| Plugin RelAI — wydany, trzy adaptery | DZIAŁA (3.8.0 w repo i publicznie, wydane 2026-11-10 — naprawy po audycie, plan OPTYMALIZACJA_PO_AUDYCIE; w marketplace także cztery mody, każdy z własnym tagiem i wydaniem: relai-panel 0.22.2, relai-progress 0.7.2, relai-cache-keeper 0.13.1 („early access”) i relai-mods 0.3.1) | [docs/STATE.md](docs/STATE.md) |
+| Plugin RelAI — wydany, trzy adaptery | DZIAŁA (3.9.0 w repo — mody oszczędzania tokenów, plan MODY_OSZCZEDZANIA, wydanie w toku; ostatnie publiczne wydanie w 3.8.0 z 2026-11-10; w marketplace dziewięć modów, każdy z własnym tagiem i wydaniem: relai-panel 0.23.0, relai-progress 0.8.0, relai-cache-keeper 0.14.0 („early access”), relai-mods 0.4.0 i pięć modów oszczędzania 0.1.0) | [docs/STATE.md](docs/STATE.md) |
 | Plany zamknięte | 22, ostatni OPTYMALIZACJA_PO_AUDYCIE 2026-11-10 (wydany w 3.8.0) | [archiwum planów](docs/archiwum/plany/), [docs/STATE.md](docs/STATE.md) |
 | Odnogi i wątki samodzielne | 1 otwarta: `OPIS_REPO` (od 2026-09-24); zamknięte — karty w [docs/fixy/](docs/fixy/) | [docs/STATE.md](docs/STATE.md) |
 

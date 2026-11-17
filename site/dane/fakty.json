@@ -7,11 +7,16 @@
     "cursor"
   ],
   "wersje": {
-    "relai": "3.8.0",
-    "relai-panel": "0.22.2",
-    "relai-progress": "0.7.2",
-    "relai-cache-keeper": "0.13.1",
-    "relai-mods": "0.3.1"
+    "relai": "3.9.0",
+    "relai-panel": "0.23.0",
+    "relai-progress": "0.8.0",
+    "relai-cache-keeper": "0.14.0",
+    "relai-mods": "0.4.0",
+    "relai-browser": "0.1.0",
+    "relai-input-router": "0.1.0",
+    "relai-model-router": "0.1.0",
+    "relai-effort": "0.1.0",
+    "relai-research": "0.1.0"
   },
   "komendy": [
     {

@@ -11,7 +11,7 @@ function world(on: On, opts: { consent?: string, twin?: boolean, home?: string }
     disk: { [`${CWD}/docs/USTAWIENIA.md`]: opts.consent === 'missing' ? SETTINGS.split('| 2026-11-13')[0] : opts.consent === 'no' ? SETTINGS.replace('zgoda', 'brak zgody') : SETTINGS,
       [`${HOME}/.claude/settings.json`]: JSON.stringify({ enabledPlugins: { 'research-router@token-saving-mods': !!opts.twin } }) } as Record<string, string>,
     reads: [] as string[], writes: [] as string[], toasts: [] as string[], requests: [] as any[], tools: [] as any[], timers: [] as (() => Promise<void>)[],
-    submitted: [] as string[], spawns: [] as any[], originals: [] as any[], process: [] as any[],
+    submitted: [] as string[], spawns: [] as any[], types: [] as any[], originals: [] as any[], process: [] as any[],
     toolResult: ORIGINAL as any, failWrite: false, failHelper: false, duringHelper: null as null | (() => Promise<void>),
     helperText: null as string | null, consentAnswer: 'Yes, in this project', calls: 0, now: 0,
   }
@@ -46,6 +46,8 @@ function world(on: On, opts: { consent?: string, twin?: boolean, home?: string }
   on('turn.complete', () => ({ text: '' }) as never)
   on('turn.step', async function* () { return { usage: { input_tokens: 10, output_tokens: 3 }, answer: '', toolUses: [], stopReason: 'end_turn' } as never })
   on('agent.spawn', ($, e) => { w.spawns.push(e); return { model: 'claude-sonnet-5-5', agentId: `agent-${w.spawns.length}` } as never })
+  on('agent.register', ($, e) => { w.types.push(e); return { value: { agent: `relai-research:${(e as any).name}` } } as never })
+  on('agent.offer', () => ({ isOffered: true }) as never)
   return Object.assign(w, { advance: (ms: number) => clock.advance(ms) })
 }
 const search = ($: any, fields: any = {}) => $.tool.call({ tool: 'WebSearch', query: 'Acme', tool_use_id: 'web-main', ...fields })
@@ -102,14 +104,27 @@ describe('research runtime: WebSearch and gates', () => {
     await drain($)
     expect(w.requests.length).toBe(0); expect(w.spawns.length).toBe(0); expect(w.submitted.length).toBe(0)
   })
-  test('deep command requests parallel general-purpose agents with no explicit model; refusal is not a fabricated report', async ($, on) => {
+  test('E10 Aneks E.7: the reader type is registered with web tools only and hidden from the model', async ($, on) => {
+    const w = world(on)
+    await $.session.start({ cwd: CWD } as never)
+    const types = w.types
+    expect(types.length).toBe(1)
+    expect(types[0].name).toBe('reader')
+    expect([...types[0].tools].sort()).toEqual(['ToolSearch', 'WebFetch', 'WebSearch'])
+    expect('model' in types[0]).toBe(false) // the router judges the part (Aneks D)
+    const offer = await $.agent.offer({ agent: 'relai-research:reader', description: 'x' } as never) as any
+    expect(offer.isOffered).toBe(false)
+    expect(w.spawns.length).toBe(0)
+  })
+
+  test('deep command requests parallel reader agents (web tools only, Aneks E.7) with no explicit model; refusal is not a fabricated report', async ($, on) => {
     const w = world(on)
     await $.session.start({ cwd: CWD } as never)
     await $.command.run({ command: 'relai-research', args: 'deep Acme' } as never)
     await w.advance(1)
     await drain($)
     expect(w.spawns.length).toBe(2)
-    for (const s of w.spawns) { expect(s.model).toBe(undefined); expect(s.subagent_type).toBe('general-purpose') }
+    for (const s of w.spawns) { expect(s.model).toBe(undefined); expect(s.subagent_type).toBe('relai-research:reader') }
     // Core owns agentId (P-064): this harness cannot run agents. Pure workflow tests prove
     // report merging; here a refused spawn must never acquire a fake verified source.
     expect(w.submitted.length).toBe(1)

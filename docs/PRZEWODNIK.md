@@ -210,6 +210,13 @@ Uczciwie, bez obiecywania więcej, niż jest.
 - **Hooki rozpoznają projekt po katalogu roboczym sesji**, nie po ścieżce pojedynczego pliku.
   Edycja plików innego projektu z sesji uruchomionej gdzie indziej wymyka się tej kontroli.
 - **Aktualizacja pluginu wymaga restartu aplikacji**, żeby weszła w życie.
+- **Mody oszczędzania tokenów oszczędzają nierówno.** Input Router daje największy zysk na
+  dużych plikach i wynikach konektorów; Model Router — na subagentach, które da się oddać
+  tańszemu modelowi. Pomocnik (Haiku) też kosztuje i jego koszt jest zawsze odjęty. W pomiarze
+  E10 helpery kosztowały mniej niż połowę zaoszczędzonych tokenów, a jedna zmiana subagenta
+  z Sonnetu na Haiku to ok. $0,15. Research w trybie auto na Claude Code 2.1.325 prawie się nie
+  włącza, bo wyszukiwarka sama streszcza wyniki. Tańszy model nie znaczy lepszy: zadanie, którego
+  wynik trzeba sprawdzić (np. dokładne liczenie), sprawdź sam.
 
 ## Szczegóły techniczne
 

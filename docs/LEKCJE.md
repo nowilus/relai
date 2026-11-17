@@ -1182,6 +1182,16 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
   uruchamia `node core/guardrails/secret-scan.js <pliki testów>` i oczekuje `BRAK` przy każdym.
   `--no-verify` nie jest obejściem. Dotyczy każdego wykonawcy, w szczególności Codeksa (Aneks C).
 
+### L-0338 — Kopia pomiarowa modu nie przeładowała się po zmianie pliku, który mod czyta przy starcie · 2026-11-17 · AKTYWNA
+
+- **Trigger:** MODY_OSZCZEDZANIA E10, wiersz 24: usunięty wiersz zgody z `docs/USTAWIENIA.md`,
+  potem `install-dev-copies.cjs` dla routera; skrypt pomija pliki bez zmian, więc silnik nie
+  przeładował modu, a router działał dalej na zgodzie wczytanej przy `session.start`.
+- **Zasada:** po zmianie stanu, który mod wczytuje przy starcie (wiersz zgody, ustawienia,
+  lista modeli), przeładowanie kopii w `~/.claude/dev-mods/<sesja>/` wymuszasz realną zmianą jej
+  pliku (np. dopisany komentarz z godziną) i sprawdzasz datę modyfikacji, zanim zaczniesz pomiar.
+  Ponowny zapis identycznej treści nie przeładowuje modu (L-0322).
+
 ## Lekcje zwinięte
 
 Pełne wpisy lekcji, których zasady żyją w destylacie „Zasady aktywne" (kompresja 2026-08-20).

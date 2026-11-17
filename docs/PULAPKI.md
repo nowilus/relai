@@ -8,6 +8,66 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-076 — `next(e)` hooka `AbovePrompt` to od 2.1.323 uchwyt silnika, nie drzewo pasków pod spodem · 2026-11-17 · AKTYWNA
+
+- **Objaw:** kreska między paskami RelAI zniknęła na desktopie; testy „a RelAI bar beneath”
+  i odcisk drzewa desktopu cache-keepera czerwone od E8 („zastane czerwienie wyglądu”, P-070).
+- **Przyczyna:** każdy plugin rysuje własny wiersz pasma; `await next(e)` zwraca
+  `{ type: 'engine', ref }`, a układ wierszy (z nazwą pluginu, w kolejności łańcucha) dostaje
+  dopiero hook `ui.render` na `AbovePromptList`. Drzewo z `ui.drawn()` ma wiersze z polem `part`
+  i dopisane przez silnik propsy (np. `isInteractive` przy `Svg`).
+- **Obejście:** sąsiada czytaj w hooku `AbovePromptList` (tylko odczyt, `next(e)` bez zmian) i
+  przerysuj pasek przy zmianie (`$.ui.invalidate('ui.render')`). W teście zamontuj
+  `AbovePromptList` z `rows: []` — zestaw sam renderuje wiersze. Odcisk drzewa nagrywaj na
+  bieżącym silniku i dowiedź, że zmiana pochodzi od silnika (stary kod, ten sam odcisk). Aneks E.10.
+- **Zasięg:** Claude Code 2.1.323–2.1.325, panel, progress, cache-keeper.
+
+### P-075 — Mod nie widzi `tool.call` ani `turn.step` agentów, których sam uruchomił · 2026-11-17 · AKTYWNA
+
+- **Objaw:** Research deep: wszystkie źródła „page not read”, rekordy części `measured: false`,
+  bramka narzędzi agentów w hooku `tool.call` nigdy nie zadziałała — choć agenci pobierali strony.
+- **Przyczyna:** spawn z `$.agent.spawn` biegnie „pod originem” modu; silnik pomija hooki tego
+  samego modu dla zdarzeń z pętli tego agenta (pomijanie rekurencji, `next.origin`). Dochodzi tylko
+  `turn.complete`. Inny mod (np. Model Router) te zdarzenia widzi. Potwierdzone sondą na kopii
+  pomiarowej (E10, plik `research-probe.jsonl` w scratchpadzie sesji).
+- **Obejście:** ograniczenia narzędzi własnych agentów — przez `$.agent.register` z `tools`
+  (blokadę trzyma silnik), nie przez hook `tool.call`; zużycie i odczyty agentów — z rekordu
+  innego modu albo z `turn.complete`. Aneks E.7.
+- **Zasięg:** Claude Code 2.1.325, E10 MODY_OSZCZEDZANIA.
+
+### P-074 — Kopia modu w `dev-mods` nie przeładowuje się od identycznego zapisu · 2026-11-17 · AKTYWNA
+
+- **Objaw:** po zmianie stanu wczytywanego przy `session.start` (wiersz zgody, ustawienia) mod
+  działa na starej wartości, mimo ponownej instalacji kopii.
+- **Przyczyna:** `/reload-plugins` nie czyta katalogu `~/.claude/dev-mods/<sesja>/` (L-0322),
+  a obserwacja katalogu przeładowuje mod dopiero po realnej zmianie pliku; skrypt kopiujący,
+  który pomija pliki bez zmian, nie wywołuje przeładowania.
+- **Obejście:** dopisać do `hooks/register.tsx` kopii komentarz z godziną i sprawdzić datę
+  modyfikacji przed pomiarem (L-0338). Obserwację katalogu uruchamia skill `plugin-authoring`.
+- **Zasięg:** Claude Code 2.1.325, pomiar E10.
+
+### P-073 — Hook ma 10 s budżetu; czekanie w kolejce też się liczy · 2026-11-17 · AKTYWNA
+
+- **Objaw:** `agent.spawn hook skipped: ran past its 10s budget`, potem `next() after it settled`;
+  Browser `describe` czasem przepuszcza obraz bez zmian.
+- **Przyczyna:** zwykłe `await` (kolejka kart, wywołanie modelu) liczy się do 10 s budżetu hooka;
+  oczekiwanie wewnątrz `$.ui.ask` się nie liczy. Po przekroczeniu silnik idzie dalej bez hooka,
+  a spóźniony `next()` kończy się błędem.
+- **Obejście:** nie kolejkować czekania w hooku — przy zajętej karcie odpowiedzieć od razu
+  (Model Router, Aneks E.5; karta załogi E6); długą pracę modelu planować z zapasem i bezpiecznym
+  wynikiem domyślnym (Browser, Aneks E.3).
+- **Zasięg:** Claude Code 2.1.323–2.1.325.
+
+### P-072 — Duży wynik MCP trafia do pliku, zanim zobaczy go hook · 2026-11-17 · AKTYWNA
+
+- **Objaw:** Input Router nie skraca bardzo dużego wyniku konektora (pomiar: 62 951 znaków),
+  choć mniejszy (~20 tys.) przetwarza.
+- **Przyczyna:** silnik sam zapisuje ponadwymiarowy wynik narzędzia do pliku i podaje Claude
+  ścieżkę; hook `tool.call` dostaje już tę wersję.
+- **Obejście:** brak po stronie modu; opisane w README Input Routera. Dowód effortu na żywo
+  bierz z transkryptu (`perTurnEffort` w JSONL sesji), nie z rekordu modu.
+- **Zasięg:** Claude Code 2.1.325, pomiar E10 (wiersz 10).
+
 ### P-071 — `config.list` działa w hooku, lecz nie jest metodą obiektu testu · 2026-11-13 · AKTYWNA
 
 - **Objaw:** w ciele testu `$.config.list()` daje `TypeError: $.config.list is not a function`.

@@ -80,12 +80,6 @@
 - **PANEL_CODEX E1 — próba przycisków minimalnego pakietu i świeżego kontekstu** — w macierzystym czacie nadal proces 0.0.7/PID 62300; po restarcie sprawdzić sondę 0.0.9 (także fonty), nowy szkic i jego rzeczywisty projekt/kontekst. Wygląd już zaakceptowany · 2026-10-10 · [wpis — Panel i mostek](archiwum/dziennik/DZIENNIK_2026-10-09_2026-10-10.md#2026-10-10--panel_codex-e1-natywny-widok-minimalny-pakiet-i-mostek-bieżącego-czatu)
   *(odroczone 2026-11-10, odroczeń: 1)*
 
-- **Zamrożenie dwóch bramek zgody jako decyzji** — zgoda na tryb ciągły (raz na sesję, z zapisem
-  globalnym) i zgoda na propozycję struktury poza projektem (raz na maszynę). Oba wzorce wrócą przy
-  każdym nowym zachowaniu proaktywnym RelAI · 2026-09-15 ·
-  [wpis 2026-09-15 — Zgłoszenie testera](archiwum/dziennik/DZIENNIK_2026-09-14_2026-10-09.md#2026-09-15--zgłoszenie-testera-plugin-pyta-o-relai-w-cudzym-folderze-dwie-bramki-zgody-i-wydanie-230)
-  *(odroczone 2026-10-16, odroczeń: 1)*
-
 - **Zamknięta lista rdzeni rozstrzygnięcia nie zna słownika realnego projektu** — 7 z 32 pozycji
   „Czeka na człowieka" w PolyFlow wygląda dla człowieka na zamknięte, a mechanizm liczy je jako
   otwarte (`zaliczona` ×3, `dostarczony` ×1, trzy bez rdzenia z datą). Poszerzyć listę w rdzeniu

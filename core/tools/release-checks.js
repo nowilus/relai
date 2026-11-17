@@ -608,7 +608,8 @@ function kontrolaPodbicie(ctx) {
   w.sprawdzono = ctx.komponent ? 1 : 1 + ctx.baza.mody.length;
   let niepodbite = 0;
   for (const p of propozycje) {
-    if (p.stan === 'podbity') continue;
+    // Pierwsze wydanie (Aneks E.9): numer z drzewa jest wydawanym numerem, nie ma bazy do podbicia
+    if (p.stan === 'podbity' || p.stan === 'pierwsze wydanie') continue;
     const sedno = p.komponent + ': ' + p.plikow + ' plikow wymaga wydania, ';
     if (p.stan === 'powyzej propozycji') {
       w.ostrzezenia.push(sedno + 'numer ' + p.wersja + ' powyzej propozycji ' + p.propozycja + ' (' + p.poziom + ') - wybor czlowieka');

@@ -25,7 +25,10 @@ import { PRICE_FILE, newest, parsePriceFile, priceAt, priceLists } from './core/
 import type { Version } from './core/pricing.mjs'
 import { BAND, BAR, BAR_LOOK, THEME } from './core/theme.mjs'
 import { join, tokens, usd } from './fmt'
-import { barCard, barRule } from './bar-card'
+import { barBelow, barCard, barRule, orderRelai } from './bar-card'
+
+/** Whether another RelAI bar stands right under ours: read from the band's arrangement (Aneks E.10). */
+let isBarBelow = false
 import { stepRows } from './steps'
 import { agentsPane } from './pane-agents'
 import type { CardFrame } from './pane-agents'
@@ -273,6 +276,7 @@ const drawnOf = (a: AgentRun) => [a.id, a.status, a.steps, tokens(a.context), a.
 
 export const register: Register = (on) => {
   on('session.start', async ($, e, next) => {
+    isBarBelow = false
     const here = await $.session.cwd()
     const root = await relaiRoot($, here)
     isRelai = root !== null
@@ -439,6 +443,17 @@ export const register: Register = (on) => {
     const ours = barCard(ui, BAR_LOOK, isGui, columns, 'relai-progress-card', BAND.progress, rows, figure, 'flex-start')
     if (!below) return ours
     // No gap: on the desktop the rule under the card brings the air (variant 3b)
-    return <Box key="relai-progress" flexDirection="column">{[ours, barRule(ui, BAR_LOOK, isGui, below), below]}</Box>
+    return <Box key="relai-progress" flexDirection="column">{[ours, barRule(ui, BAR_LOOK, isGui, below, isBarBelow), below]}</Box>
+  })
+
+  // The band's arrangement names each row's plugin (2.1.323+: an AbovePrompt hook no longer sees
+  // the rows beneath it). Read only, never rewritten; a change redraws the bar once (Aneks E.10)
+  on('ui.render', { component: 'AbovePromptList' }, async ($, e, next) => {
+    const rows = (e.props as { rows?: { plugin: string }[] }).rows
+    // RelAI bars always plan, progress, cache (Łukasz, E10); the same rows, other plugins in place
+    const ordered = Array.isArray(rows) ? orderRelai(rows) : rows
+    const now = barBelow(ordered, 'relai-progress')
+    if (now !== isBarBelow) { isBarBelow = now; $.ui.invalidate('ui.render') }
+    return next(Array.isArray(rows) ? { ...e, props: { ...e.props, rows: ordered } } as typeof e : e)
   })
 }

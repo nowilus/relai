@@ -62,14 +62,45 @@ export function barCard(el: AnyTable, grid: Grid, isGui: boolean, columns: numbe
 // top bar has no line above it and the last none under it, above the engine's own row (Łukasz,
 // 2026-10-14: "niepotrzebna jest ta przestrzen nadmiarowa nad paskiem plan", and the same under
 // the cache bar). The terminal draws no rule: each of its rows counts.
-export function barRule(el: AnyTable, grid: Grid, isGui: boolean, below: RenderChildren) {
-  if (!isGui || !grid.rule || !('Svg' in el) || !isBar(below)) return null
+export function barRule(el: AnyTable, grid: Grid, isGui: boolean, below: RenderChildren, isBarBelow = false) {
+  if (!isGui || !grid.rule || !('Svg' in el) || !(isBarBelow || isBar(below))) return null
   const { Box, Svg } = el
   return <Box key="rule" flexDirection="column"><Svg source={grid.rule.svg} alt={grid.rule.alt} height={grid.rule.height} /></Box>
 }
 
 // A RelAI bar: the outermost Box every RelAI plugin draws above the prompt has a key beginning
 // with "relai-" (its card's key, or its wrapper's when something stands beneath it)
+/**
+ * Whether the row right under `own` in the band is another RelAI bar. From Claude Code 2.1.323
+ * `next(e)` of an AbovePrompt hook is the engine's opaque handle ({ type: 'engine', ref }), so
+ * isBar(below) never sees a neighbour; the band's arrangement (AbovePromptList) names each row's
+ * plugin in chain order (E10, Aneks E.10).
+ */
+/** The RelAI bars top to bottom (Łukasz, E10): plan, progress, cache — whatever order the plugins loaded in. */
+const BAR_RANK: Readonly<Record<string, number>> = { 'relai-panel': 0, 'relai-progress': 1, 'relai-cache-keeper': 2 }
+
+/**
+ * The band's rows with the RelAI bars in BAR_RANK order, in the places RelAI rows held; every other
+ * row stays where the engine put it. The same row objects (the engine compares a rewrite by value);
+ * idempotent, so each bar mod may apply it (Aneks E.10).
+ */
+export function orderRelai<T extends { plugin: string }>(rows: readonly T[]): T[] {
+  const places = rows.map((r, i) => (r.plugin in BAR_RANK ? i : -1)).filter((i) => i >= 0)
+  const bars = places.map((i) => rows[i]!).sort((a, b) => BAR_RANK[a.plugin]! - BAR_RANK[b.plugin]!)
+  const out = [...rows]
+  places.forEach((at, k) => { out[at] = bars[k]! })
+  return out
+}
+
+export function barBelow(rows: readonly { plugin: string, tree?: unknown }[] | undefined, own: string): boolean {
+  if (!Array.isArray(rows)) return false
+  const at = rows.findIndex((r) => r.plugin === own)
+  const next = at >= 0 ? rows[at + 1] : undefined
+  if (!next) return false
+  // a RelAI plugin's row, or a row whose outermost Box has a "relai-" key (isBar's rule)
+  return (typeof next.plugin === 'string' && next.plugin.startsWith('relai-')) || isBar(next.tree as RenderChildren)
+}
+
 export function isBar(node: RenderChildren): boolean {
   if (!node || typeof node !== 'object' || Array.isArray(node)) return false
   const key = (node as { props?: { key?: unknown } }).props?.key

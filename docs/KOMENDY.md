@@ -1,6 +1,6 @@
 # KOMENDY — RelAI
 
-RelAI 3.8.0
+RelAI 3.9.0
 
 Nic z tej listy nie jest obowiązkowe. RelAI działa w zwykłej rozmowie — piszesz normalnie,
 a struktura projektu nadąża. Komendy są skrótem do rzadszych operacji.
@@ -126,6 +126,27 @@ potem ponowne uruchomienie aplikacji. Czwarty plugin, kokpit pluginów i hooków
 - **Karta „Tak / Nie”** — start etapu, sprzątanie, aktualizacja, lista modeli i zmiana cennika idą
   z panelu dopiero po Twoim „Tak”. Etap potwierdzony na karcie startuje bez drugiego pytania w czacie.
 - **Sieć** — jedyny odczyt to strona cennika Anthropic, po „Tak” na karcie aktualizacji cennika.
+
+## Mody oszczędzania tokenów (wydane z planem MODY_OSZCZEDZANIA)
+
+Pięć osobnych pluginów (`claude plugin install relai-<nazwa>@relai`). Każdy pyta raz na projekt
+o zgodę (wiersz „Mody oszczędzania” w `docs/USTAWIENIA.md`), śpi przy włączonym odpowiedniku
+z `token-saving-mods` i zapisuje zysk oraz koszt pomocnika do rejestru oszczędności.
+
+- **`/relai-input-router`** — `pane` (karta każdego przekazania: tokeny przed i po, koszt,
+  notatki, pełny wynik), `stats`, `full` (następny duży odczyt w całości, raz),
+  `off|on file`, `off|on connector`, `model <id>`.
+- **`/relai-browser`** — `pane`, `full` (następny obraz w całości), `scale`, `min`, tryb
+  zmniejszania albo opisu słowami.
+- **`/relai-model-router`** — `pane`, `stats`, `on|off`, a dla modelu wskazanego przez kogoś:
+  `mine`, `suggestion`, `session`, `ask` (odpowiedź na tę sesję). Karta naraz jedna.
+- **`/relai-effort`** — stan, tryb `ask` (karta przed zmianą) albo `auto`.
+- **`/relai-research <pytanie>`** — badanie w tle, raport przychodzi jako wiadomość;
+  `deep <pytanie>` wymusza części dla agentów; `pane`, `on|off`, `auto|manual`, `model <id>`,
+  `stats`.
+- **Zakładka „Oszczędności”** w `/relai-panel` — filtr „Ten czat / Dziś / Wszystko”: zmierzony
+  koszt pomocników, szacowane tokeny, których Claude nie przeczytał, wycena Model Routera
+  i bilans; bez ceny któregoś modelu bilans nie jest liczony.
 
 ## Czego RelAI pilnuje bez proszenia
 

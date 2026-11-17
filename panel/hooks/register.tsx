@@ -32,7 +32,10 @@ import { join } from './fmt'
 import type { PanelView } from '../types'
 import { formOf } from './core/commands.mjs'
 import { BAR_LOOK, THEME } from './core/theme.mjs'
-import { barRule } from './bar-card'
+import { barBelow, barRule, orderRelai } from './bar-card'
+
+/** Whether another RelAI bar stands right under ours: read from the band's arrangement (Aneks E.10). */
+let isBarBelow = false
 import { retone } from './skin'
 import { compactRecord, fileName, isFileOf, mergeRecords, parseRecords, recordKey, serializeRecords, stepRecord } from './core/measure.mjs'
 import type { MeasureRecord } from './core/measure.mjs'
@@ -817,6 +820,7 @@ export const register: Register = (on) => {
   })
 
   on('session.start', async ($, e, next) => {
+    isBarBelow = false
     const here = await $.session.cwd()
     const root = await relaiRoot(ioOf($), here)
     const isRelai = root !== null
@@ -1136,6 +1140,17 @@ export const register: Register = (on) => {
     // No width here: the engine refuses its own node under a Box with "width" and draws its own
     // instead, which drops every band (live, desktop, 2.1.293; plugin test does not see it)
     // No gap: on the desktop the rule under the card brings the air (WYGLAD_PANELU E1, variant 3b)
-    return <Box key="relai-panel" flexDirection="column">{[ours, barRule($.ui.resolve(e), BAR_LOOK, e.surface !== 'terminal', below), below]}</Box>
+    return <Box key="relai-panel" flexDirection="column">{[ours, barRule($.ui.resolve(e), BAR_LOOK, e.surface !== 'terminal', below, isBarBelow), below]}</Box>
+  })
+
+  // The band's arrangement names each row's plugin (2.1.323+: an AbovePrompt hook no longer sees
+  // the rows beneath it). Read only, never rewritten; a change redraws the bar once (Aneks E.10)
+  on('ui.render', { component: 'AbovePromptList' }, async ($, e, next) => {
+    const rows = (e.props as { rows?: { plugin: string }[] }).rows
+    // RelAI bars always plan, progress, cache (Łukasz, E10); the same rows, other plugins in place
+    const ordered = Array.isArray(rows) ? orderRelai(rows) : rows
+    const now = barBelow(ordered, 'relai-panel')
+    if (now !== isBarBelow) { isBarBelow = now; $.ui.invalidate('ui.render') }
+    return next(Array.isArray(rows) ? { ...e, props: { ...e.props, rows: ordered } } as typeof e : e)
   })
 }

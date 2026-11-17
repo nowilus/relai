@@ -590,6 +590,10 @@ describe('the progress card above the prompt', () => {
     world(on, FILES, CWD, { session: SESSION }, 'relai-cache-card')
     await start($)
     for (const surface of ['terminal', 'desktop'] as const) {
+      // 2.1.323+: the band's arrangement names the row beneath (Aneks E.10); the harness renders
+      // the rows itself (ours, then the stub beneath) for the list
+      const list = await $.ui.mount({ plugin: 'relai-progress', surface, component: 'AbovePromptList', props: { rows: [], hasSurvey: false, isCollapsed: false, isWorking: false, maxRows: 10, bodyColumns: 140, scroll: { offset: 0, bodyRows: 9 }, view: {} } } as never)
+      await list.unmount()
       const ui = await $.ui.mount({ plugin: 'relai-progress', surface, ...BAND() })
       expect(Boolean(await ui.find({ key: 'rule' }))).toBe(surface === 'desktop')
       expect(await ui.find({ key: 'relai-cache-card' })).toBeDefined()

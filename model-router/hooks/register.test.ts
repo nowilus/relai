@@ -256,7 +256,8 @@ describe('model-router: the subagent default from the settings (Annex B)', () =>
 
   test('the subagent\'s own usage joins its record when it finishes (the later record counts)', async ($, on) => {
     const w = world(on)
-    on('turn.step', async function* () { return { turnId: 't', index: 0, answer: '', toolUses: [], stopReason: 'end_turn', usage: { input_tokens: 100, output_tokens: 20 } } as never })
+    // E10 Aneks E.8: cache reads and writes stay apart from plain input, summed over the steps
+    on('turn.step', async function* () { return { turnId: 't', index: 0, answer: '', toolUses: [], stopReason: 'end_turn', usage: { input_tokens: 100, output_tokens: 20, cache_read_input_tokens: 3000, cache_creation_input_tokens: 500 } } as never })
     on('turn.complete', () => ({ text: '' }) as never)
     await start($)
     const out = await spawn($)
@@ -265,7 +266,7 @@ describe('model-router: the subagent default from the settings (Annex B)', () =>
     await $.turn.complete({ agentId: out.agentId, answer: 'done' } as never)
     const lines = ledger(w).trim().split('\n').map((l) => JSON.parse(l))
     expect(lines.length).toBe(2)
-    expect(lines[1].subagent).toEqual({ model: 'claude-haiku-5-5', in: 100, out: 20 })
+    expect(lines[1].subagent).toEqual({ model: 'claude-haiku-5-5', in: 100, out: 20, cacheRead: 3000, cacheWrite: 500 })
     expect(lines[1].helper).toEqual({ model: 'claude-haiku-5-5', in: 400, out: 45 })
   })
 })
@@ -316,6 +317,23 @@ describe('model-router: a model the caller named (hardest point)', () => {
     await Promise.all([spawn($, { model: 'opus', tool_use_id: 'toolu_a' }), spawn($, { model: 'opus', tool_use_id: 'toolu_b' })])
     expect(w.asked.length).toBe(1)
     expect(w.spawned).toEqual(['opus', 'opus'])
+  })
+
+  test('E10 Aneks E.5: a spawn never waits behind an open card (the 10 s budget); it keeps its model at once', async ($, on) => {
+    const w = world(on, { subagentModel: 'claude-sonnet-5-5' })
+    let answerFirst: (label: string) => void = () => undefined
+    w.card = () => new Promise<string>((resolve) => { answerFirst = resolve })
+    await start($)
+    const first = spawn($, { tool_use_id: 'toolu_a' })
+    await Promise.resolve(); await Promise.resolve()
+    let secondDone = false
+    const second = spawn($, { tool_use_id: 'toolu_b' }).then((r) => { secondDone = true; return r })
+    for (let i = 0; i < 20 && !secondDone; i++) await new Promise((r) => setTimeout(r, 5))
+    expect(secondDone).toBe(true) // settled while the first card still waits for the person
+    expect(w.asked.length).toBe(1)
+    answerFirst((w.asked[0] ?? '').split(' | ').find((x) => x.startsWith('Suggestion')) ?? '')
+    await Promise.all([first, second])
+    expect(w.spawned).toEqual([undefined, 'haiku'])
   })
 
   test('"Always suggestion (this session)": no card again, the suggestion applies', async ($, on) => {
