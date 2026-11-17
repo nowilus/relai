@@ -430,9 +430,17 @@ function kontrolaFilmZakladki(ctx) {
   const listy = teksty.split('\n').filter((l) => /zakladki:\s*Object\.freeze\(\[/.test(l))
     .map((l) => (l.match(/'([^']+)'/g) || []).map((s) => s.slice(1, -1)));
   if (!listy.length) { w.bledy.push('src/teksty.ts nie ma listy "zakladki"'); return w; }
+  // Zakladka dodana po renderze filmu (stan z wersji filmu, jak liczniki): wyjatek jawny w mapie.
+  // Film, ktory ja juz pokazuje, albo wyjatek bez zakladki w panelu -> czerwien (wyjatek nieaktualny).
+  const poza = ctx.mapa.film['zakladki-poza-filmem'] || [];
+  const bezZakladki = poza.filter((z) => !tabs.includes(z));
+  if (bezZakladki.length) w.bledy.push('zakladki-poza-filmem bez zakladki w TABS: ' + bezZakladki.join(', '));
+  const oczekiwane = tabs.filter((z) => !poza.includes(z));
+  const dopisek = poza.length ? ' (bez zakladek poza filmem: ' + poza.join(', ') + ')' : '';
   for (const l of listy) {
-    if (l.join('|') !== tabs.join('|')) w.bledy.push('zakladki filmu [' + l.join(', ') + '] inne niz TABS [' + tabs.join(', ') + ']');
+    if (l.join('|') !== oczekiwane.join('|')) w.bledy.push('zakladki filmu [' + l.join(', ') + '] inne niz TABS [' + oczekiwane.join(', ') + ']' + dopisek);
   }
+  if (poza.length) w.info.push('zakladki poza filmem (stan z wersji filmu): ' + poza.join(', '));
   w.sprawdzono = tabs.length;
   w.licznik = 'zakladek panelu ' + tabs.length + ', list w slowniku ' + listy.length;
   return w;

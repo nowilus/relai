@@ -160,6 +160,8 @@ const MUTACJE = [
   ['film-rekwizyty', 'komenda bez rekwizytu', (f) => f.zapisz('docs/zasoby/film/zrodla/src/sceny/ScenaKomend.tsx', f.czytaj('docs/zasoby/film/zrodla/src/sceny/ScenaKomend.tsx').replace("  'relai-e': Epsilon,\n", '')), /relai-e z CYKL bez rekwizytu/],
   ['film-rekwizyty', 'rekwizyt bez pliku', (f) => fs.rmSync(path.join(f.dir, 'docs/zasoby/film/zrodla/src/sceny/komendy/Gamma.tsx')), /rekwizyt Gamma komendy relai-c bez pliku/],
   ['film-zakladki', 'zakladka panelu bez odpowiednika w filmie', (f) => f.zapisz('panel/hooks/pane-parts.tsx', "export const TABS = [['commands', 'Komendy'], ['costs', 'Koszty'], ['map', 'Mapa']] as const\n"), /inne niz TABS \[Komendy, Koszty, Mapa\]/],
+  ['film-zakladki', 'film pokazuje zakladke z wyjatku mapy (wyjatek nieaktualny)', (f) => f.zapisz('docs/zasoby/film/zrodla/src/teksty.ts', "export const PL = { panel: { zakladki: Object.freeze(['Komendy', 'Koszty', 'Oszczędności']) } };\n"), /inne niz TABS \[Komendy, Koszty\] \(bez zakladek poza filmem: Oszczędności\)/],
+  ['film-zakladki', 'wyjatek mapy bez zakladki w panelu', (f) => f.zapisz('panel/hooks/pane-parts.tsx', "export const TABS = [['commands', 'Komendy'], ['costs', 'Koszty']] as const\n"), /zakladki-poza-filmem bez zakladki w TABS: Oszczędności/],
   ['film-paski', 'nowe pasmo paskow', (f) => f.zapisz('core/panel/theme.mjs', f.czytaj('core/panel/theme.mjs').replace('cache: {} }', 'cache: {}, nowy: {} }')), /paski = 3, BAND ma 4/],
   ['film-narzedzia', 'nowy adapter', (f) => f.zapisz('adapters/cursor/README.md', '# c\n'), /narzedzia = 2, adapterow 3/],
   ['modele', 'MODELE.md pluginu starszy niz kopia projektu', (f) => f.zapisz('adapters/claude-code/MODELE.md', 'list-date: 2026-09-01\n'), /z 2026-09-01 starszy niz kopia projektu z 2026-10-01/],
@@ -179,6 +181,12 @@ for (const [id, opis, mutuj, wzor] of MUTACJE) {
     assert.equal(r.kod, 1);
   });
 }
+
+test('zakladka panelu z wyjatku mapy (zakladki-poza-filmem): film bez niej zielony, wyjatek w info', (t) => {
+  const r = repo(t).uruchom(['--tylko', 'film-zakladki']);
+  assert.deepEqual(r.k('film-zakladki').bledy, []);
+  assert.match(r.k('film-zakladki').info.join('\n'), /zakladki poza filmem \(stan z wersji filmu\): Oszczędności/);
+});
 
 test('stary numer przy wydawanym numerze rownym bazie: ostrzezenie, nie czerwien', (t) => {
   const r = repo(t).uruchom(['--tylko', 'stary-numer']);

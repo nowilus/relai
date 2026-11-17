@@ -27,7 +27,8 @@ function pliki() {
   ] });
   f['panel/.claude-plugin/plugin.json'] = '{\n  "name": "relai-panel",\n  "version": "0.1.0"\n}\n';
   f['progress/.claude-plugin/plugin.json'] = '{\n  "name": "relai-progress",\n  "version": "0.1.0"\n}\n';
-  f['panel/hooks/pane-parts.tsx'] = "export const TABS = [['commands', 'Komendy'], ['costs', 'Koszty']] as const\n";
+  // 'Oszczędności' stoi w release-map.json jako zakladka poza filmem (stan z wersji filmu).
+  f['panel/hooks/pane-parts.tsx'] = "export const TABS = [['commands', 'Komendy'], ['costs', 'Koszty'], ['savings', 'Oszczędności']] as const\n";
   for (const k of KOMENDY) f['adapters/claude-code/commands/' + k + '.md'] = '---\ndescription: "Komenda ' + k + '."\n---\n\nTresc.\n';
   f['adapters/claude-code/hooks/hooks.json'] = JSON.stringify({ hooks: { Stop: [{ hooks: [
     { command: 'node "${CLAUDE_PLUGIN_ROOT}/adapters/claude-code/hooks/alpha.js"' },

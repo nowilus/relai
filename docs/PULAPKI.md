@@ -8,6 +8,19 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 
 ## Pułapki
 
+### P-077 — Raport `release-check.js --json` z dziesięcioma komponentami nie mieści się w wyniku narzędzia Bash · 2026-11-17 · AKTYWNA
+
+- **Objaw:** pierwszy przebieg `/relai-release` przy 3.9.0 (rdzeń + dziewięć modów) zwrócił JSON
+  obcięty w środku („[20010 characters truncated]”) — bez reszty `propozycje`, `zmiany`
+  i połowy `kontrole`; komenda każe czytać raport z tego jednego wyniku i nie uruchamiać drugi raz.
+- **Przyczyna:** wynik Bash ma limit ~30 000 znaków; raport z dziesięcioma bazami, propozycjami
+  z pełną listą `powody` i `zmiany.typy` z ~280 plikami go przekracza (przy 3.4.0 miał 10–15 KB).
+- **Obejście:** przepuść raport przez filtr skrótu zapisany narzędziem Write w scratchpadzie
+  (`node core/tools/release-check.js --json | node <scratchpad>/summarize-release.js`) — bez pliku
+  raportu w `.claude/` i `/tmp`. Trwała poprawka (tryb skrótu w skrypcie albo krok 1 komendy)
+  czeka na decyzję człowieka.
+- **Zasięg:** `/relai-release` od wydania z dziewięcioma modami (3.9.0).
+
 ### P-076 — `next(e)` hooka `AbovePrompt` to od 2.1.323 uchwyt silnika, nie drzewo pasków pod spodem · 2026-11-17 · AKTYWNA
 
 - **Objaw:** kreska między paskami RelAI zniknęła na desktopie; testy „a RelAI bar beneath”
