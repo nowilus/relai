@@ -1,6 +1,6 @@
 # STATUS — plan MODY_OSZCZEDZANIA
 
-Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-11-11 · Status planu: **ZAAKCEPTOWANY 2026-11-11** · Model wykonawczy etapów: E1–E6 Opus (D-85, świeże sesje w Claude Code); **E7–E10 gpt-6.1-terra w Codeksie, poprawki i przegląd gpt-6.1-sol, Claude tylko bramka** ([Aneks C](ANEKS_C_WYKONANIE_CODEX.md), 2026-11-12); E8 od kontynuacji gpt-6.1-sol (decyzja Łukasza 2026-11-13, L-0336); granica E8 + wyjątek routera ([Aneks D](ANEKS_D_ROUTER_RESEARCH.md), 2026-11-13)
+Plan: [PLAN.html](PLAN.html) · Utworzony: 2026-11-11 · Status planu: **ZREALIZOWANY 2026-11-17** (zaakceptowany 2026-11-11; wydany w 3.9.0) · Model wykonawczy etapów: E1–E6 Opus (D-85, świeże sesje w Claude Code); **E7–E10 gpt-6.1-terra w Codeksie, poprawki i przegląd gpt-6.1-sol, Claude tylko bramka** ([Aneks C](ANEKS_C_WYKONANIE_CODEX.md), 2026-11-12); E8 od kontynuacji gpt-6.1-sol (decyzja Łukasza 2026-11-13, L-0336); granica E8 + wyjątek routera ([Aneks D](ANEKS_D_ROUTER_RESEARCH.md), 2026-11-13)
 
 Załącznik planu (zamrażany razem z nim): [specyfikacja funkcji](SPECYFIKACJA_FUNKCJI.md) —
 zachowanie sześciu modów BenAI i zmiany w RelAI; etapy pracują z niej, nie z kodu BenAI.
@@ -18,7 +18,7 @@ zachowanie sześciu modów BenAI i zmiany w RelAI; etapy pracują z niej, nie z 
 | E7 | Effort | ZREALIZOWANY 2026-11-12 | [PROMPT_ETAP_7.md](PROMPT_ETAP_7.md) | `relai-effort` 0.1.0 w repo, niewydany (33 testy, 11 mutacji zabitych); przegląd Sol BLOCK → 12/12 naprawione; sonda i pomiar na żywo w E10 (AC1) |
 | E8 | Research | ZREALIZOWANY 2026-11-13 | [PROMPT_ETAP_8.md](PROMPT_ETAP_8.md) | `relai-research` 0.1.0 w repo, niewydany (66/66 silnik + 6/6 Node, 52 mutacje zabite); Aneks D wdrożony, router 103/103; przegląd Sol BLOCK ([PRZEGLAD_SOL_E8.md](PRZEGLAD_SOL_E8.md)) → 4/4 naprawione ([RAPORT_SOL3_E8.md](RAPORT_SOL3_E8.md)); sonda i pomiar na żywo w E10 |
 | E9 | Porządki AUDYT_MODOW | ZREALIZOWANY 2026-11-13 | [PROMPT_ETAP_9.md](PROMPT_ETAP_9.md) | kontynuacja Sol po trzech przebiegach Terra (decyzja Łukasza, L-0336); [RAPORT_E9.md](RAPORT_E9.md); pakiety −542 123 B; przegląd Sol WARN ([PRZEGLAD_SOL_E9.md](PRZEGLAD_SOL_E9.md)) → 5/5 naprawione; bramka Claude bez nowych czerwieni |
-| E10 | Migracja, pomiar i wydanie | W TOKU | [PROMPT_ETAP_10.md](PROMPT_ETAP_10.md) | prompt przygotowany; bramka E9 dodatnia 2026-11-13; jedyne wydanie planu, odinstalowanie BenAI robi Łukasz |
+| E10 | Migracja, pomiar i wydanie | ZREALIZOWANY 2026-11-17 | [PROMPT_ETAP_10.md](PROMPT_ETAP_10.md) | wykonawca Claude Opus 5.5 (decyzja Łukasza 2026-11-16); pomiar: [POMIAR_E10.md](POMIAR_E10.md) (wiersze 23 i 26 świadomie otwarte); [Aneks E](ANEKS_E_POPRAWKI_POMIARU_E10.md) E.1–E.10; wydanie 3.9.0 + dziewięć modów (10 tagów i wydań GitHub); BenAI odinstalowany |
 
 ## Bramki manualne
 
@@ -31,15 +31,15 @@ zachowanie sześciu modów BenAI i zmiany w RelAI; etapy pracują z niej, nie z 
 - E5 — kliknięcie kart modelu jawnego i domyślnego subagenta przez człowieka (L-0289) — ROZSTRZYGNIĘTA 2026-11-12 — Łukasz kliknął „Mine” (C) i „Subagent default (sonnet)” (D).
 - E6 — wyłączenie BenAI `model-router` na czas pomiaru na żywo i `/reload-plugins` — ROZSTRZYGNIĘTA 2026-11-12 — wyłączone za zgodą Łukasza (`claude plugin disable --scope user`), `/reload-plugins` zrobił Łukasz, po pomiarze włączone, kopie dev-mods (`relai-model-router`, `relai-e6-sonda`) skasowane.
 - E6 — kliknięcie karty załogi i panelu przez człowieka (L-0289) — ROZSTRZYGNIĘTA 2026-11-12 — Łukasz przestawił wiersze w panelu i wybrał „Start with the picks above” (przebieg B); przebieg A ujawnił rozjazd panelu, poprawiony.
-- E7 — wyłączenie BenAI `effort-optimizer` i kliknięcie karty `relai-effort` — OTWARTA — przeniesiona do E10 (Aneks C).
+- E7 — wyłączenie BenAI `effort-optimizer` i kliknięcie karty `relai-effort` — ROZSTRZYGNIĘTA 2026-11-16 — w E10: bliźniaki wyłączone za zgodą Łukasza, kartę kliknął Łukasz (POMIAR_E10, wiersze 1–4).
 - E8 — zgoda na rozszerzenie AC5 o wyjątek dla `relai-research` w `model-router/hooks/judge.ts` i testach routera — ROZSTRZYGNIĘTA 2026-11-13 — Łukasz wybrał wąski wyjątek ([Aneks D](ANEKS_D_ROUTER_RESEARCH.md)); wcześniej blokowała wymagany routing deep. Dowód offline w [DOWOD_ROUTING_E8.txt](DOWOD_ROUTING_E8.txt); pomiary na żywo nadal w E10 (Aneks C).
 - E8 — bramka Claude: przegląd Sol, pełne zestawy i release-check poza sandboxem — ZAMKNIĘTA 2026-11-13 — przegląd Sol BLOCK (1 HIGH, 3 MEDIUM) → poprawka Sol 3; poza sandboxem Node rdzenia i adapterów 0 porażek, walidator zielony, mody bez nowych czerwieni (cztery zastane wyglądu jak na HEAD), Research 66/66, router 103/103. `release-check` kod 2 „brak bazy relai-browser” — pierwsze wydanie modu odłożone do E10 (decyzja Łukasza z E1).
-- E8 — sonda, pomiar Research (w tym identyfikacja agentów, skaner przed ich wynikiem i routing) oraz kliknięcie panelu — OTWARTA — przeniesione do E10 (Aneks C); przełączenia BenAI wyłącznie za zgodą Łukasza przez Claude.
+- E8 — sonda, pomiar Research (w tym identyfikacja agentów, skaner przed ich wynikiem i routing) oraz kliknięcie panelu — ROZSTRZYGNIĘTA 2026-11-17 — zmierzone w E10 (POMIAR_E10, wiersze 19–24, 23b; usterki → Aneks E.4–E.7); skaner przed wynikiem agentów na żywo (wiersz 23) świadomie otwarty decyzją Łukasza → STATE „Co dalej”.
 
 - E9 — pełna bramka Claude poza sandboxem (przegląd Sol, Node, walidatory i diff) — ZAMKNIĘTA 2026-11-13 — przegląd Sol WARN (5 × MEDIUM, Cache Keeper) → poprawki Sol 5/5; poza sandboxem Node rdzenia i adapterów 764/764, mody bez nowych czerwieni (cache-keeper 218/219, panel 218/220, progress 50/51 — cztery zastane czerwienie wyglądu), walidator i sync 9 celów zgodne; release-check kod 2 „brak bazy relai-browser” (E10).
 - E9 — raport i skasowanie katalogu roboczego po „tak”, propozycja commita — ZAMKNIĘTA 2026-11-13 — katalog E9 (8,3 MB) i przebiegi `CREW/mody-e9*` skasowane po zgodzie Łukasza; dowody w RAPORT_E9.md i PRZEGLAD_SOL_E9.md.
-- E10 — pomiar integracji E7–E9, ponowne E6 i kliknięcie karty E4 — OTWARTA — przeniesione do E10 (Aneks C); szczegóły w PROMPT_ETAP_10.
-- E10 — przełączenia BenAI, wybór statusu nowych modów i wzmianki o inspiracji, odinstalowanie BenAI oraz jedno wydanie — OTWARTA — decyzje Łukasza i wykonanie przez Claude zgodnie z planem §9/Aneksem C; bez operacji na instalacji w E9.
+- E10 — pomiar integracji E7–E9, ponowne E6 i kliknięcie karty E4 — ROZSTRZYGNIĘTA 2026-11-17 — macierz POMIAR_E10 (28 wierszy zgodnych); wiersze 23 (Research: skaner przed wynikiem agentów) i 26 (Cache Keeper: migracja na instalacji 0.14.0) świadomie otwarte decyzją Łukasza → STATE „Co dalej”.
+- E10 — przełączenia BenAI, wybór statusu nowych modów i wzmianki o inspiracji, odinstalowanie BenAI oraz jedno wydanie — ROZSTRZYGNIĘTA 2026-11-17 — status pełny (bez „early access”), bez wzmianki o inspiracji (Łukasz); wydanie 3.9.0 z dziewięcioma modami; siedem pluginów `@token-saving-mods` odinstalowanych przez Claude za zgodą Łukasza; `relai-panel`, `relai-cache-keeper`, `relai-mods` włączone z powrotem po pomiarze.
 
 ## Dziennik wdrożenia
 
@@ -83,3 +83,4 @@ zachowanie sześciu modów BenAI i zmiany w RelAI; etapy pracują z niej, nie z 
 - 2026-11-13 — E9, poprawki Sol po WARN (Aneks C, 6c): 5 × MEDIUM naprawionych, 7 czerwonych asercji przed kodem → config 11/11 i komendy 19/19; 13/13 mutacji zabitych asercjami. Cache Keeper plikami 218/219 (jedyna porażka jak baza), kontrakt Node 1/1, sync zgodny; pełny runner blokuje `uv_spawn EPERM`, powtarza Claude poza sandboxem. Wariant A zachowany; E9 W TOKU, E10 OCZEKUJE. [Poprawki po przeglądzie](RAPORT_E9.md#poprawki-po-przeglądzie--2026-11-13-aneks-c-krok-6c).
 - 2026-11-13 — E9 zrealizowany (bramka Claude): poza sandboxem Node 764/764, mody bez nowych czerwieni, Cache Keeper po poprawkach 218/219 (porażka zastana), walidator i sync zgodne, skaner sekretów BRAK. Katalog roboczy E9 skasowany po zgodzie. E10 gotowy do startu.
 - 2026-11-16 — E10 rozpoczęty; decyzja Łukasza 2026-11-16: cały etap (także punkty 1–2 zakresu, przypisane Codeksowi w Aneksie C) wykonuje Claude Opus 5.5 w bieżącej sesji.
+- 2026-11-17 — E10 zrealizowany: pomiar całego pakietu na żywo (POMIAR_E10), poprawki Aneksu E, wydanie 3.9.0 z `relai-panel` 0.23.0, `relai-progress` 0.8.0, `relai-cache-keeper` 0.14.0, `relai-mods` 0.4.0 i pięcioma modami 0.1.0; BenAI odinstalowany. Plan ZREALIZOWANY i przeniesiony do archiwum.

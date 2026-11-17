@@ -4212,3 +4212,68 @@ Autor: RelAI (Opus 5.5 w Claude Code) + Lukasz
 - **Świadomie odłożone:** `crew.js review` nie działa z bieżącym CLI Codeksa — `codex review`
   odrzuca `--color` („unexpected argument '--color' found”); przegląd szedł przez
   `crew.js run --role reviewer`. Naprawa poza zakresem E9 — odnoga albo E10.
+
+### 2026-11-17 — MODY_OSZCZEDZANIA E10 i zamknięcie planu: pomiar na żywo, Aneks E, wydanie 3.9.0
+
+Autor: RelAI (Opus 5.5 w Claude Code) + Lukasz
+
+**Zrobione — dowiezione vs plan:**
+
+- Plan (10 etapów): pięć modów oszczędzania tokenów z zachowaniem paczki BenAI na własnym kodzie,
+  wspólny rdzeń bramek i rejestru, zakładka „Oszczędności” w `relai-panel`, migracja z BenAI
+  i jedno wydanie. Powstało wszystko: `relai-input-router`, `relai-browser`, `relai-model-router`
+  (z kartą załogi `/relai-crew`), `relai-effort`, `relai-research` 0.1.0, rdzeń
+  `savings-gates`/`savings-ledger`, zakładka z wyceną routera, porządki AUDYT_MODOW (E9) i wydanie
+  3.9.0 razem z `relai-panel` 0.23.0, `relai-progress` 0.8.0, `relai-cache-keeper` 0.14.0
+  i `relai-mods` 0.4.0. Odstępstwa od planu: wykonawca E7–E9 Codex (Aneks C), E10 w całości
+  Claude (decyzja Łukasza 2026-11-16), wyjątek routera dla Research (Aneks D), dziesięć poprawek
+  z pomiaru (Aneks E). Przepadło nic; dwa wiersze pomiaru świadomie otwarte (niżej).
+- E10 (2026-11-16–17): macierz [POMIAR_E10](archiwum/plany/MODY_OSZCZEDZANIA/POMIAR_E10.md) —
+  28 wierszy zgodnych, w tym zaległe kliknięcia E4/E6/E7/E8; usterki → Aneks E: obrazy
+  przepuszczane przez Input Router (E.1), jedna karta routera naraz (E.5), jeden URL = jeden numer
+  i typ agenta `relai-research:reader` z samymi narzędziami web (E.6–E.7), wycena routera ze
+  stawkami cache (E.8, wcześniejsze ~$3,79 było artefaktem), pierwsze wydanie modu
+  w `release-check` (E.9), kreska i stała kolejność pasków na 2.1.323+ (E.10 — znikły też cztery
+  „zastane czerwienie wyglądu”). E.2–E.4 opisane bez zmiany kodu.
+- Wydanie (fraza „gotowi do wydania?”): raport miał jedną czerwień `film-zakladki` (film z 3.4.0
+  bez zakładki „Oszczędności”). Decyzja Łukasza: jawny wyjątek `zakladki-poza-filmem`
+  w `release-map.json`, kontrola czerwienieje, gdy wyjątek straci sens; commit `29f65d3`. Dziesięć
+  tagów przez bramkę `pre-push`, dziesięć wydań GitHub, push `main`, `marketplace update`,
+  `plugin update` (user i local).
+- Decyzje §9 planu (Łukasz 2026-11-17): nowe mody bez „early access”, bez wzmianki o inspiracji.
+  Siedem pluginów `@token-saving-mods` odinstalowanych za zgodą Łukasza; `relai-panel`,
+  `relai-cache-keeper`, `relai-mods` włączone z powrotem (wyłączył je pomiar E10, L-0340).
+- Lekcje: L-0339 (decyzje człowieka przed commitem wydania), L-0340 (przywrócenie instalacji po
+  pomiarze); pułapka P-077 (raport `--json` dziesięciu komponentów obcięty w wyniku Bash).
+
+**Zweryfikowane — jak dokładnie:**
+
+- `release-check.js --json --wydanie` → kod 0, 0 czerwonych (pominięte tylko `testy-filmu`:
+  diff nie dotyka filmu); testy rdzenia, panelu, Codeksa i Cursora 768/768, strona 396/396,
+  `claude plugin test` dziewięciu modów 900/900; `release-check.test.js` 61/61, nowe testy
+  wyjątku najpierw czerwone z asercji, mutant „bez filtra wyjątku” zabity (2 czerwone).
+- `claude plugin validate` binarką aplikacji: rdzeń i dziewięć modów „passed with warnings”
+  (`CLAUDE.md` w korzeniu, brak ikony, uwagi ścisłego TS z type-checkera, brak linii instalacji
+  w README nowych modów).
+- `release-verify --sesja`: `relai` 1737/1737, `relai-panel` 65, `relai-progress` 28,
+  `relai-cache-keeper` 39, `relai-mods` 14 plików — 0 rozjazdów, świeża sesja ładuje każdy
+  z katalogu nowej wersji (trzy po ponownym włączeniu). Strona `strona.yml` zielona, na żywo
+  3.9.0; panel po `/reload-plugins` sprawdzony przez Łukasza („ok”).
+- Trivy (`--skip-db-update`): 0 CRITICAL / 42 HIGH / 62 MEDIUM / 14 LOW — jak w E9, bez nowych.
+- Katalog roboczy planu przed: E10 22 pliki / 243 KB, E1 19 plików / 30 KB, kopia pomiarowa
+  `~/.claude/dev-mods/302eba00…` 12 MB; po: 0 — skasowane po zgodzie Łukasza. Szkice notatek
+  wydania w `.claude/relai/work/WYDANIE/3.9.0/` zostają.
+
+**Świadomie odłożone:**
+
+- Wiersze 23 (skaner przed wynikiem agentów Research) i 26 (migracja Cache Keepera na
+  instalacji 0.14.0) macierzy POMIAR_E10 — pomiar po wydaniu (decyzja Łukasza); `isBareYes`
+  bez „gotowe” (LOW); nowy render filmu; linia instalacji w README nowych modów i uwagi TS;
+  trwała poprawka P-077; `crew.js review` z `--color` (z E9). Wszystko w STATE „Co dalej”.
+- Przegląd ryzyk: C1 (zmienne API modów) bez zmiany — wysoki, wydanie stoi na 2.1.325; C8 bez
+  zmiany; nowych ryzyk tabeli brak. Plan zamknięty i przeniesiony do
+  [archiwum](archiwum/plany/MODY_OSZCZEDZANIA/STATUS.md); aktywny plan: brak.
+
+**Do zrobienia przez człowieka:**
+
+- —

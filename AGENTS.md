@@ -38,11 +38,11 @@ Pierwsza wiadomość sesji to komenda (zaczyna się od `/`) → najpierw komenda
 
 | Co | Status | Gdzie |
 |---|---|---|
-| Plugin RelAI — wydany, trzy adaptery | DZIAŁA (3.9.0 w repo — mody oszczędzania tokenów, plan MODY_OSZCZEDZANIA, wydanie w toku; ostatnie publiczne wydanie w 3.8.0 z 2026-11-10; w marketplace dziewięć modów, każdy z własnym tagiem i wydaniem: relai-panel 0.23.0, relai-progress 0.8.0, relai-cache-keeper 0.14.0 („early access”), relai-mods 0.4.0 i pięć modów oszczędzania 0.1.0) | [docs/STATE.md](docs/STATE.md) |
-| Plany zamknięte | 22, ostatni OPTYMALIZACJA_PO_AUDYCIE 2026-11-10 (wydany w 3.8.0) | [archiwum planów](docs/archiwum/plany/), [docs/STATE.md](docs/STATE.md) |
+| Plugin RelAI — wydany, trzy adaptery | DZIAŁA (3.9.0 z 2026-11-17 — mody oszczędzania tokenów; w marketplace dziewięć modów, każdy z własnym tagiem i wydaniem: relai-panel 0.23.0, relai-progress 0.8.0, relai-cache-keeper 0.14.0 („early access”), relai-mods 0.4.0 i pięć modów oszczędzania 0.1.0) | [docs/STATE.md](docs/STATE.md) |
+| Plany zamknięte | 23, ostatni MODY_OSZCZEDZANIA 2026-11-17 (wydany w 3.9.0) | [archiwum planów](docs/archiwum/plany/), [docs/STATE.md](docs/STATE.md) |
 | Odnogi i wątki samodzielne | 1 otwarta: `OPIS_REPO` (od 2026-09-24); zamknięte — karty w [docs/fixy/](docs/fixy/) | [docs/STATE.md](docs/STATE.md) |
 
-Aktywny plan: [MODY_OSZCZEDZANIA](docs/plany/MODY_OSZCZEDZANIA/STATUS.md) — ZAAKCEPTOWANY 2026-11-11, E1–E9 zrealizowane (E9 2026-11-13, kontynuacja Sol); E10 GOTOWY DO STARTU. E7–E10 wg [Aneksu C](docs/plany/MODY_OSZCZEDZANIA/ANEKS_C_WYKONANIE_CODEX.md), routing Research wg Aneksu D; Claude prowadzi bramkę, pomiary i wydanie w E10. Ostatni zamknięty: [OPTYMALIZACJA_PO_AUDYCIE](docs/archiwum/plany/OPTYMALIZACJA_PO_AUDYCIE/STATUS.md), 2026-11-10 (wydany w 3.8.0). [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) **WSTRZYMANY 2026-10-27** decyzją Łukasza.
+Aktywny plan: brak. Ostatni zamknięty: [MODY_OSZCZEDZANIA](docs/archiwum/plany/MODY_OSZCZEDZANIA/STATUS.md), 2026-11-17 (wydany w 3.9.0). [PANEL_CODEX](docs/plany/PANEL_CODEX/STATUS.md) **WSTRZYMANY 2026-10-27** decyzją Łukasza.
 
 ## Reguły procesu
 

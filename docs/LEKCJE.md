@@ -1192,6 +1192,27 @@ w wyzwalacz, przed pracą doczytujesz pełne brzmienie zasady z sekcji „Pełne
   pliku (np. dopisany komentarz z godziną) i sprawdzasz datę modyfikacji, zanim zaczniesz pomiar.
   Ponowny zapis identycznej treści nie przeładowuje modu (L-0322).
 
+### L-0339 — Decyzje biznesowe planu zadane po wypchnięciu tagów wydania · 2026-11-17 · AKTYWNA
+
+- **Trigger:** wydanie 3.9.0 (`/relai-release`, zamknięcie MODY_OSZCZEDZANIA): dwie decyzje
+  z PLAN §9 (status „early access” nowych modów, wzmianka o inspiracji w README) padły dopiero
+  przy pisaniu notatek, po tagach i ich pushu. Odpowiedź Łukasza akurat nie zmieniła plików;
+  inna oznaczałaby wydanie 0.1.1 albo przenoszenie wypchniętych tagów.
+- **Zasada:** przed commitem wydania przejrzyj otwarte bramki i decyzje człowieka aktywnego planu
+  (`STATUS.md`, sekcja bramek; PLAN „do rozstrzygnięcia przez człowieka”). Każda, która zmienia
+  treść wydawanych plików (README, opis w marketplace, manifest), musi być rozstrzygnięta przed
+  krokiem 2 (commit) `/relai-release`.
+
+### L-0340 — Pomiar wyłączył zainstalowane mody i nikt ich nie włączył przed wydaniem · 2026-11-17 · AKTYWNA
+
+- **Trigger:** E10 wyłączył `relai-panel`, `relai-cache-keeper` i `relai-mods` na czas pomiaru
+  kopii (POMIAR_E10, „Środowisko”); kopia konfiguracji była, przywrócenia nie było. Wyszło
+  dopiero w `release-verify --sesja`: pliki zgodne, sesja „init nie ma pluginu”.
+- **Zasada:** każde przełączenie instalacji na czas pomiaru ma w tym samym dokumencie pomiaru
+  wiersz przywrócenia z datą; etap nie zamyka się, dopóki stan instalacji nie równa się kopii
+  sprzed pomiaru (pomijając zmiany, na które człowiek się zgodził). Czerwień sesji
+  w `release-verify` przy zgodnych plikach → najpierw `enabledPlugins` w ustawieniach.
+
 ## Lekcje zwinięte
 
 Pełne wpisy lekcji, których zasady żyją w destylacie „Zasady aktywne" (kompresja 2026-08-20).

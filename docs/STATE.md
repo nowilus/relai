@@ -1,11 +1,11 @@
 # STATE — RelAI
 
-Stan na: 2026-11-13 (RelAI 3.8.0 wydany; aktywny plan MODY_OSZCZEDZANIA, E1–E8 zrealizowane,
-E9 zrealizowany 2026-11-13; E10 gotowy do startu)
+Stan na: 2026-11-17 (RelAI 3.9.0 wydany; plan MODY_OSZCZEDZANIA zamknięty 2026-11-17; aktywny
+plan: brak)
 
 ## Gdzie jesteśmy
 
-RelAI **3.9.0** jest w repozytorium, przygotowany do wydania (plan MODY_OSZCZEDZANIA, E10;
+RelAI **3.9.0** wydany 2026-11-17 (plan MODY_OSZCZEDZANIA — mody oszczędzania tokenów;
 poprzednio 3.8.0 z 2026-11-10, naprawy po audycie). Plugin `relai` działa
 w trzech narzędziach — Claude Code, Cursorze i Codeksie — na jednym rdzeniu procesu, z szesnastoma
 komendami i piętnastoma hookami w Claude Code (piętnasty: `bash-guard`). Marketplace tego
@@ -14,14 +14,14 @@ repozytorium niesie też dziewięć modów: `relai-panel` 0.23.0, `relai-progres
 oszczędzania tokenów 0.1.0: `relai-input-router`, `relai-browser`, `relai-model-router`,
 `relai-effort`, `relai-research`. Wydanie robi się frazą „gotowi do wydania?”
 (`/relai-release`): raport `release-check.js`, naprawy po jednej zgodzie, publikacja krok po kroku,
-bramka `pre-push` na tagi. Na maszynie Łukasza `relai`, `relai-panel` i `relai-cache-keeper`
-są włączone na poziomie użytkownika, a w projektach z markerem RelAI także lokalnie (stan
-z `relai-scope.js status`, 2026-11-10); tryb „RelAI tylko w projektach” jest dostępny
-(`relai-scope.js apply`), ale nie jest włączony. Plan OPTYMALIZACJA_PO_AUDYCIE zamknięty
-2026-11-10 (14 etapów w dwa dni, E9–E13 wykonał Codex wg Aneksu A, jedno wydanie 3.8.0); aktywny
-plan: MODY_OSZCZEDZANIA (E1–E9 zrealizowane; E9 2026-11-13 — podział zasobów headings, userConfig
-Cache Keepera z migracją, zestaw nowych modów i układ Input Routera, bramka Claude dodatnia;
-E10 gotowy do startu — pomiar integracji i wydanie nadal przed nami).
+bramka `pre-push` na tagi. Na maszynie Łukasza `relai`, `relai-panel`, `relai-progress`,
+`relai-cache-keeper` i `relai-mods` są zainstalowane w wersjach z 3.9.0 i włączone na poziomie
+użytkownika (panel i cache-keeper także lokalnie w tym repo; 2026-11-17); pięciu modów
+oszczędzania tu nie zainstalowano, a paczkę BenAI `token-saving-mods` odinstalowano 2026-11-17.
+Tryb „RelAI tylko w projektach” jest dostępny (`relai-scope.js apply`), ale nie jest włączony.
+Plan MODY_OSZCZEDZANIA zamknięty 2026-11-17 (10 etapów w siedem dni: E1–E6 Opus, E7–E9 Codex
+wg Aneksu C, E10 Claude; pomiar całego pakietu na żywo, Aneks E, jedno wydanie 3.9.0 z dziewięcioma
+modami); aktywny plan: brak.
 Każdy push do `main` uruchamia testy rdzenia i adapterów (`testy.yml`).
 PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projektu nadal nie ma.
 
@@ -130,37 +130,14 @@ PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projek
 
 ## Nad czym pracujemy teraz
 
-- Plan [MODY_OSZCZEDZANIA](plany/MODY_OSZCZEDZANIA/STATUS.md) **ZAAKCEPTOWANY 2026-11-11**, E1 zrealizowany
-  2026-11-11 (sondy silnika, rdzeń `savings-gates`/`savings-ledger`, `relai-browser` 0.1.0 w repo,
-  niewydany; Aneks A — bliźniak z `settings.json`), E2 zrealizowany 2026-11-11 (zakładka
-  „Oszczędności” w `relai-panel` zgodna z rejestrem co do tokena, tryb `describe` w
-  `relai-browser` — opis słowami przez ukrytego subagenta Haiku, niewydane), E3 zrealizowany 2026-11-11 (`relai-input-router` 0.1.0: duże pliki, wyjścia czytników
-  i PDF przez notatki Haiku, pliki procesu dosłownie, niewydany), E4 zrealizowany 2026-11-11
-  (konektory MCP — obcięcie albo notatki Haiku, nietykane dosłownie — i panel przekazań; kliknięcie
-  karty na żywo przeniesione do E10), E5 zrealizowany 2026-11-12 (`relai-model-router` 0.1.0,
-  niewydany: sędzia Haiku wybiera model subagenta, model jawny i — Aneks B — domyślny subagenta
-  z ustawień chronione kartą; wycena różnicy modeli w zakładce odłożona do E10), E6 zrealizowany
-  2026-11-12 (karta załogi w `relai-model-router`: jedna karta z tabelą i wyborem na wiersz przed
-  startem `/relai-crew`, członek rozstrzygnięty bez drugiej karty; krok 5a komendy; błąd układu
-  `relai-input-router` odłożony do E9), E7 (Effort) zrealizowany 2026-11-12
-  (`relai-effort` 0.1.0, 33 testy, przegląd Sol BLOCK → 12/12 naprawione; pomiar na żywo w E10),
-  E8 (Research) zrealizowany 2026-11-13 — wykonawca gpt-6.1-sol (L-0336).
-  `relai-research` 0.1.0: auto/quick/deep, panel, komenda w tle, bramki, skaner także przed
-  wynikiem dla agenta, rejestr i rejestracja (dziewiąty cel sync). Aneks D wdrożony bez zmiany
-  wersji routera; przegląd Sol BLOCK (1 HIGH, 3 MEDIUM) → naprawione; Research 66/66 testów
-  silnika + 6/6 Node, router 103/103, 52 mutacje zabite; bramka Claude poza sandboxem bez
-  nowych czerwieni. E9 zrealizowany 2026-11-13 — kontynuacja Sol po decyzji Łukasza (L-0336): generator dzieli
-  nagłówki według odbiorców, cyfry i etykiety osobno; eksporty i SVG zgodne ze starym wariantem,
-  pakiety LF mniejsze o 542 123 B względem HEAD. Cache Keeper ma userConfig i komendy z prefiksem;
-  migracja wariantu A zachowuje stare wartości, późniejszy `/config` wygrywa. Kokpit/scope znają
-  nowe mody (kokpit globalny wg D-92), Input Router sprawdzony przy sześciu szerokościach.
-  Mody bez nowych czerwieni, 11/11 mutantów zabitych; przegląd Sol WARN (5 × MEDIUM, Cache
-  Keeper) → 5/5 naprawione, 13/13 mutacji; bramka Claude poza sandboxem dodatnia (Node 764/764).
-  [Raport E9](plany/MODY_OSZCZEDZANIA/RAPORT_E9.md) i
-  [prompt E10](plany/MODY_OSZCZEDZANIA/PROMPT_ETAP_10.md) gotowe; E10 gotowy do startu.
-  Sonda i pomiar na żywo w E10. Cel planu:
-  pięć modów oszczędzania tokenów (własny kod, zachowanie jak paczka BenAI) i zakładka
-  „Oszczędności” w `relai-panel`, 10 etapów. Pozostali kandydaci (`/relai-update`, G1) — w „Co dalej”.
+- Aktywnego planu brak. Ostatni zamknięty: [MODY_OSZCZEDZANIA](archiwum/plany/MODY_OSZCZEDZANIA/STATUS.md)
+  (2026-11-17, wydany w 3.9.0) — pięć modów oszczędzania tokenów (`relai-input-router`,
+  `relai-browser`, `relai-model-router`, `relai-effort`, `relai-research`, własny kod, zachowanie
+  jak paczka BenAI), rdzeń `savings-gates`/`savings-ledger` i zakładka „Oszczędności”
+  w `relai-panel`; pomiar całego pakietu na żywo w
+  [POMIAR_E10](archiwum/plany/MODY_OSZCZEDZANIA/POMIAR_E10.md), poprawki z pomiaru w
+  [Aneksie E](archiwum/plany/MODY_OSZCZEDZANIA/ANEKS_E_POPRAWKI_POMIARU_E10.md). Kandydaci
+  na następną pracę (`/relai-update`, G1, rotacja dokumentów) — w „Co dalej”.
 - **PANEL_CODEX — nieaktywny, WSTRZYMANY 2026-10-27** decyzją Łukasza (plan
   [PANEL_CODEX](plany/PANEL_CODEX/STATUS.md), ZAAKCEPTOWANY 2026-10-10, 8 etapów, Codex
   `gpt-6.1-sol`). Stan zatrzymania E1: natywny widok i wiadomość do bieżącego czatu potwierdzone
@@ -175,6 +152,17 @@ PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projek
 
 ## Co dalej
 
+- **Po MODY_OSZCZEDZANIA (2026-11-17):** **świadomie otwarte** (decyzja Łukasza) — pomiar na
+  żywo dwóch wierszy macierzy POMIAR_E10: nr 23 (Research: skaner sekretów przed wynikiem agentów
+  deep) i nr 26 (Cache Keeper: migracja ustawień do `/config` na prawdziwej instalacji 0.14.0);
+  oba mechanizmy pokryte testami modów. **Świadomie odłożone:** Input Router traktuje odpowiedź
+  „gotowe” jako treść zadania (lista `isBareYes` zna tylko „tak”, LOW) — poprawka przy następnym
+  wydaniu modu; nowy render filmu z zakładką „Oszczędności” (do tego czasu wyjątek
+  `zakladki-poza-filmem` w `release-map.json`); linia instalacji z marketplace w README pięciu
+  nowych modów i uwagi ścisłego TypeScript z type-checkera `plugin validate` (ostrzeżenia, nie
+  błędy); trwała poprawka obciętego raportu `release-check --json` (P-077). Opisane zamiast
+  zmiany kodu: `from` w rekordzie Effort, budżet 10 s opisu Browsera, auto Research przy
+  streszczaniu `WebSearch` przez silnik (Aneks E.2–E.4, P-073).
 - **Po OPTYMALIZACJA_PO_AUDYCIE (2026-11-10):** **świadomie otwarte** — wybór wariantu
   dystrybucji G1 (A media poza repo 36,6 MiB / B plugin w podkatalogu 3,8 MiB / C gałąź albo
   podkatalog w źródle gitowym ok. 3,8 MiB; liczby w
@@ -250,9 +238,8 @@ PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projek
 
 ## Co blokuje
 
-- Cztery zastane czerwienie wyglądu (panel 2, progress 1, cache-keeper 1) w silniku 2.1.323,
-  obecne także na HEAD; sandbox Codeksa daje `spawnSync node/git EPERM`, więc pełne zestawy
-  i `release-check` robi bramka Claude poza nim.
+- Sandbox Codeksa daje `spawnSync node/git EPERM`, więc pełne zestawy i `release-check` robi
+  bramka Claude poza nim (cztery czerwienie wyglądu z 2.1.323 naprawione w 3.9.0, Aneks E.10).
 - Ochrona konfiguracji jest doradcza (`ask`): w sesji z automatyczną akceptacją przepuszcza zapis.
 - Sesja Cursora w tym folderze nie ma kontekstu RelAI ani blokady sekretu (D-89).
 - Świeża sesja CLI bywa niedostępna — etap oparty na niej sprawdza ją przed startem.
@@ -264,20 +251,23 @@ PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projek
 
 ### Wersja i instalacja
 
-Repo i publicznie **3.8.0** (tag `v3.8.0` na `11c5ce9`); marketplace w tym repozytorium (scope
-`user`) niesie pięć pluginów: `relai` i cztery mody z własnymi wersjami i tagami
-(`relai-panel-v0.22.2`, `relai-progress-v0.7.2`, `relai-cache-keeper-v0.13.1`,
-`relai-mods-v0.3.1`, każdy z własnym wydaniem GitHub). CI: `.github/workflows/testy.yml` —
+Repo i publicznie **3.9.0** (tag `v3.9.0` na `29f65d3`); marketplace w tym repozytorium (scope
+`user`) niesie dziesięć pluginów: `relai` i dziewięć modów z własnymi wersjami i tagami
+(`relai-panel-v0.23.0`, `relai-progress-v0.8.0`, `relai-cache-keeper-v0.14.0`,
+`relai-mods-v0.4.0`, `relai-browser-v0.1.0`, `relai-input-router-v0.1.0`,
+`relai-model-router-v0.1.0`, `relai-effort-v0.1.0`, `relai-research-v0.1.0`, każdy z własnym
+wydaniem GitHub). CI: `.github/workflows/testy.yml` —
 pięć zestawów `node --test` i `validate-adapters.js` przy pushu do `main` i w PR (bez testów
 modów, które wymagają binarki Claude Code). Na maszynie Łukasza pluginy są włączone
 na poziomie użytkownika i lokalnie w projektach z markerem RelAI (stan z `relai-scope.js status`,
-2026-11-10). Wydanie: fraza „gotowi do wydania?” →
+2026-11-10; po pomiarze E10 włączone z powrotem 2026-11-17). Wydanie: fraza „gotowi do wydania?” →
 `/relai-release` (`.claude/commands/`, wersja 2): raport `release-check.js --json`, podział braków
 na naprawy bezpieczne (jedna zgoda) i listę dla człowieka, ponowny raport, `claude plugin validate`
 binarką aplikacji, commit, tag przez hook `pre-push` (`core/tools/release-pre-push.js`,
 instalator `install-prepush.js`, w `.git/hooks/` tego klonu), push, wydanie GitHub z notatkami EN,
 `marketplace update`, `plugin update` (na tej maszynie także `--scope user`, P-062),
-`release-verify.js --plugin <p> --wersja <n> --sesja` (3.8.0: 1584/1584, 0 rozjazdów). Raport ma kody 0 / 1 / 2; `--rev <rewizja>` liczy drzewo
+`release-verify.js --plugin <p> --wersja <n> --sesja` (3.9.0: 1737/1737, 0 rozjazdów; mod
+wyłączony w ustawieniach daje czerwień sesji mimo zgodnych plików). Raport ma kody 0 / 1 / 2; `--rev <rewizja>` liczy drzewo
 rewizji w worktree z `core.autocrlf=false` (Aneks B); `--komponent relai-<mod>` dla tagu modu;
 baza modu przy `--rev` pomija tag stojący na samej rewizji (Aneks B ZASIEG_PLUGINU).
 Walidator `core/tools/validate-adapters.js` sprawdza 7 źródeł wersji i wpis marketplace każdego
@@ -301,7 +291,10 @@ z 2026-11-10. **Adapter Cursor**: trzy reguły `.mdc`, dwa hooki, instalator, cz
 z `sync-panel-core.js`, pilnowaną testem. Pomiary kosztów w `.claude/relai/pomiary/` (poza gitem),
 cennik w `.claude/relai/panel/cennik.json`. Wygląd: [STYL_PASKOW_CLAUDE.md](zasoby/PANEL_RELAI/STYL_PASKOW_CLAUDE.md)
 (v5.1) i [DESIGN.md](zasoby/PANEL_RELAI/DESIGN.md) (1.3); ograniczenia silnika: P-017–P-024
-w [PULAPKI.md](PULAPKI.md); [karta AUDYT_MODOW](fixy/AUDYT_MODOW/ODNOGA.md). Testy:
+w [PULAPKI.md](PULAPKI.md); [karta AUDYT_MODOW](fixy/AUDYT_MODOW/ODNOGA.md). Mody oszczędzania
+(`browser/`, `input-router/`, `model-router/`, `effort/`, `research/`, zmierzone na 2.1.325)
+mają status pełny, nie „early access” (decyzja Łukasza 2026-11-17), wspólny rejestr
+`~/.claude/relai/oszczednosci/rejestr/` i zgodę raz na projekt. Testy:
 `claude plugin test` binarką aplikacji (`claude` na PATH to starsza wersja, P-024).
 
 ### Wymagania
@@ -310,7 +303,7 @@ Claude Code, Cursor albo Codex • Node.js 14+ w `PATH` • git (opcjonalnie).
 
 ### Linki
 
-Repo: github.com/nowilus/relai • Wydanie: github.com/nowilus/relai/releases/tag/v3.8.0 • Plany
+Repo: github.com/nowilus/relai • Wydanie: github.com/nowilus/relai/releases/tag/v3.9.0 • Plany
 zamknięte: [docs/archiwum/plany/](archiwum/plany/) • Backupy: `C:\Users\Lukasz\Backupy\RelAI` •
 [PRZENOSNOSC.md](PRZENOSNOSC.md) • [PULAPKI.md](PULAPKI.md) • [KOMENDY.md](KOMENDY.md)
 
@@ -328,14 +321,14 @@ po E3 (koniec 1. tury wobec sesji bez trybu, Sonnet 5.5, jedna sesja na wariant)
 „tak” z delegacją do agenta +7 341 • **Po planie** (E5, `claude -p`, Opus 5.5, RelAI po turze
 z zadaniem, metoda ANALIZY §3.1): „kontynuujemy pracę” 32 377, bramka + „nie” 27 744, zadanie
 z wyzwalaczem 24 732 — wobec ok. 72 tys. przed planem; skrót startu tego repo 29 046 B •
-Plany zamknięte: 22 (ostatni OPTYMALIZACJA_PO_AUDYCIE, 2026-11-10) • Aktywne: brak • Wstrzymane:
+Plany zamknięte: 23 (ostatni MODY_OSZCZEDZANIA, 2026-11-17) • Aktywne: brak • Wstrzymane:
 PANEL_CODEX (Codex, od 2026-10-27) • Start sesji: 109,3 KB / 100 KB na starcie 2026-10-28 (pliki), po planie 50,2 KB / 55 KB (skrót) •
 Dziennik: 209 KB / 150 KB (do rotacji) • Ryzyka: 20 w tabeli, 17,5 KB / 12 KB (dolna granica —
 same otwarte), archiwum 12 plików • Lekcje: 68,1 KB / 50 KB (do rotacji) • Adaptery: 3 •
-Komendy: 16 • Hooki Claude Code: 15 • Testy (2026-11-10, raport wydania 3.8.0): rdzeń, panel,
-Codex i Cursor 728 (guardrails 33, proces 430, panel 227, Codex 28, Cursor 10), strona 396, film 37
-(2026-10-26); mody 565 (`relai-mods` 91, `relai-panel` 217, `relai-progress` 51,
-`relai-cache-keeper` 206) • Projekty z markerem RelAI na tej maszynie: 15 (status
+Komendy: 16 • Hooki Claude Code: 15 • Testy (2026-11-17, raport wydania 3.9.0): rdzeń, panel,
+Codex i Cursor 768, strona 396, film 37 (2026-10-26); mody 900 (`relai-panel` 224,
+`relai-progress` 51, `relai-cache-keeper` 219, `relai-mods` 92, `relai-browser` 28,
+`relai-input-router` 81, `relai-model-router` 104, `relai-effort` 33, `relai-research` 68) • Projekty z markerem RelAI na tej maszynie: 15 (status
 `relai-scope` 2026-10-28) • Projekty na RelAI: 3 (RelAI, PolyFlow, JiraManager przed
 migracją) • Modele, na których zmierzono proces: 6 (Fable, Opus, Sonnet, Haiku, Composer/auto,
 Grok 4.6).
