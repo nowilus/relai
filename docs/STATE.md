@@ -163,78 +163,52 @@ PANEL_CODEX (Codex) wstrzymany 2026-10-27 decyzją Łukasza. Opinii spoza projek
   błędy); trwała poprawka obciętego raportu `release-check --json` (P-077). Opisane zamiast
   zmiany kodu: `from` w rekordzie Effort, budżet 10 s opisu Browsera, auto Research przy
   streszczaniu `WebSearch` przez silnik (Aneks E.2–E.4, P-073).
-- **Po OPTYMALIZACJA_PO_AUDYCIE (2026-11-10):** **świadomie otwarte** — wybór wariantu
-  dystrybucji G1 (A media poza repo 36,6 MiB / B plugin w podkatalogu 3,8 MiB / C gałąź albo
-  podkatalog w źródle gitowym ok. 3,8 MiB; liczby w
-  [POMIARY.md](archiwum/plany/OPTYMALIZACJA_PO_AUDYCIE/POMIARY.md); decyzja Łukasza: później, wdrożenie
-  osobnym planem); pomiar na żywo, czy koder w Cursorze bez `-f` uruchomi testy (K-D7);
-  wpisy lokalne pluginów w innych projektach zostały na 3.6.0–3.7.0 (P-062). **Świadomie
-  odłożone:** znaleziska niskiej wagi raportu audytu poza planem; podział `register.tsx`
-  i los `cache-timer.mjs` do decyzji o PANEL_CODEX (K-F4, K-F5; `headings.mjs` podzielony w E9); rotacja
-  `DZIENNIK.md` (235 KB / 150 KB) i `LEKCJE.md` (76,5 KB / 50 KB); katalog
-  `adapters/claude-code/hooks/.claude/` z 2026-10-27 (ignorowany, 0,9 MB — prowizja hooka
-  w złym katalogu sesji); skrót startu tego repo 23 542 B po zamknięciu planu wobec 26 633 B
-  przed nim i celu kart 19 156 B (ostatni wpis dziennika i tabela ryzyk urosły w trakcie planu).
-
-- **Po KONTEKST_STARTU (2026-10-28):** kandydat na następny plan — migracja projektów sprzed planu
-  przez `/relai-update`: rytuał startu jednym poleceniem w ich `CLAUDE.md`, „Zasady aktywne” jako
-  indeks (decyzja Łukasza: nowy plan później). **Świadomie otwarte:** wpisy lokalne pluginów
-  w PolyFlow, PolyFlow-rust, PekaoWektor i dwóch worktree zostały na 3.6.0 / 0.7.0 (P-062) —
-  `claude plugin update relai@relai` (i `relai-progress@relai`) z katalogu każdego projektu.
-  **Świadomie odłożone:** cel 25 tys. częściowo (Aneks E) — linia „brak spraw przeterminowanych”
-  w skrócie i skrót 29 KB zamiast ok. 16 KB; `/relai-release` bez `--scope user` w kroku 8
-  i z raportem `--json` ucinanym przez narzędzie (L-0308); `docs/USTAWIENIA.md` 6,4 KB ponad 6 KB.
-
-- **Po ZASIEG_PLUGINU (świadomie odłożone 2026-10-28):** `undo` zostawia pusty
-  `"enabledPlugins": {}` w pliku lokalnym, który go wcześniej nie miał (P-058); przycisk „Włącz”
-  w kokpicie przy stanie „● włączony z ustawień globalnych” myli (uwaga Łukasza — lepiej
-  „Przypnij w tym projekcie”); test parytetu Codeksa porównuje sumy bez CRLF → LF; komenda
+- **Kandydaci na plan:** dystrybucja G1 (A media poza repo 36,6 MiB / B plugin w podkatalogu
+  3,8 MiB / C gałąź albo podkatalog w źródle gitowym ok. 3,8 MiB; liczby w
+  [POMIARY.md](archiwum/plany/OPTYMALIZACJA_PO_AUDYCIE/POMIARY.md); osobny plan później); migracja
+  projektów sprzed KONTEKST_STARTU przez `/relai-update` (rytuał jednym poleceniem, „Zasady
+  aktywne” jako indeks); tryb ciągły optymalizatora dla Cursora i Codeksa z licznikiem kosztu
+  (2026-10-15); ustalenia spoza audytu modów (pięć `outOfScope`, wariant B „jedna listwa”) —
+  plan, odnoga albo odrzucić.
+- **`/relai-release` i wydania:** krok 1 bez filtra raportu (L-0308, L-0341, P-077); kolejność
+  „tag → wydanie z zasobami → push `main`” przy zasobach na stronie (L-0280) i krok 8 bez
+  restartu przed `--sesja`; `--scope user` w kroku 8; `strona-film` nie pilnuje czasu ani rozmiaru
+  filmu w odtwarzaczu; bramka bez testów filmu (`--rev` bez `node_modules`); raport wydania bez
+  nazw porażek `plugin test` (trzy ostatnie linie); `relai-panel` chwieje się pod obciążeniem
+  (~5 s przy równoległych przebiegach); brak ikony pluginu; miniatura filmu w README ze starego
+  filmu; parzystość Codeksa przy `core.autocrlf=true` i sumy bez CRLF → LF.
+- **Świadomie otwarte:** pomiar w Cursorze, czy koder bez `-f` uruchomi testy (K-D7), i zdarzenia
+  po narzędziu (`postToolUse` / `afterFileEdit` / `afterShellExecution` → `lockfile-scan`
+  w instalatorze); wpisy lokalne pluginów w PolyFlow, PolyFlow-rust, PekaoWektor i dwóch
+  worktree na 3.6.0–3.7.0 (P-062 — `claude plugin update … ` z katalogu projektu); bramki: start
+  etapu z karty panelu bez drugiego pytania (E5 PANEL_CLAUDE), brak pytania po zadaniu w tle
+  (Aneks H), bramka trybu ciągłego na odpowiedzi z karty startu (L-0189); filtr potwierdzeń
+  bez „Tak, zaczynamy”.
+- **PANEL_CODEX (po wznowieniu decyzją Łukasza):** E1 — przeładować klienta MCP, zmierzyć sondę
+  0.0.9 (fonty, przyciski, świeży szkic), prompt E2 po odbiorze E1; potem aneks z zapisem pracy
+  przed limitem (2026-10-12). Z nim: podział `register.tsx`, los `cache-timer.mjs` (K-F4, K-F5),
+  przepięcie `prompt-mode.js` na `threshold.js`.
+- **Strona:** ankieta i kierunek (Aneks D pkt 3 STRONA_RELAI); Biurko na słabszym laptopie (T1,
+  `site/README.md`); teksty EN u native speakera; karta „Zacznij tutaj” przy 1024 px, logo zasłony
+  Filmu po SVG.
+- **Kokpit i zasięg (ZASIEG_PLUGINU):** `undo` zostawia pusty `"enabledPlugins": {}` (P-058);
+  „Włącz” przy stanie „● włączony z ustawień globalnych” myli — lepiej „Przypnij w tym projekcie”;
   `.worktreeinclude` w 9 pozostałych projektach zostaje lokalny (decyzja Łukasza).
-
-- **Po ZGLOSZENIA (świadomie odłożone 2026-10-27):** `plugin test` modu `relai-panel` chwieje się
-  pod obciążeniem (przekroczenia ~5 s przy równoległych przebiegach; raport raz 2/211), a raport
-  wydania zachowuje tylko trzy ostatnie linie wyjścia — bez nazw porażek. Restart aplikacji po
-  3.5.0 zrobiony 2026-10-27 przy pomiarze bramek (P-005; bramka E5 PIPELINE_WYDAN spełniona
-  w praktyce).
-- **Po PIPELINE_WYDAN (świadomie odłożone 2026-10-26):** `/relai-release` do wersji 3 — kolejność
-  publikacji „tag → wydanie GitHub z zasobami → push `main`”, gdy strona wskazuje zasoby wydania
-  (L-0280), i krok 8 bez wymogu restartu przed `--sesja`; kontrola `strona-film` nie pilnuje czasu
-  ani rozmiaru filmu w tekście odtwarzacza; bramka nie uruchamia testów filmu (`--rev` bez
-  `node_modules`); ostrzeżenie `plugin validate` o braku ikony pluginu; miniatura filmu w README
-  to kadr ze starego filmu; testy parzystości Codeksa w zwykłym klonie z `core.autocrlf=true`.
-- **Po BEZPIECZENSTWO:** pomiar zdarzenia po narzędziu w Cursorze (`agent login`, sondy
-  `postToolUse` / `afterFileEdit` / `afterShellExecution`; jest → hook `lockfile-scan`
-  w instalatorze Cursora); override `zod` 4.6.6 w narzędziach filmu zdjąć, gdy Remotion przypnie
-  bezpieczny `zod`; edycja pliku blokady przez `apply_patch` w Codeksie nie wyzwala skanu;
-  zaufanie hooka `lockfile-scan` w przeglądzie hooków Codeksa (P-054).
-- **Strona:** odczyt ankiety i wybór kierunku (Aneks D pkt 3 STRONA_RELAI); pomiar Biurka na
-  słabszym laptopie (T1, procedura w `site/README.md`); przegląd tekstów EN przez native speakera;
-  drobne — karta „Zacznij tutaj” Biurka przy 1024 px, logo zasłony Filmu ładuje się po SVG.
-- Tryb ciągły optymalizatora promptów dla Cursora i Codeksa — osobny plan, i licznik kosztu trybu
-  ciągłego (decyzje Łukasza 2026-10-15).
-- Aneks do PANEL_CODEX z zapisem pracy przed limitem dla panelu Codeksa — po domknięciu jego E1
-  (decyzja Łukasza 2026-10-12). Przepięcie `prompt-mode.js` na `threshold.js` odłożone.
-- PANEL_CODEX E1 (po wznowieniu planu decyzją Łukasza): przeładować klienta MCP, zmierzyć sondę
-  0.0.9 (fonty, przyciski, świeży szkic); prompt E2 dopiero po odbiorze E1.
-- Ustalenia poza zakresem audytu modów (pięć pozycji `outOfScope`, wariant B „jedna listwa”) —
-  decyzja człowieka: plan, odnoga albo odrzucić.
-- Bramki świadomie otwarte: start etapu z karty panelu bez drugiego pytania (E5 PANEL_CLAUDE);
-  brak pytania po zadaniu w tle (Aneks H); bramka trybu ciągłego odpala na odpowiedzi z karty
-  startu (L-0189). Aneks F („jedno okno pytań”) Łukasz odwrócił 2026-10-28 — najpierw sama zgoda,
-  po „tak” okno z modelem i zasięgiem; zrobione w KONTEKST_STARTU E3, wydane w 3.7.0 (D-93). Filtr
-  potwierdzeń nie przepuszcza „Tak, zaczynamy” — świadomie odłożone 2026-10-28.
-- `/relai-models` w sesji Codeksa — lista ma nazwy z 2026-09-05; nakładka `openai` bez reguł
-  z nazwą modelu. Nakładki rodzin modeli (`claude`, `openai`) z 2026-09-24 — starsze niż 30 dni.
-- Wątek `OPIS_REPO` (opis i tematy repozytorium na GitHubie; manifest mówi o jednym narzędziu).
-- Typografia modów czeka na Claude Code ≥ 2.1.299 w aplikacji; zrzut paska plan po `/clear`
-  przy następnej okazji; ewaluacje zachowania komend; `relai-prompt.md` ponad 20 KB.
-- Sprzątanie `.claude/relai/pomiary/` wraca, gdy folder przekroczy 10 MB (C11).
-- Cudze projekty: ExpensesManager pod 2.8.0 (`package.json` przy kopiach, P-007); PolyFlow
-  i JiraManager — ponowna instalacja pre-commita, w PolyFlow 60 martwych linków i należna rotacja;
-  migracja JiraManagera czeka na okno właściciela (R5).
-- Drobne: dwie wady `work-artifacts.js` (`kasuj` melduje sukces na ścieżce nieistniejącej,
-  `zachowaj` na cudzej ścieżce pisze marker w projekcie sesji); `PRZENOSNOSC.md` 2.3 nieaktualna;
-  metadane sesji `ProbaCursorE6` do usunięcia.
+- **Bezpieczeństwo:** override `zod` 4.6.6 w narzędziach filmu zdjąć, gdy Remotion przypnie
+  bezpieczny `zod`; `apply_patch` w Codeksie nie wyzwala skanu pliku blokady; zaufanie hooka
+  `lockfile-scan` w przeglądzie hooków Codeksa (P-054).
+- **Modele i nakładki:** `/relai-models` w Codeksie (lista z 2026-09-05), nakładka `openai` bez
+  reguł z nazwą modelu; nakładki `claude` i `openai` z 2026-09-24 starsze niż 30 dni.
+- **Cudze projekty:** ExpensesManager pod 2.8.0 (P-007); PolyFlow i JiraManager — pre-commit
+  od nowa, w PolyFlow 60 martwych linków i rotacja; migracja JiraManagera czeka na właściciela (R5).
+- **Drobne:** znaleziska niskiej wagi audytu 2026-11-09; katalog `adapters/claude-code/hooks/.claude/`
+  z 2026-10-27 (ignorowany, 0,9 MB); skrót startu ponad celem kart (23,5 KB wobec 19,2 KB);
+  `docs/USTAWIENIA.md` ponad 6 KB; sekcja ryzyk 18,2 KB / 12 KB bez wierszy `ZAMKNIĘTE`;
+  `work-artifacts.js` (`kasuj` melduje sukces na nieistniejącej ścieżce, `zachowaj` na cudzej
+  pisze marker w projekcie sesji); `PRZENOSNOSC.md` 2.3; metadane sesji `ProbaCursorE6`;
+  typografia modów na Claude Code ≥ 2.1.299; zrzut paska plan po `/clear`; ewaluacje komend;
+  `relai-prompt.md` ponad 20 KB; `crew.js review` z `--color` w Codeksie; sprzątanie
+  `.claude/relai/pomiary/` przy 10 MB (C11); wątek `OPIS_REPO`.
 
 ## Co blokuje
 
@@ -297,34 +271,23 @@ mają status pełny, nie „early access” (decyzja Łukasza 2026-11-17), wspó
 `~/.claude/relai/oszczednosci/rejestr/` i zgodę raz na projekt. Testy:
 `claude plugin test` binarką aplikacji (`claude` na PATH to starsza wersja, P-024).
 
-### Wymagania
+### Wymagania i linki
 
-Claude Code, Cursor albo Codex • Node.js 14+ w `PATH` • git (opcjonalnie).
-
-### Linki
-
-Repo: github.com/nowilus/relai • Wydanie: github.com/nowilus/relai/releases/tag/v3.9.0 • Plany
+Claude Code, Cursor albo Codex • Node.js 14+ w `PATH` • git (opcjonalnie) • Repo: github.com/nowilus/relai • Wydanie: github.com/nowilus/relai/releases/tag/v3.9.0 • Plany
 zamknięte: [docs/archiwum/plany/](archiwum/plany/) • Backupy: `C:\Users\Lukasz\Backupy\RelAI` •
 [PRZENOSNOSC.md](PRZENOSNOSC.md) • [PULAPKI.md](PULAPKI.md) • [KOMENDY.md](KOMENDY.md)
 
 ### Liczby
 
-Kontekst pierwszej tury „przed” (KONTEKST_STARTU E1, `node core/tools/start-context.js`, tokeny,
-pierwsze wywołanie → koniec 1. tury; koniec tury = wejście + wyjście ostatniego wywołania):
-`730b6571` 81 946 → 173 910, `03576d50` 87 337 → 141 453, `ee1beb6e` 89 943 → 198 710; świeża
-`claude -p` z `--plugin-dir` repo 53 123 → 55 887 (bez nested `CLAUDE.md`; na 3.6.0 ten sam odczyt:
-53 036 → 59 076, z 7 151 B nakładki jako `CLAUDE.md`) • „Po E2” (`claude -p "kontynuujemy
-pracę"`, para na tych samych dokumentach): stary rytuał `21d9e44a` 52 154 → 88 144, skrót
-`137a0d75` 52 492 → 75 848 (−12 296 na końcu tury, jedna para) • Koszt bramki trybu ciągłego
-po E3 (koniec 1. tury wobec sesji bez trybu, Sonnet 5.5, jedna sesja na wariant): odpowiedź „nie”
-**+1 297** (przed E3: +19 513); „tak” + model sesji +22 812 (przed: +26,7 tys. z ANALIZY, Opus);
-„tak” z delegacją do agenta +7 341 • **Po planie** (E5, `claude -p`, Opus 5.5, RelAI po turze
-z zadaniem, metoda ANALIZY §3.1): „kontynuujemy pracę” 32 377, bramka + „nie” 27 744, zadanie
-z wyzwalaczem 24 732 — wobec ok. 72 tys. przed planem; skrót startu tego repo 29 046 B •
+Kontekst pierwszej tury po KONTEKST_STARTU (E5, `claude -p`, Opus 5.5, RelAI po turze
+z zadaniem): „kontynuujemy pracę” 32 377 tokenów, bramka + „nie” 27 744, zadanie z wyzwalaczem
+24 732 — wobec ok. 72 tys. przed planem; pomiary „przed”, po E2 i koszt bramki trybu ciągłego
+w [archiwum planu](archiwum/plany/KONTEKST_STARTU/STATUS.md) •
 Plany zamknięte: 23 (ostatni MODY_OSZCZEDZANIA, 2026-11-17) • Aktywne: brak • Wstrzymane:
 PANEL_CODEX (Codex, od 2026-10-27) • Start sesji: 109,3 KB / 100 KB na starcie 2026-10-28 (pliki), po planie 50,2 KB / 55 KB (skrót) •
-Dziennik: 209 KB / 150 KB (do rotacji) • Ryzyka: 20 w tabeli, 17,5 KB / 12 KB (dolna granica —
-same otwarte), archiwum 12 plików • Lekcje: 68,1 KB / 50 KB (do rotacji) • Adaptery: 3 •
+Dziennik: 88 KB / 150 KB (rotacja 2026-11-17) • Ryzyka: 20 w tabeli, 18,2 KB / 12 KB (dolna
+granica — same otwarte), archiwum 12 plików • Lekcje: ok. 31 KB bez „Zasad aktywnych” / 50 KB
+(rotacja 2026-11-17) • Adaptery: 3 •
 Komendy: 16 • Hooki Claude Code: 15 • Testy (2026-11-17, raport wydania 3.9.0): rdzeń, panel,
 Codex i Cursor 768, strona 396, film 37 (2026-10-26); mody 900 (`relai-panel` 224,
 `relai-progress` 51, `relai-cache-keeper` 219, `relai-mods` 92, `relai-browser` 28,

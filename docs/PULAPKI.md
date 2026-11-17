@@ -18,7 +18,7 @@ Specyfikacja: `SPEC_PULAPKI.md`.
 - **Obejście:** przepuść raport przez filtr skrótu zapisany narzędziem Write w scratchpadzie
   (`node core/tools/release-check.js --json | node <scratchpad>/summarize-release.js`) — bez pliku
   raportu w `.claude/` i `/tmp`. Trwała poprawka (tryb skrótu w skrypcie albo krok 1 komendy)
-  czeka na decyzję człowieka.
+  czeka na decyzję człowieka. To samo zjawisko opisała L-0308 (2026-10-28); powtórka: L-0341.
 - **Zasięg:** `/relai-release` od wydania z dziewięcioma modami (3.9.0).
 
 ### P-076 — `next(e)` hooka `AbovePrompt` to od 2.1.323 uchwyt silnika, nie drzewo pasków pod spodem · 2026-11-17 · AKTYWNA
